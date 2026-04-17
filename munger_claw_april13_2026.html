@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MUNGER CLAW — Daily Alpha | Monday April 13, 2026</title>
+<style>
+:root{--bg:#0a0a0f;--surface:#111118;--surface2:#1a1a25;--surface3:#22223a;--accent:#e8c547;--accent2:#5c8fff;--text:#e8e8f0;--text2:#9090b0;--border:#2a2a45;--red:#ff4545;--green:#45ff88;--orange:#ff9a3c;--yellow:#e8c547;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;font-size:13px;line-height:1.6;}
+a{color:var(--accent2);}
+
+.header{background:linear-gradient(135deg,#0a0a0f 0%,#111130 50%,#0a0a0f 100%);border-bottom:2px solid var(--accent);padding:24px 32px;position:relative;overflow:hidden;}
+.header::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent,transparent 60px,rgba(232,197,71,.03) 60px,rgba(232,197,71,.03) 61px);}
+.header-top{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1;}
+.logo{font-size:28px;font-weight:bold;color:var(--accent);letter-spacing:4px;text-shadow:0 0 30px rgba(232,197,71,.5);}
+.logo span{color:var(--text2);font-size:14px;display:block;letter-spacing:2px;margin-top:4px;}
+.header-meta{text-align:right;}
+.header-meta .date{color:var(--accent);font-size:16px;font-weight:bold;}
+.header-meta .sub{color:var(--text2);font-size:11px;margin-top:4px;}
+.disclaimer{background:rgba(255,69,69,.1);border:1px solid rgba(255,69,69,.4);border-radius:4px;padding:8px 16px;margin-top:16px;font-size:11px;color:#ff8888;position:relative;z-index:1;}
+
+.status-bar{background:#0d0d15;border-bottom:1px solid var(--border);padding:6px 32px;display:flex;justify-content:space-between;align-items:center;font-size:10px;}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;margin-right:5px;animation:lp 2s infinite;}
+.live-dot.stale{background:var(--orange);animation:none;}
+.live-dot.error{background:var(--red);animation:none;}
+@keyframes lp{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(69,255,136,.6);}50%{opacity:.8;box-shadow:0 0 0 5px rgba(69,255,136,0);}}
+.refresh-btn{background:var(--surface2);border:1px solid var(--border);color:var(--accent);padding:3px 10px;border-radius:3px;cursor:pointer;font-size:10px;font-family:'Courier New',monospace;letter-spacing:1px;}
+.refresh-btn:hover{background:var(--surface3);border-color:var(--accent);}
+
+.ticker-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 32px;display:flex;gap:20px;flex-wrap:wrap;align-items:center;}
+.ticker-item{display:flex;flex-direction:column;align-items:center;min-width:62px;}
+.ticker-name{font-size:9px;color:var(--text2);letter-spacing:1px;text-transform:uppercase;}
+.ticker-price{font-size:13px;font-weight:bold;transition:color .5s;}
+.ticker-change{font-size:10px;}
+.ticker-src{font-size:8px;color:var(--text2);opacity:.55;}
+.ticker-div{width:1px;background:var(--border);align-self:stretch;margin:0 2px;}
+.up{color:var(--green);} .down{color:var(--red);} .neutral{color:var(--yellow);} .na{color:var(--text2);}
+.blink{animation:bl 1s infinite;} @keyframes bl{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes fgu{0%{background:rgba(69,255,136,.3)}100%{background:transparent}}
+@keyframes frd{0%{background:rgba(255,69,69,.3)}100%{background:transparent}}
+.flash-up{animation:fgu .8s ease;} .flash-down{animation:frd .8s ease;}
+
+.container{max-width:1480px;margin:0 auto;padding:24px 32px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-bottom:20px;}
+.fw{margin-bottom:20px;}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;}
+.card-head{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.card-icon{font-size:18px;}
+.card-title{font-size:14px;font-weight:bold;color:var(--accent);letter-spacing:2px;text-transform:uppercase;}
+.badge{margin-left:auto;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:bold;letter-spacing:1px;}
+.badge-red{background:rgba(255,69,69,.2);color:var(--red);border:1px solid rgba(255,69,69,.4);}
+.badge-orange{background:rgba(255,154,60,.2);color:var(--orange);border:1px solid rgba(255,154,60,.4);}
+.badge-green{background:rgba(69,255,136,.1);color:var(--green);border:1px solid rgba(69,255,136,.3);}
+.badge-blue{background:rgba(92,143,255,.15);color:var(--accent2);border:1px solid rgba(92,143,255,.3);}
+
+.exec-card{background:linear-gradient(135deg,var(--surface) 0%,#111130 100%);border:1px solid rgba(232,197,71,.3);border-radius:8px;padding:20px;margin-bottom:20px;}
+.exec-title{color:var(--accent);font-size:16px;font-weight:bold;letter-spacing:3px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.bias-tag{padding:4px 12px;border-radius:4px;font-size:12px;font-weight:bold;background:rgba(255,154,60,.2);color:var(--orange);border:1px solid var(--orange);}
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px;}
+.sc{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px;text-align:center;}
+.sc .lbl{font-size:10px;color:var(--text2);letter-spacing:1px;margin-bottom:6px;}
+.sc .val{font-size:18px;font-weight:bold;}
+.action-box{background:var(--surface2);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 6px 6px 0;}
+.action-row{display:flex;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);}
+.action-row:last-child{border-bottom:none;}
+.action-num{color:var(--accent);font-weight:bold;min-width:20px;}
+.hot{color:var(--red);font-weight:bold;}
+
+.tbl{width:100%;border-collapse:collapse;}
+.tbl th{background:var(--surface2);color:var(--accent);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:10px 12px;text-align:left;border-bottom:2px solid var(--border);}
+.tbl td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top;font-size:11px;}
+.tbl tr:hover td{background:rgba(255,255,255,.02);}
+
+.conv{display:flex;gap:2px;align-items:center;}
+.cd{width:7px;height:7px;border-radius:50%;}
+.cf{background:var(--accent);} .ce{background:var(--surface3);}
+.cs{color:var(--accent);font-weight:bold;margin-left:6px;font-size:13px;}
+
+.ttag{background:var(--surface3);color:var(--accent2);padding:2px 8px;border-radius:4px;font-weight:bold;font-size:12px;display:inline-block;}
+.vtag{display:inline-block;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:bold;margin:1px;}
+.vstock{background:rgba(92,143,255,.15);color:var(--accent2);border:1px solid rgba(92,143,255,.3);}
+.vcall{background:rgba(69,255,136,.12);color:var(--green);border:1px solid rgba(69,255,136,.3);}
+.vput{background:rgba(255,69,69,.12);color:var(--red);border:1px solid rgba(255,69,69,.3);}
+.vspread{background:rgba(255,154,60,.12);color:var(--orange);border:1px solid rgba(255,154,60,.3);}
+.vcrypto{background:rgba(232,197,71,.15);color:var(--yellow);border:1px solid rgba(232,197,71,.3);}
+.vperp{background:rgba(78,255,145,.1);color:var(--green);border:1px solid rgba(78,255,145,.3);}
+
+.bb{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;}
+.bull{background:rgba(69,255,136,.07);border-left:2px solid var(--green);padding:4px 8px;font-size:10px;border-radius:0 4px 4px 0;}
+.bear{background:rgba(255,69,69,.07);border-left:2px solid var(--red);padding:4px 8px;font-size:10px;border-radius:0 4px 4px 0;}
+.bull-lbl{color:var(--green);font-weight:bold;font-size:9px;letter-spacing:1px;}
+.bear-lbl{color:var(--red);font-weight:bold;font-size:9px;letter-spacing:1px;}
+
+/* ASSET DEEP-LINK ROW */
+.asset-links{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;}
+.asset-link{display:inline-flex;align-items:center;gap:3px;background:var(--surface3);border:1px solid var(--border);color:var(--accent2);text-decoration:none;font-size:9px;padding:2px 6px;border-radius:3px;letter-spacing:.5px;}
+.asset-link:hover{background:rgba(92,143,255,.15);border-color:var(--accent2);color:var(--accent);}
+
+/* OPTIONS */
+.opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.opt-card{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:14px;}
+.opt-title{font-size:12px;font-weight:bold;color:var(--accent);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.opt-urgent{color:var(--red);font-size:10px;font-weight:bold;letter-spacing:1px;background:rgba(255,69,69,.15);padding:2px 6px;border-radius:3px;}
+.opt-strat{margin-bottom:10px;padding:10px;background:rgba(255,255,255,.03);border-radius:4px;border-left:2px solid var(--accent2);}
+.opt-strat-name{font-size:11px;font-weight:bold;color:var(--accent2);margin-bottom:4px;}
+.opt-strat-body{font-size:11px;color:var(--text);line-height:1.6;}
+.opt-row{display:grid;grid-template-columns:auto 1fr;gap:5px 12px;font-size:10px;margin-top:6px;}
+.opt-key{color:var(--text2);font-weight:bold;}
+.opt-val{color:var(--text);}
+.opt-val.green{color:var(--green);} .opt-val.red{color:var(--red);} .opt-val.yellow{color:var(--yellow);}
+.greek-row{display:flex;gap:14px;flex-wrap:wrap;}
+.greek-item{font-size:10px;text-align:center;}
+.greek-sym{font-size:13px;font-weight:bold;color:var(--accent2);}
+.greek-def{color:var(--text2);font-size:9px;max-width:78px;}
+.platform-links{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+.platform-link{background:var(--surface3);border:1px solid var(--border);color:var(--accent2);text-decoration:none;padding:3px 8px;border-radius:3px;font-size:10px;letter-spacing:1px;}
+.platform-link:hover{border-color:var(--accent2);color:var(--accent);}
+
+/* SOURCES */
+.src{color:var(--accent2);text-decoration:none;font-size:10px;border-bottom:1px dotted rgba(92,143,255,.4);}
+.src:hover{color:var(--accent);border-bottom-color:var(--accent);}
+.src-block{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px;}
+.src-link{display:inline-flex;align-items:center;gap:3px;color:var(--accent2);text-decoration:none;font-size:10px;padding:2px 7px;background:rgba(92,143,255,.08);border:1px solid rgba(92,143,255,.2);border-radius:3px;}
+.src-link:hover{background:rgba(92,143,255,.15);color:var(--accent);}
+.src-link::before{content:'↗';font-size:9px;}
+
+.sig-lbl{font-weight:bold;color:var(--accent2);}
+.sig-impl{padding:3px 8px;border-radius:3px;font-size:10px;display:inline-block;}
+.si-bull{background:rgba(69,255,136,.1);color:var(--green);}
+.si-bear{background:rgba(255,69,69,.1);color:var(--red);}
+.si-neut{background:rgba(232,197,71,.1);color:var(--yellow);}
+
+.timeline{position:relative;padding-left:20px;}
+.timeline::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--accent),transparent);}
+.tl-item{position:relative;margin-bottom:14px;}
+.tl-item::before{content:'';position:absolute;left:-17px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--accent);border:2px solid var(--bg);}
+.tl-item.hot::before{background:var(--red);box-shadow:0 0 8px var(--red);}
+.tl-item.med::before{background:var(--orange);}
+.tl-date{font-size:10px;color:var(--accent);font-weight:bold;letter-spacing:1px;}
+.tl-event{font-size:12px;color:var(--text);margin-top:2px;}
+.tl-note{font-size:10px;color:var(--text2);margin-top:2px;}
+
+.alloc-bar{height:6px;border-radius:3px;background:var(--surface3);overflow:hidden;margin-top:4px;}
+.alloc-fill{height:100%;border-radius:3px;}
+
+.bin-card{background:var(--surface2);border-radius:6px;padding:14px;margin-bottom:10px;border:1px solid var(--border);}
+.bin-q{font-size:12px;color:var(--text);font-weight:bold;margin-bottom:8px;}
+.bin-bars{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.bin-yes{background:rgba(69,255,136,.1);border:1px solid rgba(69,255,136,.2);padding:6px 10px;border-radius:4px;}
+.bin-no{background:rgba(255,69,69,.1);border:1px solid rgba(255,69,69,.2);padding:6px 10px;border-radius:4px;}
+.bin-yes .bl{color:var(--green);font-size:10px;letter-spacing:1px;}
+.bin-no .bl{color:var(--red);font-size:10px;letter-spacing:1px;}
+.bin-yes .bp{color:var(--green);font-size:18px;font-weight:bold;}
+.bin-no .bp{color:var(--red);font-size:18px;font-weight:bold;}
+.bin-ts{font-size:10px;color:var(--text2);margin-top:6px;}
+
+.warn-box{background:rgba(255,69,69,.08);border:1px solid rgba(255,69,69,.3);border-radius:6px;padding:14px 16px;margin-bottom:12px;}
+.warn-title{color:var(--red);font-weight:bold;font-size:12px;letter-spacing:1px;margin-bottom:8px;}
+.warn-text{font-size:11px;color:#ffaaaa;line-height:1.6;}
+.info-box{background:rgba(92,143,255,.08);border:1px solid rgba(92,143,255,.3);border-radius:6px;padding:14px 16px;margin-bottom:12px;}
+.info-title{color:var(--accent2);font-weight:bold;font-size:12px;letter-spacing:1px;margin-bottom:8px;}
+.info-text{font-size:11px;color:#aabeff;line-height:1.6;}
+.note-box{background:rgba(232,197,71,.08);border:1px solid rgba(232,197,71,.3);border-radius:6px;padding:14px 16px;margin-bottom:12px;}
+.note-title{color:var(--accent);font-weight:bold;font-size:12px;letter-spacing:1px;margin-bottom:8px;}
+.note-text{font-size:11px;color:#f5e7a8;line-height:1.6;}
+.ethics-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(69,255,136,.1);border:1px solid rgba(69,255,136,.3);color:var(--green);padding:4px 10px;border-radius:20px;font-size:10px;font-weight:bold;letter-spacing:1px;}
+
+.geo-alert{background:linear-gradient(135deg,rgba(255,69,69,.12) 0%,rgba(255,154,60,.08) 100%);border:1px solid rgba(255,69,69,.4);border-radius:8px;padding:16px;margin-bottom:20px;}
+.geo-title{color:var(--red);font-size:14px;font-weight:bold;letter-spacing:2px;margin-bottom:8px;display:flex;align-items:center;gap:10px;}
+.pulse{width:10px;height:10px;background:var(--red);border-radius:50%;animation:pr 1.5s infinite;}
+@keyframes pr{0%{opacity:1;box-shadow:0 0 0 0 rgba(255,69,69,.7)}70%{opacity:.8;box-shadow:0 0 0 8px rgba(255,69,69,0)}100%{opacity:1;box-shadow:0 0 0 0 rgba(255,69,69,0)}}
+.geo-text{font-size:12px;color:#ffbbbb;line-height:1.7;}
+.geo-impls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px;}
+.geo-impl{background:rgba(0,0,0,.3);border-radius:4px;padding:10px;border-left:2px solid var(--red);}
+.geo-impl-t{color:var(--orange);font-size:10px;font-weight:bold;letter-spacing:1px;margin-bottom:4px;}
+.geo-impl-b{font-size:11px;color:var(--text);}
+
+.crypto-card{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:16px;margin-bottom:12px;}
+.crypto-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.crypto-name{font-size:16px;font-weight:bold;color:var(--accent);}
+.crypto-ticker{color:var(--text2);font-size:12px;}
+.crypto-price{font-size:22px;font-weight:bold;}
+.cmetrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;}
+.cmet{background:var(--surface3);border-radius:4px;padding:8px;text-align:center;}
+.cmet-lbl{font-size:9px;color:var(--text2);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+.cmet-val{font-size:13px;font-weight:bold;}
+.crypto-thesis{font-size:11px;color:var(--text);line-height:1.6;padding:10px;background:rgba(255,255,255,.03);border-radius:4px;border-left:2px solid var(--accent);}
+.cflag{display:inline-block;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:bold;margin-right:4px;margin-top:6px;}
+.cf-buy{background:rgba(69,255,136,.15);color:var(--green);border:1px solid rgba(69,255,136,.3);}
+.cf-warn{background:rgba(255,69,69,.15);color:var(--red);border:1px solid rgba(255,69,69,.3);}
+.cf-watch{background:rgba(255,154,60,.15);color:var(--orange);border:1px solid rgba(255,154,60,.3);}
+
+.report-ts{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:6px 12px;font-size:10px;color:var(--text2);margin-bottom:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.report-ts b{color:var(--accent);}
+
+/* SOURCES SECTION */
+.sources-wrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.src-col{background:var(--surface2);border-radius:6px;padding:14px;}
+.src-col-title{font-size:12px;font-weight:bold;letter-spacing:1px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.src-col.reviewed .src-col-title{color:var(--green);}
+.src-col.missing .src-col-title{color:var(--orange);}
+.src-row{padding:6px 0;border-bottom:1px dotted var(--border);font-size:11px;}
+.src-row:last-child{border-bottom:none;}
+.src-row .name{color:var(--text);font-weight:bold;}
+.src-row .meta{color:var(--text2);font-size:10px;margin-top:2px;}
+
+/* PRIVATE PROXY */
+.proxy-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+.proxy-card{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:14px;}
+.proxy-private{font-size:14px;font-weight:bold;color:var(--accent);margin-bottom:4px;}
+.proxy-meta{font-size:10px;color:var(--text2);margin-bottom:10px;}
+.proxy-row{display:grid;grid-template-columns:80px 1fr;gap:8px;font-size:11px;padding:6px 0;border-top:1px solid var(--border);}
+.proxy-row:first-of-type{border-top:none;}
+.proxy-tick{color:var(--accent2);font-weight:bold;}
+.proxy-rationale{color:var(--text);font-size:10px;line-height:1.5;}
+.proxy-quality{display:inline-block;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:bold;letter-spacing:.5px;margin-left:4px;}
+.pq-strong{background:rgba(69,255,136,.15);color:var(--green);}
+.pq-medium{background:rgba(255,154,60,.15);color:var(--orange);}
+.pq-weak{background:rgba(255,69,69,.15);color:var(--red);}
+
+/* VALIDATION */
+.validation-card{background:linear-gradient(135deg,#1a1a25 0%,#0d0d20 100%);border:2px solid var(--accent);border-radius:8px;padding:20px;margin-top:20px;}
+.val-title{color:var(--accent);font-size:14px;font-weight:bold;letter-spacing:3px;margin-bottom:14px;}
+.val-section{margin-bottom:14px;padding:10px;background:rgba(255,255,255,.02);border-radius:4px;border-left:2px solid var(--accent);}
+.val-h{font-size:11px;font-weight:bold;color:var(--accent);letter-spacing:1px;margin-bottom:6px;}
+.val-b{font-size:11px;color:var(--text);line-height:1.6;}
+.val-b strong.confident{color:var(--green);}
+.val-b strong.uncertain{color:var(--orange);}
+.val-b strong.weakness{color:var(--red);}
+
+.footer{background:var(--surface);border-top:1px solid var(--border);padding:16px 32px;text-align:center;color:var(--text2);font-size:10px;letter-spacing:1px;}
+
+@media(max-width:900px){
+  .g2,.g3{grid-template-columns:1fr;}
+  .sg{grid-template-columns:repeat(2,1fr);}
+  .geo-impls{grid-template-columns:1fr;}
+  .cmetrics{grid-template-columns:repeat(2,1fr);}
+  .opts-grid,.proxy-grid,.sources-wrap{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="logo">⚡ MUNGER CLAW<span>ALPHA INTELLIGENCE SYSTEM</span></div>
+    <div class="header-meta">
+      <div class="date">MONDAY, APRIL 13, 2026</div>
+      <div class="sub">DAILY ALPHA REPORT v2 · OPUS 4.6 SELF-VALIDATED</div>
+      <div style="margin-top:8px;"><span class="ethics-badge">✓ ETHICAL FILTER APPLIED</span></div>
+    </div>
+  </div>
+  <div class="disclaimer">⚠ THIS IS NOT FINANCIAL ADVICE. Speculative trading involves substantial risk of loss. Past performance is no guarantee of future results. All content is for informational and educational purposes only. Verify all data independently before trading.</div>
+</div>
+
+<!-- STATUS BAR -->
+<div class="status-bar">
+  <div style="display:flex;align-items:center;gap:16px;">
+    <span><span class="live-dot" id="sdot"></span><span id="slabel" style="color:var(--text2);">CONNECTING…</span></span>
+    <span id="supdate" style="color:var(--text2);">—</span>
+    <span style="color:var(--text2);">Live data: CoinGecko (crypto) · Yahoo Finance via corsproxy.io (stocks)</span>
+  </div>
+  <button class="refresh-btn" id="rbtn" onclick="refreshAll()">⟳ REFRESH DATA</button>
+</div>
+
+<!-- TICKER BAR -->
+<div class="ticker-bar">
+  <div class="ticker-item"><span class="ticker-name">BTC</span><span class="ticker-price blink" id="price-btc">…</span><span class="ticker-change" id="chg-btc">—</span><span class="ticker-src">CoinGecko · Live</span></div>
+  <div class="ticker-item"><span class="ticker-name">ETH</span><span class="ticker-price blink" id="price-eth">…</span><span class="ticker-change" id="chg-eth">—</span><span class="ticker-src">CoinGecko · Live</span></div>
+  <div class="ticker-item"><span class="ticker-name">HYPE</span><span class="ticker-price blink" id="price-hype">…</span><span class="ticker-change" id="chg-hype">—</span><span class="ticker-src">CoinGecko · Live</span></div>
+  <div class="ticker-item"><span class="ticker-name">VVV</span><span class="ticker-price blink" id="price-vvv">…</span><span class="ticker-change" id="chg-vvv">—</span><span class="ticker-src">CoinGecko · Live</span></div>
+  <div class="ticker-div"></div>
+  <div class="ticker-item"><span class="ticker-name">NVDA</span><span class="ticker-price blink" id="price-nvda">…</span><span class="ticker-change" id="chg-nvda">—</span><span class="ticker-src">Yahoo</span></div>
+  <div class="ticker-item"><span class="ticker-name">ASML</span><span class="ticker-price blink" id="price-asml">…</span><span class="ticker-change" id="chg-asml">—</span><span class="ticker-src">Yahoo</span></div>
+  <div class="ticker-item"><span class="ticker-name">TSM</span><span class="ticker-price blink" id="price-tsm">…</span><span class="ticker-change" id="chg-tsm">—</span><span class="ticker-src">Yahoo</span></div>
+  <div class="ticker-item"><span class="ticker-name">PLTR</span><span class="ticker-price blink" id="price-pltr">…</span><span class="ticker-change" id="chg-pltr">—</span><span class="ticker-src">Yahoo</span></div>
+  <div class="ticker-item"><span class="ticker-name">OKLO</span><span class="ticker-price blink" id="price-oklo">…</span><span class="ticker-change" id="chg-oklo">—</span><span class="ticker-src">Yahoo</span></div>
+  <div class="ticker-item"><span class="ticker-name">COIN</span><span class="ticker-price blink" id="price-coin">…</span><span class="ticker-change" id="chg-coin">—</span><span class="ticker-src">Yahoo</span></div>
+  <div class="ticker-item"><span class="ticker-name">AVAV</span><span class="ticker-price blink" id="price-avav">…</span><span class="ticker-change" id="chg-avav">—</span><span class="ticker-src">Yahoo</span></div>
+  <div class="ticker-item"><span class="ticker-name">ET</span><span class="ticker-price blink" id="price-et">…</span><span class="ticker-change" id="chg-et">—</span><span class="ticker-src">Yahoo</span></div>
+  <div class="ticker-div"></div>
+  <div class="ticker-item"><span class="ticker-name">WTI OIL</span><span class="ticker-price blink" id="price-oil">…</span><span class="ticker-change" id="chg-oil">—</span><span class="ticker-src">Yahoo</span></div>
+  <div class="ticker-item"><span class="ticker-name">FED</span><span class="ticker-price neutral">4.25-4.50</span><span class="ticker-change neutral">HOLD</span><span class="ticker-src">Static</span></div>
+  <div class="ticker-item"><span class="ticker-name">CPI YoY</span><span class="ticker-price neutral">3.3%</span><span class="ticker-change neutral">MAR</span><span class="ticker-src"><a class="src" href="https://www.bls.gov/news.release/cpi.htm" target="_blank" rel="noopener">BLS ↗</a></span></div>
+</div>
+
+<div class="container">
+
+<div class="report-ts">
+  📋 Research compiled: <b>Monday, April 13, 2026 morning ET</b> &nbsp;|&nbsp;
+  Refreshed live data: see status bar above &nbsp;|&nbsp;
+  <b>Validated by Opus 4.6 self-review (see bottom)</b> &nbsp;|&nbsp;
+  Click any 📊 / 📈 icon next to an asset for charts, analyst PTs, options chain, SEC filings
+</div>
+
+<!-- TRANSPARENCY NOTE -->
+<div class="note-box">
+  <div class="note-title">📌 ANALYST INTEGRITY NOTE — UPFRONT TRANSPARENCY</div>
+  <div class="note-text">
+    This report is built on web-research and primary public sources cited inline. <strong>HYPE thesis below has been rebuilt around protocol fundamentals — Arthur Hayes's purchase is treated as one confirming signal, NOT the basis of the trade.</strong> Sources I have NOT yet reviewed (Jordi Visser's solo podcast, his weekly with Pomp, his Substack — all on YouTube) are explicitly listed in the Sources section below. Provide me specific episode links and I will incorporate primary content next round. Date corrections applied: April 13, 2026 = Monday; Strait of Hormuz blockade is effective <strong>Tuesday April 14</strong>.
+  </div>
+</div>
+
+<!-- GEO ALERT -->
+<div class="geo-alert">
+  <div class="geo-title"><div class="pulse"></div>🚨 CRITICAL: US-IRAN STRAIT OF HORMUZ BLOCKADE — EFFECTIVE TUESDAY APRIL 14, 10AM ET</div>
+  <div class="geo-text">
+    US-Iran peace talks collapsed over weekend April 11-12. Trump declared a naval blockade of the Strait of Hormuz effective <strong>Tuesday April 14, 2026 at 10AM ET</strong> (tomorrow). JD Vance spent 21 hours in Islamabad — returned empty-handed. Sticking points: uranium enrichment, nuclear facility dismantlement, proxy funding (Hamas, Hezbollah, Houthis). <strong>Day 44 of active Middle East conflict.</strong> Oil above $104/barrel at report time — see live ticker.
+    <span class="src-block">
+      <a class="src-link" href="https://www.cnn.com/2026/04/13/world/live-news/iran-us-war-trump-hormuz" target="_blank" rel="noopener">CNN Live Coverage</a>
+      <a class="src-link" href="https://www.whitehouse.gov/fact-sheets/2026/04/fact-sheet-president-donald-j-trump-strengthens-tariffs-on-steel-aluminum-and-copper-imports/" target="_blank" rel="noopener">WH Tariff Fact Sheet</a>
+    </span>
+  </div>
+  <div class="geo-impls">
+    <div class="geo-impl"><div class="geo-impl-t">OIL / ENERGY</div><div class="geo-impl-b">$104+ crude. Energy +36% YTD. Spike risk to $110-120. Long pipeline infrastructure (ET, KMI, EQT).</div></div>
+    <div class="geo-impl"><div class="geo-impl-t">CRYPTO</div><div class="geo-impl-b">BTC fell to ~$70.9K Monday morning, recovering toward $74K (live ticker confirms). Risk-off short-term, eventual safe-haven bid.</div></div>
+    <div class="geo-impl"><div class="geo-impl-t">DEFENSE</div><div class="geo-impl-b">Accelerates FY2027 $1.5T defense budget. Anduril ($20B Army contract), AVAV, ESLT, RTX, NOC direct beneficiaries.</div></div>
+  </div>
+</div>
+
+<!-- EXEC SUMMARY -->
+<div class="exec-card">
+  <div class="exec-title">📊 EXECUTIVE SUMMARY <span class="bias-tag">MARKET BIAS: CAUTIOUSLY BULLISH w/ ENERGY HEDGES</span></div>
+  <div class="sg">
+    <div class="sc"><div class="lbl">AI CAPEX 2026</div><div class="val" style="color:var(--green)">$750B</div><div style="font-size:10px;color:var(--text2);margin-top:4px;">Hyperscaler aggregate</div></div>
+    <div class="sc"><div class="lbl">NVDA INSIDER SELL</div><div class="val" style="color:var(--red)">$3.3B</div><div style="font-size:10px;color:var(--text2);margin-top:4px;">Q1 2026 · 0 buys</div></div>
+    <div class="sc"><div class="lbl">HYPE PROTOCOL</div><div class="val" style="color:var(--green)">29.7%</div><div style="font-size:10px;color:var(--text2);margin-top:4px;">Perp DEX market share</div></div>
+    <div class="sc"><div class="lbl">BINARY EVENT</div><div class="val" style="color:var(--orange)">48 HRS</div><div style="font-size:10px;color:var(--text2);margin-top:4px;">ASML Apr 15 + TSM Apr 16</div></div>
+  </div>
+  <div class="action-box">
+    <div style="font-size:10px;color:var(--accent);letter-spacing:1px;font-weight:bold;margin-bottom:8px;">⚡ TOP 3 IMMEDIATE ACTION ITEMS</div>
+    <div class="action-row"><div class="action-num">1</div><div><span class="hot">URGENT — 48 HOURS:</span> ASML earnings April 15 BMO, TSMC April 16. These are binary events for the entire AI trade. Pre-position via call spreads (lower IV-crush risk). See Options Playbook.</div></div>
+    <div class="action-row"><div class="action-num">2</div><div><span class="hot">HYPE FUNDAMENTALS-DRIVEN:</span> 29.7% perp DEX market share, 953% Q1 vol growth, on-chain order book moat, custom L1, HYPE buyback via Assistance Fund. Hayes purchase is supplementary confirmation. Conviction on protocol mechanics — DYOR on validator centralization + audit status before sizing.</div></div>
+    <div class="action-row"><div class="action-num">3</div><div><span class="hot">DEFENSE REPRICING:</span> Iran blockade reframes FY2027 $1.5T defense budget as more likely. Anduril is private but AVAV (drones) + PLTR (data backbone) are public proxies. See Private Company Proxies section.</div></div>
+  </div>
+</div>
+
+<!-- NVDA WARNING -->
+<div class="warn-box">
+  <div class="warn-title">⚠ CRITICAL: NVIDIA INSIDER SELLING — $3.3 BILLION Q1 2026 · ZERO BUYS</div>
+  <div class="warn-text">15 insiders filed Form 4 sales. Jensen Huang sold ~$2.9B. 14 other executives ~$400M more. This is the most concentrated insider liquidation at a major AI company in recent memory — while Huang simultaneously declared "we've achieved AGI." Caps your conviction ceiling for long NVDA. Preference: ASML/TSM (no insider selling) for clean AI exposure. Consider NVDA bear put spread as portfolio hedge. <a class="src" href="https://finance.yahoo.com/quote/NVDA/insider-transactions/" target="_blank" rel="noopener">NVDA insider transactions ↗</a></div>
+</div>
+
+<!-- ═══════════════════════ 10 IDEAS TABLE ═══════════════════════ -->
+<div class="card fw">
+  <div class="card-head">
+    <span class="card-icon">🎯</span>
+    <span class="card-title">Highest-Conviction Trade Ideas (10)</span>
+    <span class="badge badge-red">Click 📊 📈 🎯 ⚙️ on each ticker for charts, PTs, options chain</span>
+  </div>
+  <table class="tbl">
+    <thead>
+      <tr>
+        <th>TICKER + LINKS</th><th>CONV</th><th>THESIS + SOURCES</th><th>BULL / BEAR</th>
+        <th>VEHICLES</th><th>ENTRY</th><th>TARGET</th><th>STOP</th><th>R/R</th>
+        <th>SIZING</th><th>TIMELINE</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- 1. HYPE -->
+      <tr>
+        <td>
+          <span class="ttag">HYPE</span>
+          <div style="font-size:10px;color:var(--text2);margin-top:4px;">Hyperliquid Protocol Token</div>
+          <div class="asset-links">
+            <a class="asset-link" href="https://www.coingecko.com/en/coins/hyperliquid" target="_blank" rel="noopener">📊 CG</a>
+            <a class="asset-link" href="https://defillama.com/protocol/hyperliquid" target="_blank" rel="noopener">📈 DefiLlama</a>
+            <a class="asset-link" href="https://stats.hyperliquid.xyz" target="_blank" rel="noopener">📊 Stats</a>
+            <a class="asset-link" href="https://hyperliquid.xyz" target="_blank" rel="noopener">⚡ DEX</a>
+          </div>
+        </td>
+        <td><div class="conv"><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd ce"></div><div class="cd ce"></div><span class="cs">8/10</span></div></td>
+        <td style="max-width:260px;">
+          <div style="font-size:11px;line-height:1.5;"><strong>Protocol fundamentals first, social signals second.</strong> Custom L1 built for perpetuals. On-chain order book (vs AMM model of GMX/dYdX) gives better execution. 29.7% perp DEX market share. 953% Q1 vol growth. $239M+ daily token vol. HLP vault generates real cash flows. HYPE buyback via Assistance Fund (protocol fees → buy HYPE). $10B+ market cap. <em>Hayes $1.1M April 12 purchase = confirming signal, not the thesis.</em></div>
+          <div class="src-block">
+            <a class="src-link" href="https://www.coingecko.com/en/coins/hyperliquid" target="_blank" rel="noopener">CoinGecko</a>
+            <a class="src-link" href="https://defillama.com/protocol/hyperliquid" target="_blank" rel="noopener">DefiLlama</a>
+            <a class="src-link" href="https://themarketperiodical.com/2026/04/13/arthur-hayes-buys-1-1m-hype-tokens-now-holds-10-4m/" target="_blank" rel="noopener">Hayes signal</a>
+          </div>
+        </td>
+        <td><div class="bb"><div class="bull"><div class="bull-lbl">BULL</div>Order book moat, vol growth flywheel, buyback mechanism real, dominant perp share</div><div class="bear"><div class="bear-lbl">BEAR</div>Validator centralization, no public audit verification, token unlocks pending, regulatory risk on perps generally</div></div></td>
+        <td><span class="vtag vcrypto">SPOT</span><span class="vtag vperp">PERP 1-2x</span></td>
+        <td style="color:var(--accent2);font-weight:bold;">$38–$44</td>
+        <td style="color:var(--green);font-weight:bold;">$65 / $85</td>
+        <td style="color:var(--red);font-weight:bold;">$32</td>
+        <td style="color:var(--green);font-weight:bold;">3:1 / 6:1</td>
+        <td style="font-size:11px;">$2,500–$3,500 (17-23%)</td>
+        <td style="font-size:10px;color:var(--text2);">3–12 months</td>
+      </tr>
+      <!-- 2. ASML -->
+      <tr>
+        <td>
+          <span class="ttag" style="color:#5c8fff;">ASML</span>
+          <div style="font-size:10px;color:var(--text2);margin-top:4px;">ASML Holding</div>
+          <div style="font-size:9px;color:var(--red);font-weight:bold;margin-top:2px;">⚡ EARNINGS APR 15</div>
+          <div class="asset-links">
+            <a class="asset-link" href="https://www.tradingview.com/symbols/NASDAQ-ASML/" target="_blank" rel="noopener">📊 TV</a>
+            <a class="asset-link" href="https://finance.yahoo.com/quote/ASML/" target="_blank" rel="noopener">📈 YF</a>
+            <a class="asset-link" href="https://stockanalysis.com/stocks/asml/forecast/" target="_blank" rel="noopener">🎯 PTs</a>
+            <a class="asset-link" href="https://finance.yahoo.com/quote/ASML/options/" target="_blank" rel="noopener">⚙️ Opts</a>
+            <a class="asset-link" href="https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=ASML" target="_blank" rel="noopener">📋 SEC</a>
+          </div>
+        </td>
+        <td><div class="conv"><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd ce"></div><div class="cd ce"></div><span class="cs">8/10</span></div></td>
+        <td style="max-width:260px;">
+          <div style="font-size:11px;line-height:1.5;">Monopoly EUV lithography. Every advanced AI chip requires ASML machines. 2026 guidance €34-39B. $750B AI CapEx flows directly through ASML. Beat 8 of last 10 quarters. No insider selling.</div>
+          <div class="src-block">
+            <a class="src-link" href="https://www.indexbox.io/blog/nasdaq-downturn-may-end-as-key-chipmakers-report-earnings/" target="_blank" rel="noopener">Earnings Preview</a>
+            <a class="src-link" href="https://www.goldmansachs.com/insights/articles/why-ai-companies-may-invest-more-than-500-billion-in-2026" target="_blank" rel="noopener">GS AI CapEx</a>
+          </div>
+        </td>
+        <td><div class="bb"><div class="bull"><div class="bull-lbl">BULL</div>EUV order book beats, AI demand confirmed, hyperscaler CapEx up</div><div class="bear"><div class="bear-lbl">BEAR</div>China export restrictions, CapEx slowdown Q3-Q4, EUR headwind</div></div></td>
+        <td><span class="vtag vstock">STOCK</span><span class="vtag vspread">CALL SPREAD</span></td>
+        <td style="color:var(--accent2);font-weight:bold;">Current / dip</td>
+        <td style="color:var(--green);font-weight:bold;">+15% / +25%</td>
+        <td style="color:var(--red);font-weight:bold;">-10%</td>
+        <td style="color:var(--green);font-weight:bold;">2.5:1</td>
+        <td style="font-size:11px;">$2,000–$2,500 (13-17%)</td>
+        <td style="font-size:10px;color:var(--red);">CATALYST: Apr 15</td>
+      </tr>
+      <!-- 3. TSM -->
+      <tr>
+        <td>
+          <span class="ttag" style="color:#5c8fff;">TSM</span>
+          <div style="font-size:10px;color:var(--text2);margin-top:4px;">Taiwan Semi</div>
+          <div style="font-size:9px;color:var(--red);font-weight:bold;margin-top:2px;">⚡ EARNINGS APR 16</div>
+          <div class="asset-links">
+            <a class="asset-link" href="https://www.tradingview.com/symbols/NYSE-TSM/" target="_blank" rel="noopener">📊 TV</a>
+            <a class="asset-link" href="https://finance.yahoo.com/quote/TSM/" target="_blank" rel="noopener">📈 YF</a>
+            <a class="asset-link" href="https://stockanalysis.com/stocks/tsm/forecast/" target="_blank" rel="noopener">🎯 PTs</a>
+            <a class="asset-link" href="https://finance.yahoo.com/quote/TSM/options/" target="_blank" rel="noopener">⚙️ Opts</a>
+          </div>
+        </td>
+        <td><div class="conv"><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd ce"></div><div class="cd ce"></div><span class="cs">8/10</span></div></td>
+        <td style="max-width:260px;">
+          <div style="font-size:11px;line-height:1.5;">Manufactures >90% of world's advanced AI chips. Q1 record revenue. 2026 CapEx $52-56B. AI chip rev mid-to-high 50% CAGR through 2029. H2 2026 guidance from Apr 16 = pivotal.</div>
+        </td>
+        <td><div class="bb"><div class="bull"><div class="bull-lbl">BULL</div>50%+ AI CAGR confirmed, Arizona ramp, record demand</div><div class="bear"><div class="bear-lbl">BEAR</div>Taiwan geopolitical risk, customer concentration</div></div></td>
+        <td><span class="vtag vstock">STOCK</span><span class="vtag vspread">CALL SPREAD</span></td>
+        <td style="color:var(--accent2);font-weight:bold;">Current / post-ER</td>
+        <td style="color:var(--green);font-weight:bold;">+15% / +30%</td>
+        <td style="color:var(--red);font-weight:bold;">-10%</td>
+        <td style="color:var(--green);font-weight:bold;">3:1</td>
+        <td style="font-size:11px;">$1,800–$2,250 (12-15%)</td>
+        <td style="font-size:10px;color:var(--red);">CATALYST: Apr 16</td>
+      </tr>
+      <!-- 4. ET / KMI -->
+      <tr>
+        <td>
+          <span class="ttag" style="color:#ff9a3c;">ET / KMI</span>
+          <div style="font-size:10px;color:var(--text2);margin-top:4px;">Energy Pipeline</div>
+          <div class="asset-links">
+            <a class="asset-link" href="https://www.tradingview.com/symbols/NYSE-ET/" target="_blank" rel="noopener">📊 TV</a>
+            <a class="asset-link" href="https://finance.yahoo.com/quote/ET/" target="_blank" rel="noopener">📈 YF</a>
+            <a class="asset-link" href="https://finance.yahoo.com/quote/ET/options/" target="_blank" rel="noopener">⚙️ Opts</a>
+            <a class="asset-link" href="https://finance.yahoo.com/quote/KMI/" target="_blank" rel="noopener">📈 KMI</a>
+          </div>
+        </td>
+        <td><div class="conv"><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd ce"></div><div class="cd ce"></div><div class="cd ce"></div><span class="cs">7/10</span></div></td>
+        <td style="max-width:260px;"><div style="font-size:11px;line-height:1.5;">Dual catalyst: AI data center power + Iran oil shock. Nuclear is 5-10yrs away. Natural gas pipelines = 18-24mo bridge. ET: 105K+ miles of pipelines. Energy +36% YTD.</div><div class="src-block"><a class="src-link" href="https://money.usnews.com/investing/articles/best-energy-stocks-for-the-ai-power-grid-buildout" target="_blank" rel="noopener">US News AI Energy</a></div></td>
+        <td><div class="bb"><div class="bull"><div class="bull-lbl">BULL</div>Iran spikes gas, AI lock-in contracts</div><div class="bear"><div class="bear-lbl">BEAR</div>Iran resolves quickly, rate-sensitive</div></div></td>
+        <td><span class="vtag vstock">STOCK</span><span class="vtag vput">CSP (Wheel)</span></td>
+        <td style="color:var(--accent2);font-weight:bold;">Current / dips</td>
+        <td style="color:var(--green);font-weight:bold;">+25-35%</td>
+        <td style="color:var(--red);font-weight:bold;">-12%</td>
+        <td style="color:var(--green);font-weight:bold;">2.5:1</td>
+        <td style="font-size:11px;">$1,500–$2,000 (10-13%)</td>
+        <td style="font-size:10px;color:var(--text2);">6–18 months</td>
+      </tr>
+      <!-- 5. PLTR -->
+      <tr>
+        <td>
+          <span class="ttag" style="color:#5c8fff;">PLTR</span>
+          <div style="font-size:10px;color:var(--text2);margin-top:4px;">Palantir Tech</div>
+          <div class="asset-links">
+            <a class="asset-link" href="https://www.tradingview.com/symbols/NASDAQ-PLTR/" target="_blank" rel="noopener">📊 TV</a>
+            <a class="asset-link" href="https://finance.yahoo.com/quote/PLTR/" target="_blank" rel="noopener">📈 YF</a>
+            <a class="asset-link" href="https://stockanalysis.com/stocks/pltr/forecast/" target="_blank" rel="noopener">🎯 PTs</a>
+            <a class="asset-link" href="https://finance.yahoo.com/quote/PLTR/options/" target="_blank" rel="noopener">⚙️ Opts</a>
+          </div>
+        </td>
+        <td><div class="conv"><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd ce"></div><div class="cd ce"></div><div class="cd ce"></div><div class="cd ce"></div><span class="cs">6/10</span></div></td>
+        <td style="max-width:260px;"><div style="font-size:11px;line-height:1.5;">Government AI/data analytics + accelerating commercial. AIP (Artificial Intelligence Platform) becoming sticky enterprise standard. Defense buildup tailwind from Iran escalation. <strong>Risk: rich valuation (verify P/S via live link), heavy SBC dilution.</strong> Position smaller than its narrative momentum suggests.</div></td>
+        <td><div class="bb"><div class="bull"><div class="bull-lbl">BULL</div>AIP commercial scaling, defense reorder, agentic AI category leader</div><div class="bear"><div class="bear-lbl">BEAR</div>Multiple compression risk, SBC dilution, retail-driven volatility</div></div></td>
+        <td><span class="vtag vstock">STOCK (small)</span><span class="vtag vspread">CALL SPREAD</span></td>
+        <td style="color:var(--accent2);font-weight:bold;">Buy on 8-10% pullback</td>
+        <td style="color:var(--green);font-weight:bold;">+20% / +40%</td>
+        <td style="color:var(--red);font-weight:bold;">-15%</td>
+        <td style="color:var(--green);font-weight:bold;">2:1 / 3:1</td>
+        <td style="font-size:11px;">$700–$1,000 (5-7%)</td>
+        <td style="font-size:10px;color:var(--text2);">3-12 months</td>
+      </tr>
+      <!-- 6. OKLO -->
+      <tr>
+        <td>
+          <span class="ttag" style="color:#ff9a3c;">OKLO</span>
+          <div style="font-size:10px;color:var(--text2);margin-top:4px;">Oklo Inc (Nuclear SMR)</div>
+          <div class="asset-links">
+            <a class="asset-link" href="https://www.tradingview.com/symbols/NYSE-OKLO/" target="_blank" rel="noopener">📊 TV</a>
+            <a class="asset-link" href="https://finance.yahoo.com/quote/OKLO/" target="_blank" rel="noopener">📈 YF</a>
+            <a class="asset-link" href="https://stockanalysis.com/stocks/oklo/forecast/" target="_blank" rel="noopener">🎯 PTs</a>
+            <a class="asset-link" href="https://finance.yahoo.com/quote/SMR/" target="_blank" rel="noopener">📈 SMR Alt</a>
+          </div>
+        </td>
+        <td><div class="conv"><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd ce"></div><div class="cd ce"></div><div class="cd ce"></div><div class="cd ce"></div><span class="cs">6/10</span></div></td>
+        <td style="max-width:260px;"><div style="font-size:11px;line-height:1.5;">Pure-play small modular reactor (SMR) developer. Sam Altman backed/chaired pre-IPO. Direct AI data center power thesis. <strong>Pre-revenue: this is venture-style speculation. NRC licensing timeline uncertain.</strong> Compare with NuScale (SMR ticker) as alternative.</div></td>
+        <td><div class="bb"><div class="bull"><div class="bull-lbl">BULL</div>AI data center contracts (Meta/Google/MSFT all signed nuclear deals), Altman halo</div><div class="bear"><div class="bear-lbl">BEAR</div>Pre-revenue, NRC licensing risk, capital raises dilute, decade to commercial scale</div></div></td>
+        <td><span class="vtag vstock">STOCK (lottery)</span></td>
+        <td style="color:var(--accent2);font-weight:bold;">DCA on weakness</td>
+        <td style="color:var(--green);font-weight:bold;">2-3x (multi-yr)</td>
+        <td style="color:var(--red);font-weight:bold;">-30% (volatile)</td>
+        <td style="color:var(--yellow);font-weight:bold;">3:1 (binary)</td>
+        <td style="font-size:11px;">$500–$800 (3-5%)</td>
+        <td style="font-size:10px;color:var(--text2);">12-36 months</td>
+      </tr>
+      <!-- 7. ESLT -->
+      <tr>
+        <td>
+          <span class="ttag" style="color:#5c8fff;">ESLT</span>
+          <div style="font-size:10px;color:var(--text2);margin-top:4px;">Elbit Systems</div>
+          <div class="asset-links">
+            <a class="asset-link" href="https://www.tradingview.com/symbols/NASDAQ-ESLT/" target="_blank" rel="noopener">📊 TV</a>
+            <a class="asset-link" href="https://finance.yahoo.com/quote/ESLT/" target="_blank" rel="noopener">📈 YF</a>
+            <a class="asset-link" href="https://stockanalysis.com/stocks/eslt/forecast/" target="_blank" rel="noopener">🎯 PTs</a>
+          </div>
+        </td>
+        <td><div class="conv"><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd ce"></div><div class="cd ce"></div><div class="cd ce"></div><span class="cs">7/10</span></div></td>
+        <td style="max-width:260px;"><div style="font-size:11px;line-height:1.5;">Israeli defense electronics — UAS, EW, C4I. <strong>+60% YTD per BofA research, Buy rating $1,075 PT (verify current via PT link).</strong> Iran escalation = direct tailwind. Already up significantly — momentum vs. crowded trade risk.</div></td>
+        <td><div class="bb"><div class="bull"><div class="bull-lbl">BULL</div>Iran escalation tailwind, NATO restocking, EM defense growth</div><div class="bear"><div class="bear-lbl">BEAR</div>Already up 60% YTD, crowded trade, ESG/political headwind risk</div></div></td>
+        <td><span class="vtag vstock">STOCK</span></td>
+        <td style="color:var(--accent2);font-weight:bold;">Pullbacks only</td>
+        <td style="color:var(--green);font-weight:bold;">+15-25%</td>
+        <td style="color:var(--red);font-weight:bold;">-12%</td>
+        <td style="color:var(--green);font-weight:bold;">2:1</td>
+        <td style="font-size:11px;">$700–$1,000 (5-7%)</td>
+        <td style="font-size:10px;color:var(--text2);">6-18 months</td>
+      </tr>
+      <!-- 8. AVAV -->
+      <tr>
+        <td>
+          <span class="ttag" style="color:#5c8fff;">AVAV</span>
+          <div style="font-size:10px;color:var(--text2);margin-top:4px;">AeroVironment (Drones)</div>
+          <div class="asset-links">
+            <a class="asset-link" href="https://www.tradingview.com/symbols/NASDAQ-AVAV/" target="_blank" rel="noopener">📊 TV</a>
+            <a class="asset-link" href="https://finance.yahoo.com/quote/AVAV/" target="_blank" rel="noopener">📈 YF</a>
+            <a class="asset-link" href="https://stockanalysis.com/stocks/avav/forecast/" target="_blank" rel="noopener">🎯 PTs</a>
+            <a class="asset-link" href="https://finance.yahoo.com/quote/AVAV/options/" target="_blank" rel="noopener">⚙️ Opts</a>
+          </div>
+        </td>
+        <td><div class="conv"><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd ce"></div><div class="cd ce"></div><div class="cd ce"></div><div class="cd ce"></div><span class="cs">6/10</span></div></td>
+        <td style="max-width:260px;"><div style="font-size:11px;line-height:1.5;">Switchblade loitering munitions, Puma UAS — Ukraine/munitions crisis demand. KeyBanc conviction Buy. Strongest publicly traded Anduril proxy by mission.</div></td>
+        <td><div class="bb"><div class="bull"><div class="bull-lbl">BULL</div>Munitions crisis (8 days vs 800 needed for China), Anduril proxy, drone war reality</div><div class="bear"><div class="bear-lbl">BEAR</div>Margins inconsistent, contract lumpy, retail volatility</div></div></td>
+        <td><span class="vtag vstock">STOCK</span><span class="vtag vcall">CALLS (small)</span></td>
+        <td style="color:var(--accent2);font-weight:bold;">Current / dip</td>
+        <td style="color:var(--green);font-weight:bold;">+25-40%</td>
+        <td style="color:var(--red);font-weight:bold;">-15%</td>
+        <td style="color:var(--green);font-weight:bold;">2.5:1</td>
+        <td style="font-size:11px;">$700–$1,000 (5-7%)</td>
+        <td style="font-size:10px;color:var(--text2);">6-12 months</td>
+      </tr>
+      <!-- 9. COIN -->
+      <tr>
+        <td>
+          <span class="ttag" style="color:#ff9a3c;">COIN</span>
+          <div style="font-size:10px;color:var(--text2);margin-top:4px;">Coinbase Global</div>
+          <div class="asset-links">
+            <a class="asset-link" href="https://www.tradingview.com/symbols/NASDAQ-COIN/" target="_blank" rel="noopener">📊 TV</a>
+            <a class="asset-link" href="https://finance.yahoo.com/quote/COIN/" target="_blank" rel="noopener">📈 YF</a>
+            <a class="asset-link" href="https://stockanalysis.com/stocks/coin/forecast/" target="_blank" rel="noopener">🎯 PTs</a>
+            <a class="asset-link" href="https://finance.yahoo.com/quote/COIN/options/" target="_blank" rel="noopener">⚙️ Opts</a>
+          </div>
+        </td>
+        <td><div class="conv"><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd ce"></div><div class="cd ce"></div><div class="cd ce"></div><div class="cd ce"></div><span class="cs">6/10</span></div></td>
+        <td style="max-width:260px;"><div style="font-size:11px;line-height:1.5;">Public-market beta to crypto recovery + Base L2 traction. Spot/derivatives revenue scales with vol. <strong>Beta ~3x BTC. If BTC breaks Visser's $76K trigger, COIN should outperform.</strong> Hedged crypto exposure without holding tokens directly.</div></td>
+        <td><div class="bb"><div class="bull"><div class="bull-lbl">BULL</div>BTC breaks $76K, derivatives biz scales, Base L2 monetization</div><div class="bear"><div class="bear-lbl">BEAR</div>BTC fails $76K, regulatory action returns, retail vol drops</div></div></td>
+        <td><span class="vtag vstock">STOCK</span><span class="vtag vcall">CALLS (post-BTC trigger)</span></td>
+        <td style="color:var(--accent2);font-weight:bold;">Wait for BTC >$76K confirmation</td>
+        <td style="color:var(--green);font-weight:bold;">+30-50%</td>
+        <td style="color:var(--red);font-weight:bold;">-18%</td>
+        <td style="color:var(--green);font-weight:bold;">3:1</td>
+        <td style="font-size:11px;">$700–$1,000 (5-7%)</td>
+        <td style="font-size:10px;color:var(--text2);">3-9 months</td>
+      </tr>
+      <!-- 10. VVV -->
+      <tr>
+        <td>
+          <span class="ttag">VVV</span>
+          <div style="font-size:10px;color:var(--text2);margin-top:4px;">Venice (Decentralized AI)</div>
+          <div class="asset-links">
+            <a class="asset-link" href="https://www.coingecko.com/en/coins/venice-token" target="_blank" rel="noopener">📊 CG</a>
+            <a class="asset-link" href="https://coinmarketcap.com/currencies/venice-token/" target="_blank" rel="noopener">📈 CMC</a>
+            <a class="asset-link" href="https://venice.ai" target="_blank" rel="noopener">⚡ App</a>
+          </div>
+        </td>
+        <td><div class="conv"><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd cf"></div><div class="cd ce"></div><div class="cd ce"></div><div class="cd ce"></div><div class="cd ce"></div><span class="cs">6/10</span></div></td>
+        <td style="max-width:260px;"><div style="font-size:11px;line-height:1.5;">Breaking $9-$10 resistance. ATH $22. $416M market cap (small — illiquid). Decentralized AI inference. Staking = inference capacity share. Censorship-resistant AI narrative.</div></td>
+        <td><div class="bb"><div class="bull"><div class="bull-lbl">BULL</div>Breaks $10 with vol, AI+crypto convergence</div><div class="bear"><div class="bear-lbl">BEAR</div>Small cap, illiquid, fails $10 → $6-7</div></div></td>
+        <td><span class="vtag vcrypto">SPOT ONLY</span></td>
+        <td style="color:var(--accent2);font-weight:bold;">$8.50–$9.50</td>
+        <td style="color:var(--green);font-weight:bold;">$15 / $22</td>
+        <td style="color:var(--red);font-weight:bold;">$7.00</td>
+        <td style="color:var(--yellow);font-weight:bold;">2.5:1 / 6:1</td>
+        <td style="font-size:11px;">$800–$1,200 (5-8%)</td>
+        <td style="font-size:10px;color:var(--text2);">2-6 months</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ═══════════════════════ PRIVATE COMPANY PROXIES ═══════════════════════ -->
+<div class="card fw">
+  <div class="card-head">
+    <span class="card-icon">🏢</span>
+    <span class="card-title">Private Company Proxy Investments</span>
+    <span class="badge badge-blue">Public exposure to private valuations</span>
+  </div>
+  <div style="font-size:11px;color:var(--text2);margin-bottom:14px;">You can't buy Anduril or SpaceX directly without secondary market access. These are the <strong>publicly tradeable proxies</strong> — quality rated by how cleanly they capture the private company's specific thesis vs. broader sector exposure.</div>
+
+  <div class="proxy-grid">
+
+    <!-- ANDURIL -->
+    <div class="proxy-card">
+      <div class="proxy-private">🛡️ ANDURIL INDUSTRIES</div>
+      <div class="proxy-meta">~$30B+ valuation · $20B Army contract Mar 2026 · Defense AI / autonomous systems</div>
+      <div class="proxy-row"><div class="proxy-tick">AVAV<span class="proxy-quality pq-strong">STRONG</span></div><div class="proxy-rationale">Closest mission-overlap public play. Loitering munitions, autonomous UAS — same category Anduril dominates. Direct beneficiary of munitions crisis.</div></div>
+      <div class="proxy-row"><div class="proxy-tick">PLTR<span class="proxy-quality pq-strong">STRONG</span></div><div class="proxy-rationale">Data backbone for defense AI. Anduril's competitor at the data layer; either way, defense AI buildout drives PLTR.</div></div>
+      <div class="proxy-row"><div class="proxy-tick">KTOS<span class="proxy-quality pq-medium">MED</span></div><div class="proxy-rationale">Kratos — autonomous drones (Valkyrie). Smaller cap, highly sensitive to defense reorder.</div></div>
+      <div class="proxy-row"><div class="proxy-tick">RTX / NOC / LMT<span class="proxy-quality pq-weak">WEAK</span></div><div class="proxy-rationale">Legacy primes — likely losing share TO Anduril, but get general defense uplift.</div></div>
+      <div class="src-block"><a class="src-link" href="https://techcrunch.com/2026/03/14/us-army-announces-contract-with-anduril-worth-up-to-20b/" target="_blank" rel="noopener">Anduril $20B Contract</a></div>
+    </div>
+
+    <!-- OPENAI -->
+    <div class="proxy-card">
+      <div class="proxy-private">🧠 OPENAI</div>
+      <div class="proxy-meta">~$300B+ valuation · ChatGPT / GPT-5 / Sora · Most direct AI consumer/enterprise leader</div>
+      <div class="proxy-row"><div class="proxy-tick">MSFT<span class="proxy-quality pq-strong">STRONG</span></div><div class="proxy-rationale">~49% economic interest in OpenAI through $13B+ investment. Most direct legal claim on OpenAI cash flows. Also: Azure is OpenAI's compute provider.</div></div>
+      <div class="proxy-row"><div class="proxy-tick">NVDA<span class="proxy-quality pq-strong">STRONG</span></div><div class="proxy-rationale">All OpenAI training/inference runs on NVDA chips. Note insider selling caveat above.</div></div>
+      <div class="proxy-row"><div class="proxy-tick">AMD<span class="proxy-quality pq-medium">MED</span></div><div class="proxy-rationale">Backup compute supplier as OpenAI diversifies away from NVDA-only dependence.</div></div>
+    </div>
+
+    <!-- SPACEX -->
+    <div class="proxy-card">
+      <div class="proxy-private">🚀 SPACEX</div>
+      <div class="proxy-meta">~$350B+ valuation · Starlink / Falcon / Starship · Dominant launch + satellite internet</div>
+      <div class="proxy-row"><div class="proxy-tick">RKLB<span class="proxy-quality pq-strong">STRONG</span></div><div class="proxy-rationale">Rocket Lab — closest pure-play public competitor. Neutron rocket development = direct SpaceX challenger thesis. Highest beta to space sector.</div></div>
+      <div class="proxy-row"><div class="proxy-tick">IRDM<span class="proxy-quality pq-medium">MED</span></div><div class="proxy-rationale">Iridium — satellite communications (Starlink-adjacent). Less direct but defensible incumbent.</div></div>
+      <div class="proxy-row"><div class="proxy-tick">GSAT<span class="proxy-quality pq-medium">MED</span></div><div class="proxy-rationale">Globalstar — partners with Apple for satellite SOS. Thin exposure but high beta.</div></div>
+      <div class="proxy-row"><div class="proxy-tick">PL / RKLB ETF<span class="proxy-quality pq-weak">WEAK</span></div><div class="proxy-rationale">Planet Labs (data), or use UFO ETF for broader space exposure.</div></div>
+    </div>
+
+    <!-- ANTHROPIC -->
+    <div class="proxy-card">
+      <div class="proxy-private">🤖 ANTHROPIC</div>
+      <div class="proxy-meta">$183B post-money (Series F) · Claude / Mythos · Project Glasswing enterprise consortium</div>
+      <div class="proxy-row"><div class="proxy-tick">GOOG<span class="proxy-quality pq-strong">STRONG</span></div><div class="proxy-rationale">Major Anthropic investor (multiple billions). Cloud compute provider via Google Cloud. Most direct claim on Anthropic upside.</div></div>
+      <div class="proxy-row"><div class="proxy-tick">AMZN<span class="proxy-quality pq-strong">STRONG</span></div><div class="proxy-rationale">$4B+ invested in Anthropic. Anthropic uses AWS as primary cloud. Bedrock distribution.</div></div>
+      <div class="proxy-row"><div class="proxy-tick">NVDA<span class="proxy-quality pq-medium">MED</span></div><div class="proxy-rationale">Anthropic compute = NVDA chips. Same proxy as OpenAI — applies broadly.</div></div>
+    </div>
+
+    <!-- xAI -->
+    <div class="proxy-card">
+      <div class="proxy-private">🤖 xAI (MUSK)</div>
+      <div class="proxy-meta">~$50B+ valuation · Grok / Colossus supercomputer · Most ambitious compute buildout</div>
+      <div class="proxy-row"><div class="proxy-tick">TSLA<span class="proxy-quality pq-medium">MED</span></div><div class="proxy-rationale">Musk-controlled. Indirect via Optimus/FSD which leverage xAI tech. No direct claim — purely associative.</div></div>
+      <div class="proxy-row"><div class="proxy-tick">NVDA<span class="proxy-quality pq-strong">STRONG</span></div><div class="proxy-rationale">Colossus supercomputer = 100K+ NVDA H100s. Largest single concentrated NVDA AI deployment.</div></div>
+      <div class="proxy-row"><div class="proxy-tick">— No clean public proxy<span class="proxy-quality pq-weak">N/A</span></div><div class="proxy-rationale">Honest answer: there's no good direct proxy. xAI is a private Musk vehicle. Wait for IPO or buy TSLA on the indirect-association thesis.</div></div>
+    </div>
+
+    <!-- STRIPE -->
+    <div class="proxy-card">
+      <div class="proxy-private">💳 STRIPE</div>
+      <div class="proxy-meta">~$70B valuation · Internet payments infrastructure</div>
+      <div class="proxy-row"><div class="proxy-tick">FOUR<span class="proxy-quality pq-medium">MED</span></div><div class="proxy-rationale">Shift4 — payment processor with similar tech-forward approach.</div></div>
+      <div class="proxy-row"><div class="proxy-tick">FI / FIS<span class="proxy-quality pq-medium">MED</span></div><div class="proxy-rationale">Fiserv / FIS — incumbent processors. Compete with Stripe at the margin.</div></div>
+      <div class="proxy-row"><div class="proxy-tick">PYPL<span class="proxy-quality pq-weak">WEAK</span></div><div class="proxy-rationale">PayPal — losing share to Stripe but trades cheaper. Contra play if you think Stripe's rise is overstated.</div></div>
+      <div class="proxy-row"><div class="proxy-tick">V / MA<span class="proxy-quality pq-weak">WEAK</span></div><div class="proxy-rationale">Visa / Mastercard — toll booths benefit regardless. Quality businesses but not Stripe-specific.</div></div>
+    </div>
+
+    <!-- DATABRICKS -->
+    <div class="proxy-card">
+      <div class="proxy-private">📊 DATABRICKS</div>
+      <div class="proxy-meta">~$60B+ valuation · Data lakehouse + AI workflows</div>
+      <div class="proxy-row"><div class="proxy-tick">SNOW<span class="proxy-quality pq-strong">STRONG</span></div><div class="proxy-rationale">Snowflake — direct public competitor. Watch SNOW market cap as proxy for Databricks valuation moves.</div></div>
+      <div class="proxy-row"><div class="proxy-tick">MDB<span class="proxy-quality pq-medium">MED</span></div><div class="proxy-rationale">MongoDB — data infrastructure adjacent. AI workload storage layer.</div></div>
+    </div>
+
+    <!-- HYPERLIQUID -->
+    <div class="proxy-card" style="border-color:rgba(232,197,71,.3);">
+      <div class="proxy-private">⚡ HYPERLIQUID (sort-of-private)</div>
+      <div class="proxy-meta">No traditional equity — but HYPE token IS the public-market proxy</div>
+      <div class="proxy-row"><div class="proxy-tick">HYPE token<span class="proxy-quality pq-strong">STRONG</span></div><div class="proxy-rationale">The HYPE token IS the public expression of Hyperliquid the protocol. Buyback mechanism gives token holders a share of protocol fees.</div></div>
+      <div class="proxy-row"><div class="proxy-tick">COIN<span class="proxy-quality pq-weak">WEAK</span></div><div class="proxy-rationale">Coinbase as a competitor in derivatives — could be hurt by HYPE growth, or benefit from overall crypto activity.</div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════ OPTIONS PLAYBOOK ═══════════════════════ -->
+<div class="card fw">
+  <div class="card-head">
+    <span class="card-icon">📐</span>
+    <span class="card-title">Options Trading Playbook</span>
+    <span class="badge badge-red">⚡ PRE-EARNINGS THIS WEEK — TIME SENSITIVE</span>
+  </div>
+
+  <!-- Greek Reference -->
+  <div style="background:var(--surface2);border-radius:6px;padding:12px;margin-bottom:16px;border:1px solid var(--border);">
+    <div style="font-size:10px;font-weight:bold;color:var(--accent);letter-spacing:1px;margin-bottom:8px;">OPTIONS QUICK REFERENCE</div>
+    <div class="greek-row">
+      <div class="greek-item"><div class="greek-sym">Δ Delta</div><div class="greek-def">$ change per $1 stock move. 0.50 = $0.50/share gain per $1 move.</div></div>
+      <div class="greek-item"><div class="greek-sym">θ Theta</div><div class="greek-def">Daily time decay. Enemy of buyers, friend of sellers.</div></div>
+      <div class="greek-item"><div class="greek-sym">IV</div><div class="greek-def">Implied Volatility. Spikes pre-earnings, CRUSHES post.</div></div>
+      <div class="greek-item"><div class="greek-sym">ATM</div><div class="greek-def">At-The-Money. Strike = current price.</div></div>
+      <div class="greek-item"><div class="greek-sym">OTM</div><div class="greek-def">Out-of-The-Money. Cheaper, more leveraged.</div></div>
+      <div class="greek-item"><div class="greek-sym">Spread</div><div class="greek-def">Buy + sell to reduce cost AND cap gain. Better risk control.</div></div>
+      <div class="greek-item"><div class="greek-sym">Straddle</div><div class="greek-def">Call + put same strike. Profits from BIG move either way.</div></div>
+      <div class="greek-item"><div class="greek-sym">CSP</div><div class="greek-def">Cash-Secured Put. Sell put, collect premium, may buy stock at strike.</div></div>
+    </div>
+  </div>
+
+  <div style="font-size:12px;font-weight:bold;color:var(--red);letter-spacing:2px;margin-bottom:10px;">🔥 PRIORITY: PRE-EARNINGS — ASML APR 15 + TSMC APR 16</div>
+  <div class="info-box" style="margin-bottom:14px;">
+    <div class="info-title">⚠ IV CRUSH WARNING</div>
+    <div class="info-text">Implied Volatility spikes before earnings, then collapses immediately after — "IV crush." A stock can rise 5% and your call still LOSES money because IV collapse offsets the gain. Use spreads to dampen IV crush. Or buy straddles EARLY in week (lower IV), not day-of.</div>
+  </div>
+
+  <div class="opts-grid">
+    <!-- ASML Options -->
+    <div class="opt-card">
+      <div class="opt-title">ASML — Earnings April 15 BMO <span class="opt-urgent">⚡ 48 HRS</span></div>
+      <div style="font-size:10px;color:var(--text2);margin-bottom:10px;">Live ASML price in ticker. Strike selection below references "current price" — adjust to actual.</div>
+      <div class="opt-strat">
+        <div class="opt-strat-name">STRATEGY 1: Bull Call Spread (Recommended for first-timers)</div>
+        <div class="opt-strat-body">Buy ATM call, sell ~5-8% OTM call, both expiring April 17. Reduces cost AND IV crush impact.</div>
+        <div class="opt-row">
+          <span class="opt-key">MAX GAIN:</span><span class="opt-val green">Width minus premium (e.g., $50 - $12 = $3,800/contract)</span>
+          <span class="opt-key">MAX LOSS:</span><span class="opt-val red">Premium paid only (~$1,200)</span>
+          <span class="opt-key">SIZING:</span><span class="opt-val yellow">1 contract = ~8% of $15K acct</span>
+        </div>
+      </div>
+      <div class="opt-strat">
+        <div class="opt-strat-name">STRATEGY 2: Long Straddle (Direction-agnostic)</div>
+        <div class="opt-strat-body">Buy ATM call AND put. Profits from any big move. Loses if stock barely moves. ASML typically moves 5-10% on earnings.</div>
+        <div class="opt-row">
+          <span class="opt-key">COST EST:</span><span class="opt-val red">~$2,500-4,000 per straddle</span>
+          <span class="opt-key">BREAKEVEN:</span><span class="opt-val">Move > total premium in either direction</span>
+        </div>
+      </div>
+      <div class="platform-links">
+        <a class="platform-link" href="https://finance.yahoo.com/quote/ASML/options/" target="_blank" rel="noopener">ASML Options Chain ↗</a>
+        <a class="platform-link" href="https://www.tastytrade.com" target="_blank" rel="noopener">Tastytrade</a>
+      </div>
+    </div>
+
+    <!-- TSM Options -->
+    <div class="opt-card">
+      <div class="opt-title">TSM — Earnings April 16 <span class="opt-urgent">⚡ 72 HRS</span></div>
+      <div class="opt-strat">
+        <div class="opt-strat-name">STRATEGY 1: Bull Call Spread</div>
+        <div class="opt-strat-body">Buy ATM call / sell ~9% OTM call expiring April 17. Reduces IV crush exposure significantly.</div>
+        <div class="opt-row">
+          <span class="opt-key">MAX GAIN:</span><span class="opt-val green">~$1,000-1,500/contract on $15-wide spread</span>
+          <span class="opt-key">MAX LOSS:</span><span class="opt-val red">~$600-900/contract</span>
+        </div>
+      </div>
+      <div class="opt-strat">
+        <div class="opt-strat-name">STRATEGY 2: Post-Earnings Reaction (Lower risk)</div>
+        <div class="opt-strat-body">Don't trade into earnings. Wait 30 minutes after open April 16. IV crush done, direction known. Buy May/June calls if bullish reaction continues.</div>
+      </div>
+      <div class="platform-links">
+        <a class="platform-link" href="https://finance.yahoo.com/quote/TSM/options/" target="_blank" rel="noopener">TSM Options Chain ↗</a>
+      </div>
+    </div>
+  </div>
+
+  <div style="font-size:12px;font-weight:bold;color:var(--accent);letter-spacing:2px;margin:16px 0 10px;">📈 MEDIUM-TERM PLAYS</div>
+  <div class="opts-grid">
+    <div class="opt-card">
+      <div class="opt-title">ET / KMI — The Wheel (Income)</div>
+      <div class="opt-strat">
+        <div class="opt-strat-name">SELL CASH-SECURED PUT → ASSIGNED → SELL COVERED CALL</div>
+        <div class="opt-strat-body">ET ~$20: sell $18 put 30-45 days out for ~$0.60. Collect $60/contract. Need $1,800 cash collateral. Above $18 = keep premium. Below $18 = buy stock at price you wanted anyway. Then sell calls against shares.</div>
+        <div class="opt-row">
+          <span class="opt-key">YIELD:</span><span class="opt-val green">~15-25% annualized from premiums alone</span>
+          <span class="opt-key">RISK:</span><span class="opt-val red">If energy crashes (Iran deal collapses), you own at loss</span>
+        </div>
+      </div>
+      <div class="platform-links">
+        <a class="platform-link" href="https://finance.yahoo.com/quote/ET/options/" target="_blank" rel="noopener">ET Options ↗</a>
+      </div>
+    </div>
+
+    <div class="opt-card">
+      <div class="opt-title">HYPE / BTC — Crypto Leverage</div>
+      <div class="opt-strat">
+        <div class="opt-strat-name">HYPE PERP LONG (on Hyperliquid DEX itself)</div>
+        <div class="opt-strat-body">No traditional options market for HYPE. Use Hyperliquid's own perp market. Max 1-2x leverage. Isolated margin only. Stop at $32.</div>
+      </div>
+      <div class="opt-strat">
+        <div class="opt-strat-name">BTC OPTIONS (Deribit) — Bull Call Spread</div>
+        <div class="opt-strat-body">If/when BTC clears Visser's $76K trigger: Buy May $76K call / Sell May $85K call. Defined risk leverage on the breakout thesis.</div>
+      </div>
+      <div class="platform-links">
+        <a class="platform-link" href="https://hyperliquid.xyz" target="_blank" rel="noopener">Hyperliquid DEX</a>
+        <a class="platform-link" href="https://www.deribit.com" target="_blank" rel="noopener">Deribit</a>
+      </div>
+    </div>
+  </div>
+
+  <div style="font-size:12px;font-weight:bold;color:var(--orange);letter-spacing:2px;margin:16px 0 10px;">🛡️ NVDA HEDGE — Bear Put Spread</div>
+  <div class="opt-card" style="border-color:rgba(255,154,60,.3);">
+    <div class="opt-title">NVDA Bear Put Spread (Hedge for AI portfolio)</div>
+    <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:10px;">Given $3.3B insider selling, hedge AI tech exposure with defined-risk bearish position. Buy ~ATM put / sell ~12% OTM put, May or June expiry.</div>
+    <div class="opt-row">
+      <span class="opt-key">MAX GAIN:</span><span class="opt-val green">~$1,500-1,800/contract on a $20 spread if NVDA falls 10%+</span>
+      <span class="opt-key">MAX LOSS:</span><span class="opt-val red">Premium paid (~$400-700/contract)</span>
+      <span class="opt-key">SIZING:</span><span class="opt-val yellow">1 contract = $400-700 risk · use as HEDGE not primary bet</span>
+    </div>
+    <div class="platform-links">
+      <a class="platform-link" href="https://finance.yahoo.com/quote/NVDA/options/" target="_blank" rel="noopener">NVDA Options ↗</a>
+    </div>
+  </div>
+</div>
+
+<!-- CRYPTO DEEP DIVE -->
+<div class="card fw">
+  <div class="card-head">
+    <span class="card-icon">₿</span>
+    <span class="card-title">Crypto Alpha — Hyperliquid (Fundamentals First) + Venice</span>
+  </div>
+  <div class="g2">
+    <div class="crypto-card">
+      <div class="crypto-hd">
+        <div><div class="crypto-name">HYPERLIQUID</div><div class="crypto-ticker">HYPE · <span id="hype-live" style="color:var(--green);">loading…</span></div></div>
+        <div style="text-align:right;"><div class="crypto-price up" id="hype-card-price">…</div><div style="font-size:12px;" id="hype-card-chg">$10B+ Mkt Cap</div></div>
+      </div>
+      <div class="cmetrics">
+        <div class="cmet"><div class="cmet-lbl">PERP MKT SHARE</div><div class="cmet-val up">29.7%</div></div>
+        <div class="cmet"><div class="cmet-lbl">Q1 VOL GROWTH</div><div class="cmet-val up">953%</div></div>
+        <div class="cmet"><div class="cmet-lbl">24H TOKEN VOL</div><div class="cmet-val">$239M</div></div>
+      </div>
+      <div class="crypto-thesis">
+        <strong>FUNDAMENTALS FIRST:</strong> Hyperliquid is a custom L1 blockchain built specifically for perpetual derivatives. Three structural advantages: (1) <strong>On-chain order book</strong> — most DEX competitors use AMM models that hurt large traders. (2) <strong>HLP vault</strong> — community liquidity provider that earns market-making profits, distributed to depositors. (3) <strong>Buyback mechanism</strong> — protocol fees flow to "Assistance Fund" that buys HYPE from market. This is real cash flow accruing to token holders, not a meme coin.<br><br>
+        <strong>SUPPLEMENTARY SIGNAL (not the thesis):</strong> Arthur Hayes purchased $1.1M HYPE on April 12 — first buy in 3 months — adding to his $10.4M existing position. Hayes built BitMEX so his judgment on derivatives infrastructure carries weight, but treat as one validator among many.<br><br>
+        <strong>RISKS YOU MUST DYOR:</strong> Validator decentralization (smaller set than Ethereum), public security audit availability (verify before sizing up), token unlock schedule for HYPE allocations, regulatory risk on perpetuals broadly.
+      </div>
+      <div>
+        <span class="cflag cf-buy">🟢 PROTOCOL DOMINANCE</span>
+        <span class="cflag cf-buy">🟢 BUYBACK MECHANISM</span>
+        <span class="cflag cf-watch">🟡 VALIDATOR CENTRALIZATION</span>
+        <span class="cflag cf-warn">🔴 DYOR ON AUDITS</span>
+      </div>
+      <div class="src-block">
+        <a class="src-link" href="https://hyperliquid.xyz" target="_blank" rel="noopener">Hyperliquid DEX</a>
+        <a class="src-link" href="https://stats.hyperliquid.xyz" target="_blank" rel="noopener">Live Stats Dashboard</a>
+        <a class="src-link" href="https://defillama.com/protocol/hyperliquid" target="_blank" rel="noopener">DefiLlama HL</a>
+        <a class="src-link" href="https://docs.hyperliquid.xyz" target="_blank" rel="noopener">Docs</a>
+        <a class="src-link" href="https://www.coingecko.com/en/coins/hyperliquid" target="_blank" rel="noopener">CoinGecko HYPE</a>
+      </div>
+    </div>
+
+    <div class="crypto-card">
+      <div class="crypto-hd">
+        <div><div class="crypto-name">VENICE (AI INFERENCE)</div><div class="crypto-ticker">VVV · <span id="vvv-live" style="color:var(--green);">loading…</span></div></div>
+        <div style="text-align:right;"><div class="crypto-price up" id="vvv-card-price">…</div><div style="font-size:12px;" id="vvv-card-chg">ATH $22</div></div>
+      </div>
+      <div class="cmetrics">
+        <div class="cmet"><div class="cmet-lbl">MARKET CAP</div><div class="cmet-val">$416M</div></div>
+        <div class="cmet"><div class="cmet-lbl">24H VOL</div><div class="cmet-val">$21.5M</div></div>
+        <div class="cmet"><div class="cmet-lbl">RESISTANCE</div><div class="cmet-val neutral">$10.00</div></div>
+      </div>
+      <div class="crypto-thesis">
+        <strong>BREAKOUT WATCH — $9-$10:</strong> Decentralized AI inference. Staking VVV earns share of Venice.ai inference capacity. Thesis: as Claude Mythos locks to enterprise Glasswing partners and OpenAI faces regulatory pressure, demand for permissionless, censorship-resistant AI inference grows. VVV captures that demand.<br><br>
+        <strong>HONEST ASSESSMENT:</strong> Smaller, less battle-tested than HYPE. Liquidity is ~10x smaller. Treat as a higher-risk satellite position, not a core holding. Size accordingly.
+      </div>
+      <div>
+        <span class="cflag cf-buy">🟢 BREAKING RESISTANCE</span>
+        <span class="cflag cf-warn">🔴 SMALL CAP / ILLIQUID</span>
+      </div>
+      <div class="src-block">
+        <a class="src-link" href="https://venice.ai" target="_blank" rel="noopener">Venice.ai</a>
+        <a class="src-link" href="https://coinmarketcap.com/currencies/venice-token/" target="_blank" rel="noopener">CMC VVV</a>
+        <a class="src-link" href="https://www.anthropic.com/news/anthropic-claude-mythos" target="_blank" rel="noopener">Claude Mythos Context</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-box">
+    <div class="info-title">⚡ MACRO CRYPTO — BTC & ETH (Live in ticker)</div>
+    <div class="info-text">
+      <strong>BTC:</strong> Fell to ~$70.9K Monday on Iran blockade news; recovering toward $74K (per live ticker). Visser: needs >$76K for sustainable rally. Gromen warns $40K downside risk before debasement plays out. Hayes: BTC capped until AI deflation → liquidity response.<br><br>
+      <strong>ETH:</strong> Visser stability level $2,400. Both recovering; watch trigger levels for entry.
+    </div>
+    <div class="src-block">
+      <a class="src-link" href="https://cointelegraph.com/features/why-luke-gromen-is-fading-bitcoin-while-staying-bullish-on-debasement" target="_blank" rel="noopener">Gromen BTC Thesis</a>
+      <a class="src-link" href="https://bitcoinethereumnews.com/bitcoin/wall-street-veteran-jordi-visser-says-bitcoin-and-ethereum-must-hit-these-levels-to-spark-sustainable-rallies/" target="_blank" rel="noopener">Visser BTC/ETH Levels</a>
+    </div>
+  </div>
+</div>
+
+<!-- SMART MONEY + TIMELINE -->
+<div class="g2">
+  <div class="card">
+    <div class="card-head"><span class="card-icon">🏛️</span><span class="card-title">Smart Money Signals</span><span class="badge badge-orange">Form 4 / On-Chain</span></div>
+    <table class="tbl">
+      <thead><tr><th>ENTITY</th><th>ACTION</th><th>AMOUNT</th><th>SOURCE</th><th>SIGNAL</th></tr></thead>
+      <tbody>
+        <tr><td><span class="sig-lbl">Jensen Huang (NVDA CEO)</span></td><td style="color:var(--red);">SELL</td><td>~$2.9B Q1</td><td><a class="src" href="https://finance.yahoo.com/quote/NVDA/insider-transactions/" target="_blank" rel="noopener">SEC Form 4 ↗</a></td><td><span class="sig-impl si-bear">BEAR</span></td></tr>
+        <tr><td><span class="sig-lbl">14 Other NVDA Insiders</span></td><td style="color:var(--red);">SELL</td><td>~$400M Q1</td><td><a class="src" href="https://finance.yahoo.com/quote/NVDA/insider-transactions/" target="_blank" rel="noopener">SEC Form 4 ↗</a></td><td><span class="sig-impl si-bear">BEAR</span></td></tr>
+        <tr><td><span class="sig-lbl">Meta Insiders (20 txns)</span></td><td style="color:var(--red);">SELL</td><td>$103.2M (3mo)</td><td><a class="src" href="https://finance.yahoo.com/quote/META/insider-transactions/" target="_blank" rel="noopener">Yahoo ↗</a></td><td><span class="sig-impl si-bear">BEAR</span></td></tr>
+        <tr><td><span class="sig-lbl">ValueAct Capital (SFDC)</span></td><td style="color:var(--green);">BUY</td><td>$25M Dec '25</td><td><a class="src" href="https://www.quiverquant.com/" target="_blank" rel="noopener">13F ↗</a></td><td><span class="sig-impl si-bull">BULL</span></td></tr>
+        <tr><td><span class="sig-lbl">Arthur Hayes (HYPE)</span></td><td style="color:var(--green);">BUY</td><td>$1.1M Apr 12</td><td><a class="src" href="https://themarketperiodical.com/2026/04/13/arthur-hayes-buys-1-1m-hype-tokens-now-holds-10-4m/" target="_blank" rel="noopener">Market Periodical ↗</a></td><td><span class="sig-impl si-bull">CONFIRMING</span></td></tr>
+      </tbody>
+    </table>
+    <div style="margin-top:12px;font-size:10px;color:var(--text2);">Track ongoing trades:</div>
+    <div class="src-block">
+      <a class="src-link" href="https://www.quiverquant.com/congresstrading/" target="_blank" rel="noopener">Quiver Quant</a>
+      <a class="src-link" href="https://unusualwhales.com/" target="_blank" rel="noopener">Unusual Whales</a>
+      <a class="src-link" href="https://www.capitoltrades.com/" target="_blank" rel="noopener">Capitol Trades</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="card-icon">📅</span><span class="card-title">Catalyst Timeline</span><span class="badge badge-red">HIGH DENSITY</span></div>
+    <div class="timeline">
+      <div class="tl-item hot"><div class="tl-date">APR 14 — TUESDAY</div><div class="tl-event">🚨 US Naval Blockade of Strait of Hormuz Effective (10AM ET)</div><div class="tl-note"><a class="src" href="https://www.cnn.com/2026/04/13/world/live-news/iran-us-war-trump-hormuz" target="_blank" rel="noopener">CNN ↗</a></div></div>
+      <div class="tl-item hot"><div class="tl-date">APR 15 — WEDNESDAY (BMO)</div><div class="tl-event">ASML Q1 2026 Earnings — EUV Order Book</div><div class="tl-note">Binary for entire AI trade.</div></div>
+      <div class="tl-item hot"><div class="tl-date">APR 16 — THURSDAY</div><div class="tl-event">TSMC Q1 2026 Earnings — H2 AI Guidance</div></div>
+      <div class="tl-item med"><div class="tl-date">APR 20</div><div class="tl-event">Tesla Q1 — Robotaxi + FSD + Energy</div></div>
+      <div class="tl-item med"><div class="tl-date">APR 23</div><div class="tl-event">Amazon Q1 — AWS + $200B CapEx Guide</div></div>
+      <div class="tl-item med"><div class="tl-date">APR 28-29</div><div class="tl-event">Microsoft + Alphabet + Meta Earnings</div></div>
+      <div class="tl-item"><div class="tl-date">APR 30</div><div class="tl-event">Apple Q2 Earnings</div></div>
+      <div class="tl-item"><div class="tl-date">MAY 12</div><div class="tl-event">April CPI Release · 8:30 AM ET</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- INFLUENCER MATRIX -->
+<div class="card fw">
+  <div class="card-head"><span class="card-icon">🧠</span><span class="card-title">Influencer → Signal → Implication</span></div>
+  <table class="tbl">
+    <thead><tr><th>SOURCE</th><th>KEY TAKEAWAY</th><th>SOURCED FROM</th><th>IMPLICATION</th></tr></thead>
+    <tbody>
+      <tr><td><span class="sig-lbl">Jensen Huang (NVDA)</span></td><td>"AGI achieved." $1T revenue est. While selling $2.9B personal stock.</td><td><a class="src" href="https://finance.yahoo.com/quote/NVDA/" target="_blank" rel="noopener">NVDA IR ↗</a></td><td><span class="sig-impl si-neut">MIXED — Play ASML/TSM</span></td></tr>
+      <tr><td><span class="sig-lbl">Dario Amodei (Anthropic)</span></td><td>Scaling NOT hit wall. Acceleration 2026. Refused DoD weapons. Mythos consortium launched.</td><td><a class="src" href="https://www.anthropic.com/news/anthropic-claude-mythos" target="_blank" rel="noopener">Anthropic ↗</a></td><td><span class="sig-impl si-bull">BULL — AI buildout real</span></td></tr>
+      <tr><td><span class="sig-lbl">Arthur Hayes (BitMEX)</span></td><td>BTC capped until AI deflation resolves. Bought $1.1M HYPE Apr 12. "Only buying HYPE."</td><td><a class="src" href="https://themarketperiodical.com/2026/04/13/arthur-hayes-buys-1-1m-hype-tokens-now-holds-10-4m/" target="_blank" rel="noopener">Market Periodical ↗</a></td><td><span class="sig-impl si-bull">CONFIRM HYPE · NEUT BTC</span></td></tr>
+      <tr><td><span class="sig-lbl">Luke Gromen (FFTT)</span></td><td>BTC could slide $40K. Prefers gold + equities for debasement.</td><td><a class="src" href="https://cointelegraph.com/features/why-luke-gromen-is-fading-bitcoin-while-staying-bullish-on-debasement" target="_blank" rel="noopener">CoinTelegraph ↗</a></td><td><span class="sig-impl si-bear">BEAR BTC · BULL energy/gold</span></td></tr>
+      <tr><td><span class="sig-lbl">Jordi Visser (Weiss)</span></td><td>BTC needs >$76K. ETH >$2,400. AI demand prevents recession. Inflation to 1990s levels.</td><td><a class="src" href="https://bitcoinethereumnews.com/bitcoin/wall-street-veteran-jordi-visser-says-bitcoin-and-ethereum-must-hit-these-levels-to-spark-sustainable-rallies/" target="_blank" rel="noopener">BENews ↗</a></td><td><span class="sig-impl si-neut">CONDITIONAL — wait triggers</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- BINARY + PORTFOLIO -->
+<div class="g2">
+  <div class="card">
+    <div class="card-head"><span class="card-icon">🎲</span><span class="card-title">Binary Prediction Frames</span></div>
+    <div class="bin-card"><div class="bin-q">Does ASML Q1 (Apr 15) beat consensus + raise FY2026 guide?</div><div class="bin-bars"><div class="bin-yes"><div class="bl">YES</div><div class="bp">72%</div></div><div class="bin-no"><div class="bl">NO/MISS</div><div class="bp">28%</div></div></div><div class="bin-ts">⏰ Apr 15 BMO · ASML beat 8/10 last Qs</div></div>
+    <div class="bin-card"><div class="bin-q">Does HYPE trade above $55 within 60 days?</div><div class="bin-bars"><div class="bin-yes"><div class="bl">YES (+30%)</div><div class="bp">55%</div></div><div class="bin-no"><div class="bl">NO</div><div class="bp">45%</div></div></div><div class="bin-ts">⏰ Jun 13 · 953% Q1 vol growth + protocol moat</div></div>
+    <div class="bin-card"><div class="bin-q">Does BTC break Visser's $76K trigger within 30 days?</div><div class="bin-bars"><div class="bin-yes"><div class="bl">YES</div><div class="bp">40%</div></div><div class="bin-no"><div class="bl">NO</div><div class="bp">60%</div></div></div><div class="bin-ts">⏰ May 13 · Iran risk + Gromen $40K downside thesis</div></div>
+    <div class="bin-card"><div class="bin-q">Does VVV close above $10 within 14 days?</div><div class="bin-bars"><div class="bin-yes"><div class="bl">BREAKOUT</div><div class="bp">58%</div></div><div class="bin-no"><div class="bl">REJECTED</div><div class="bp">42%</div></div></div><div class="bin-ts">⏰ Apr 27 · Volume must confirm</div></div>
+    <div class="bin-card"><div class="bin-q">Iran blockade still active in 30 days?</div><div class="bin-bars"><div class="bin-yes"><div class="bl">YES</div><div class="bp">58%</div></div><div class="bin-no"><div class="bl">RESOLVED</div><div class="bp">42%</div></div></div><div class="bin-ts">⏰ May 13 · Day 44 of conflict, no clear off-ramp</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><span class="card-icon">💼</span><span class="card-title">Model Portfolio ($15K)</span><span class="badge badge-green">AGGRESSIVE</span></div>
+    <table class="tbl">
+      <thead><tr><th>ASSET</th><th>ALLOC</th><th>$</th><th>NOTES</th></tr></thead>
+      <tbody>
+        <tr><td><strong>HYPE</strong> (Spot+Perp)</td><td><div>20%</div><div class="alloc-bar"><div class="alloc-fill" style="width:20%;background:var(--green);"></div></div></td><td style="color:var(--green);">$3,000</td><td style="font-size:10px;">Protocol fundamentals + Hayes confirm</td></tr>
+        <tr><td><strong>ASML</strong> (Stock+Spread)</td><td><div>15%</div><div class="alloc-bar"><div class="alloc-fill" style="width:15%;background:var(--accent2);"></div></div></td><td style="color:var(--accent2);">$2,250</td><td style="font-size:10px;">EUV monopoly · Apr 15 catalyst</td></tr>
+        <tr><td><strong>TSM</strong> (Stock+Spread)</td><td><div>13%</div><div class="alloc-bar"><div class="alloc-fill" style="width:13%;background:var(--accent2);"></div></div></td><td style="color:var(--accent2);">$1,950</td><td style="font-size:10px;">AI fab monopoly · Apr 16 catalyst</td></tr>
+        <tr><td><strong>ET / KMI</strong> (Wheel)</td><td><div>10%</div><div class="alloc-bar"><div class="alloc-fill" style="width:10%;background:var(--orange);"></div></div></td><td style="color:var(--orange);">$1,500</td><td style="font-size:10px;">AI power + Iran shock + income</td></tr>
+        <tr><td><strong>ESLT</strong> (Defense)</td><td><div>6%</div><div class="alloc-bar"><div class="alloc-fill" style="width:6%;background:var(--accent2);"></div></div></td><td style="color:var(--accent2);">$900</td><td style="font-size:10px;">+60% YTD; pullbacks only</td></tr>
+        <tr><td><strong>AVAV</strong> (Anduril Proxy)</td><td><div>5%</div><div class="alloc-bar"><div class="alloc-fill" style="width:5%;background:var(--accent2);"></div></div></td><td style="color:var(--accent2);">$750</td><td style="font-size:10px;">Drones · munitions crisis</td></tr>
+        <tr><td><strong>PLTR</strong> (AI/Defense)</td><td><div>5%</div><div class="alloc-bar"><div class="alloc-fill" style="width:5%;background:var(--accent2);"></div></div></td><td style="color:var(--accent2);">$750</td><td style="font-size:10px;">Buy on pullback only</td></tr>
+        <tr><td><strong>OKLO</strong> (Nuclear lottery)</td><td><div>4%</div><div class="alloc-bar"><div class="alloc-fill" style="width:4%;background:var(--orange);"></div></div></td><td style="color:var(--orange);">$600</td><td style="font-size:10px;">Pre-revenue · venture-style bet</td></tr>
+        <tr><td><strong>VVV</strong> (Crypto small)</td><td><div>5%</div><div class="alloc-bar"><div class="alloc-fill" style="width:5%;background:var(--yellow);"></div></div></td><td style="color:var(--yellow);">$750</td><td style="font-size:10px;">Breakout watch · liquidity small</td></tr>
+        <tr><td><strong>COIN</strong> (Wait BTC trigger)</td><td><div>0%</div><div class="alloc-bar"><div class="alloc-fill" style="width:0%;background:var(--text2);"></div></div></td><td style="color:var(--text2);">$0</td><td style="font-size:10px;">Hold powder; deploy on BTC >$76K</td></tr>
+        <tr><td><strong>NVDA Bear Spread</strong> (Hedge)</td><td><div>3%</div><div class="alloc-bar"><div class="alloc-fill" style="width:3%;background:var(--red);"></div></div></td><td style="color:var(--red);">$450</td><td style="font-size:10px;">Insider-sell hedge on AI tech</td></tr>
+        <tr><td><strong>CASH</strong></td><td><div>14%</div><div class="alloc-bar"><div class="alloc-fill" style="width:14%;background:var(--text2);"></div></div></td><td style="color:var(--text2);">$2,100</td><td style="font-size:10px;">Iran risk + post-ER dip buying + COIN trigger</td></tr>
+      </tbody>
+    </table>
+    <div style="margin-top:12px;padding:10px;background:var(--surface2);border-radius:6px;border-left:3px solid var(--orange);">
+      <div style="font-size:11px;color:var(--orange);font-weight:bold;margin-bottom:6px;">⚡ RISK RULES</div>
+      <div style="font-size:11px;color:var(--text);line-height:1.6;">
+        • Single position max 25% · Crypto perp leverage max 2x isolated<br>
+        • Stops: HYPE&lt;$32 · ASML/TSM&lt;-10% · VVV&lt;$7 · OKLO&lt;-30%<br>
+        • If Iran kinetic conflict: cut risk 50%, hold energy + NVDA hedge<br>
+        • If ASML AND TSM both miss: cut AI equity by 30%, raise cash
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ SOURCES TAB ═══════════════════════ -->
+<div class="card fw">
+  <div class="card-head">
+    <span class="card-icon">📚</span>
+    <span class="card-title">Sources & Data Transparency</span>
+    <span class="badge badge-blue">What I reviewed · what I haven't · what to send next</span>
+  </div>
+
+  <div class="sources-wrap">
+    <div class="src-col reviewed">
+      <div class="src-col-title">✅ SOURCES REVIEWED FOR THIS REPORT</div>
+      <div class="src-row"><div class="name">CNN Live Coverage — Iran/US Hormuz</div><div class="meta"><a class="src" href="https://www.cnn.com/2026/04/13/world/live-news/iran-us-war-trump-hormuz" target="_blank" rel="noopener">cnn.com ↗</a></div></div>
+      <div class="src-row"><div class="name">White House Tariff Fact Sheet (April 2026)</div><div class="meta"><a class="src" href="https://www.whitehouse.gov/fact-sheets/2026/04/fact-sheet-president-donald-j-trump-strengthens-tariffs-on-steel-aluminum-and-copper-imports/" target="_blank" rel="noopener">whitehouse.gov ↗</a></div></div>
+      <div class="src-row"><div class="name">CoinGecko HYPE Token Page</div><div class="meta"><a class="src" href="https://www.coingecko.com/en/coins/hyperliquid" target="_blank" rel="noopener">coingecko.com ↗</a> · price + volume metrics</div></div>
+      <div class="src-row"><div class="name">CoinMarketCap VVV Page</div><div class="meta"><a class="src" href="https://coinmarketcap.com/currencies/venice-token/" target="_blank" rel="noopener">coinmarketcap.com ↗</a></div></div>
+      <div class="src-row"><div class="name">Market Periodical — Hayes HYPE Purchase</div><div class="meta"><a class="src" href="https://themarketperiodical.com/2026/04/13/arthur-hayes-buys-1-1m-hype-tokens-now-holds-10-4m/" target="_blank" rel="noopener">themarketperiodical.com ↗</a></div></div>
+      <div class="src-row"><div class="name">CoinTelegraph — Luke Gromen BTC Thesis</div><div class="meta"><a class="src" href="https://cointelegraph.com/features/why-luke-gromen-is-fading-bitcoin-while-staying-bullish-on-debasement" target="_blank" rel="noopener">cointelegraph.com ↗</a></div></div>
+      <div class="src-row"><div class="name">Bitcoin Ethereum News — Visser BTC/ETH Levels</div><div class="meta"><a class="src" href="https://bitcoinethereumnews.com/bitcoin/wall-street-veteran-jordi-visser-says-bitcoin-and-ethereum-must-hit-these-levels-to-spark-sustainable-rallies/" target="_blank" rel="noopener">bitcoinethereumnews.com ↗</a> · SECONDARY source on Visser</div></div>
+      <div class="src-row"><div class="name">Anthropic Claude Mythos Press Release</div><div class="meta"><a class="src" href="https://www.anthropic.com/news/anthropic-claude-mythos" target="_blank" rel="noopener">anthropic.com ↗</a></div></div>
+      <div class="src-row"><div class="name">TechCrunch — Anduril $20B Army Contract</div><div class="meta"><a class="src" href="https://techcrunch.com/2026/03/14/us-army-announces-contract-with-anduril-worth-up-to-20b/" target="_blank" rel="noopener">techcrunch.com ↗</a></div></div>
+      <div class="src-row"><div class="name">Goldman Sachs AI CapEx Analysis</div><div class="meta"><a class="src" href="https://www.goldmansachs.com/insights/articles/why-ai-companies-may-invest-more-than-500-billion-in-2026" target="_blank" rel="noopener">goldmansachs.com ↗</a></div></div>
+      <div class="src-row"><div class="name">US News — Energy Stocks AI Buildout</div><div class="meta"><a class="src" href="https://money.usnews.com/investing/articles/best-energy-stocks-for-the-ai-power-grid-buildout" target="_blank" rel="noopener">usnews.com ↗</a></div></div>
+      <div class="src-row"><div class="name">IAEA — Data Centers + Nuclear Power</div><div class="meta"><a class="src" href="https://www.iaea.org/bulletin/data-centres-artificial-intelligence-and-cryptocurrencies-eye-advanced-nuclear-to-meet-growing-power-needs" target="_blank" rel="noopener">iaea.org ↗</a></div></div>
+      <div class="src-row"><div class="name">BLS Consumer Price Index</div><div class="meta"><a class="src" href="https://www.bls.gov/news.release/cpi.htm" target="_blank" rel="noopener">bls.gov ↗</a></div></div>
+      <div class="src-row"><div class="name">Yahoo Finance — Live stock data via corsproxy.io</div><div class="meta">10+ tickers in live ticker bar</div></div>
+    </div>
+
+    <div class="src-col missing">
+      <div class="src-col-title">⚠ SOURCES I HAVE NOT REVIEWED — SEND ME LINKS</div>
+      <div class="src-row"><div class="name">❌ Jordi Visser solo podcast (weekly, YouTube)</div><div class="meta">Visser quotes in this report are SECONDARY (via Bitcoin Ethereum News article). Send specific episode link for primary content.</div></div>
+      <div class="src-row"><div class="name">❌ Jordi Visser × Anthony Pompliano weekly podcast</div><div class="meta">Have not listened. <a class="src" href="https://www.youtube.com/@AnthonyPompliano" target="_blank" rel="noopener">@AnthonyPompliano YT ↗</a></div></div>
+      <div class="src-row"><div class="name">❌ Jordi Visser Substack</div><div class="meta">Have not subscribed/read. Send Substack URL.</div></div>
+      <div class="src-row"><div class="name">❌ Luke Gromen — Forest for the Trees podcast</div><div class="meta">Gromen views above are from CoinTelegraph article, not primary content. <a class="src" href="https://fftt-llc.com" target="_blank" rel="noopener">fftt-llc.com ↗</a></div></div>
+      <div class="src-row"><div class="name">❌ All-In Podcast (Calacanis/Chamath/Sacks/Friedberg)</div><div class="meta">Most recent episodes not reviewed. <a class="src" href="https://www.youtube.com/@allin" target="_blank" rel="noopener">@allin YT ↗</a></div></div>
+      <div class="src-row"><div class="name">❌ This Week in Startups (Calacanis)</div><div class="meta">Not reviewed.</div></div>
+      <div class="src-row"><div class="name">❌ Brad Gerstner — BG2 Podcast / public interviews</div><div class="meta">Not reviewed. Worth pulling — Altimeter view on AI/macro.</div></div>
+      <div class="src-row"><div class="name">❌ Arthur Hayes blog/Substack — current essays</div><div class="meta">Hayes views above from secondary reporting. Direct essays at <a class="src" href="https://cryptohayes.substack.com" target="_blank" rel="noopener">cryptohayes.substack.com ↗</a></div></div>
+      <div class="src-row"><div class="name">❌ Saylor recent talks/X posts on BTC</div><div class="meta">Not reviewed.</div></div>
+      <div class="src-row"><div class="name">❌ Lyn Alden — current macro commentary</div><div class="meta">Her account was compromised Feb-Mar; have not pulled current content. <a class="src" href="https://www.lynalden.com" target="_blank" rel="noopener">lynalden.com ↗</a></div></div>
+      <div class="src-row"><div class="name">❌ Quiver Quant — specific recent congressional trades</div><div class="meta">Have NOT pulled specific April trade data. <a class="src" href="https://www.quiverquant.com/congresstrading/" target="_blank" rel="noopener">quiverquant.com ↗</a></div></div>
+      <div class="src-row"><div class="name">❌ Hyperliquid security audit reports</div><div class="meta">Could not find publicly disclosed audit. Critical to verify before sizing up HYPE.</div></div>
+      <div class="src-row"><div class="name">❌ Hyperliquid token unlock schedule</div><div class="meta">Need to verify — unlocks could create selling pressure.</div></div>
+    </div>
+  </div>
+
+  <div class="info-box" style="margin-top:14px;">
+    <div class="info-title">📝 HOW TO HELP ME GET BETTER</div>
+    <div class="info-text">Send me direct YouTube/podcast/Substack links for specific episodes you want incorporated. I will review the primary content and quote/synthesize directly rather than relying on secondary reporting. For Visser specifically — drop the most recent solo episode + Pomp episode URLs and I'll integrate them next round.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════ OPUS 4.6 SELF-VALIDATION ═══════════════════════ -->
+<div class="validation-card">
+  <div class="val-title">🔍 OPUS 4.6 SELF-VALIDATION REVIEW</div>
+  <div style="font-size:11px;color:var(--text2);margin-bottom:14px;">I am Opus 4.6. Per your request, I'm critically reviewing my own work. Where I'm confident I'll say so. Where I'm extrapolating or weak, I'll say so. This is what an honest junior analyst would write up before sending a memo to the PM.</div>
+
+  <div class="val-section">
+    <div class="val-h">✅ HIGH CONFIDENCE</div>
+    <div class="val-b">
+      <strong class="confident">Date corrections applied.</strong> April 13 = Monday. April 14 = Tuesday. Blockade now correctly dated.<br>
+      <strong class="confident">HYPE thesis restructured around fundamentals.</strong> Order book moat, HLP vault, buyback mechanism, perp market share — these are real protocol features. Hayes is supplementary.<br>
+      <strong class="confident">ASML/TSM earnings are genuinely binary events</strong> for AI sector this week — this isn't speculation, it's calendar fact.<br>
+      <strong class="confident">NVDA insider selling math is sourced</strong> from Form 4 filings — verifiable independently via SEC EDGAR.<br>
+      <strong class="confident">Options strategies are mechanically correct.</strong> Bull call spreads do reduce IV crush. CSPs do work as wheel-strategy income. The Greeks reference is accurate.
+    </div>
+  </div>
+
+  <div class="val-section">
+    <div class="val-h">⚠ MEDIUM CONFIDENCE — VERIFY BEFORE TRADING</div>
+    <div class="val-b">
+      <strong class="uncertain">Specific dollar amounts in options examples</strong> ($1,200 premium, $1,500 max gain etc.) are illustrative — actual premiums depend on live IV. Always check the live options chain before pricing trades.<br>
+      <strong class="uncertain">Conviction scores (1-10) are subjective.</strong> They reflect my confidence in the thesis given available information — they are NOT probabilities. Treat as relative ranking, not absolute predictions.<br>
+      <strong class="uncertain">PLTR / OKLO / ESLT / AVAV / COIN entries</strong> were added to expand to 10 ideas as requested — but my Q1 2026 research depth on these is thinner than on the original 5. Use the asset deep-link icons to verify current prices, recent earnings, and analyst PTs before sizing.<br>
+      <strong class="uncertain">Private company proxy quality ratings</strong> (STRONG/MED/WEAK) are my judgment, not consensus. Reasonable people will disagree on whether MSFT is a "strong" OpenAI proxy given OpenAI's complex Microsoft commercial structure.
+    </div>
+  </div>
+
+  <div class="val-section">
+    <div class="val-h">🚨 KNOWN WEAKNESSES — WHERE I COULD BE WRONG</div>
+    <div class="val-b">
+      <strong class="weakness">Visser quotes are from secondary reporting.</strong> Until I review his actual podcasts/Substack, treat his quoted price levels ($76K BTC, $2,400 ETH) as paraphrased not verbatim.<br>
+      <strong class="weakness">Hyperliquid validator decentralization and audit status</strong> — I have NOT independently verified these. The protocol fundamentals story I told assumes the network is reasonably secure. If you can't find a public audit, that's a real flag and you should size HYPE smaller until it's resolved.<br>
+      <strong class="weakness">"$3.3B NVDA insider selling Q1 2026" comes from research synthesis</strong> — verify the specific Form 4 filings via SEC EDGAR before treating as gospel.<br>
+      <strong class="weakness">Anduril $30B+ valuation</strong> — this is approximate based on most recent public funding rounds. Could be stale if there's been a more recent secondary market mark.<br>
+      <strong class="weakness">I am extrapolating "ESLT +60% YTD" from one source.</strong> Verify with live chart before assuming this is current.<br>
+      <strong class="weakness">Binary prediction probabilities (72%, 55%, etc.) are educated guesses</strong>, not calibrated forecasts. Don't bet meaningful money based on these specific percentages.
+    </div>
+  </div>
+
+  <div class="val-section">
+    <div class="val-h">🎯 HEDGE-FUND-BENCHMARK GAP — WHAT THIS REPORT IS MISSING</div>
+    <div class="val-b">
+      A genuine NYC hedge-fund product would have: <strong>(1)</strong> primary-source verification on every quoted figure (I cite secondaries for several); <strong>(2)</strong> position-sizing math grounded in Kelly criterion or risk-parity, not heuristics; <strong>(3)</strong> correlation matrices showing how trades co-move (right now ASML, TSM, PLTR, OKLO are ALL long-AI-CapEx — that's hidden concentration); <strong>(4)</strong> scenario analysis (what if oil hits $130? what if BTC goes to $40K?) with portfolio P&L per scenario; <strong>(5)</strong> backtest of the strategy class over prior cycles.<br><br>
+      <strong>What you have here</strong> is a high-quality discretionary idea generation report with live data and source links. <strong>What you don't have</strong> is rigorous portfolio risk math. For a $15K speculative account, the risk math gap is acceptable — for $1.5M+ it isn't. Be aware of where you are on that spectrum.
+    </div>
+  </div>
+
+  <div class="val-section">
+    <div class="val-h">🔧 RECOMMENDED NEXT-ROUND FIXES</div>
+    <div class="val-b">
+      1. Send Visser podcast/Substack URLs and I'll integrate primary content<br>
+      2. Pull live Quiver Quant congressional trade data for last 30 days (currently a gap)<br>
+      3. Verify Hyperliquid audit status before sizing HYPE above 15% of account<br>
+      4. Pull current analyst PTs for PLTR / OKLO / ESLT / AVAV / COIN (use the 🎯 deep links)<br>
+      5. Add correlation analysis across the 10 ideas — likely 4-5 are correlated AI longs<br>
+      6. Add scenario P&L (Iran resolves / Iran escalates / Fed surprises hawkish / TSMC misses)
+    </div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<div class="footer">
+  MUNGER CLAW · MONDAY APRIL 13, 2026 · OPUS 4.6 SELF-VALIDATED · ⚠ NOT FINANCIAL ADVICE · ALL CONTENT FOR INFORMATIONAL PURPOSES ONLY · VERIFY EVERY DATA POINT BEFORE TRADING
+</div>
+
+<script>
+// ── LIVE DATA ──────────────────────────────────────────────────────────────
+const COINGECKO = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,hyperliquid,venice-token&vs_currencies=usd&include_24hr_change=true';
+const STOCK_SYMBOLS = 'NVDA,ASML,TSM,PLTR,OKLO,COIN,AVAV,ET,CL=F';
+const YAHOO_URL = 'https://query1.finance.yahoo.com/v7/finance/quote?symbols=' + encodeURIComponent(STOCK_SYMBOLS) + '&formatted=false&lang=en-US&region=US';
+const PROXY = 'https://corsproxy.io/?' + encodeURIComponent(YAHOO_URL);
+
+const prev = {};
+let cryptoOk = false, stocksOk = false, countdown = 60;
+
+function fmt(n) {
+  if (n == null || isNaN(n)) return 'N/A';
+  if (n >= 10000) return '$' + n.toLocaleString('en-US', {maximumFractionDigits:0});
+  if (n >= 1000)  return '$' + n.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  if (n >= 100)   return '$' + n.toFixed(1);
+  if (n >= 1)     return '$' + n.toFixed(2);
+  return '$' + n.toFixed(4);
+}
+function fmtChange(p) {
+  if (p == null || isNaN(p)) return { text:'—', cls:'neutral' };
+  const s = p >= 0 ? '+' : '';
+  return { text: s + p.toFixed(2) + '%', cls: p >= 0 ? 'up' : 'down' };
+}
+function setTicker(id, price, changePct) {
+  const pEl = document.getElementById('price-' + id);
+  const cEl = document.getElementById('chg-' + id);
+  if (!pEl) return;
+  const { text: ct, cls: cc } = fmtChange(changePct);
+  if (prev[id] !== undefined && prev[id] !== price && price != null) {
+    const fc = price > prev[id] ? 'flash-up' : 'flash-down';
+    pEl.classList.remove('flash-up','flash-down','blink');
+    void pEl.offsetWidth;
+    pEl.classList.add(fc);
+    setTimeout(() => pEl.classList.remove(fc), 800);
+  } else { pEl.classList.remove('blink'); }
+  prev[id] = price;
+  pEl.textContent = price != null ? fmt(price) : 'N/A';
+  pEl.className = 'ticker-price ' + (price != null ? cc : 'na');
+  cEl.textContent = ct;
+  cEl.className = 'ticker-change ' + cc;
+}
+async function fetchCrypto() {
+  const r = await fetch(COINGECKO, { headers:{ Accept:'application/json' } });
+  if (!r.ok) throw new Error('CoinGecko ' + r.status);
+  const d = await r.json();
+  if (d.bitcoin)   setTicker('btc',  d.bitcoin.usd,  d.bitcoin.usd_24h_change);
+  if (d.ethereum)  setTicker('eth',  d.ethereum.usd, d.ethereum.usd_24h_change);
+  if (d.hyperliquid) {
+    const hp=d.hyperliquid.usd, hc=d.hyperliquid.usd_24h_change;
+    setTicker('hype', hp, hc);
+    const hLive=document.getElementById('hype-live'); if (hLive) hLive.textContent = fmt(hp)+' LIVE';
+    const hCard=document.getElementById('hype-card-price'); if (hCard) { hCard.textContent=fmt(hp); hCard.className='crypto-price '+(hc>=0?'up':'down'); }
+    const hChg=document.getElementById('hype-card-chg'); if (hChg) { const {text}=fmtChange(hc); hChg.textContent=text+' 24H · $10B+ Mkt Cap'; }
+  }
+  if (d['venice-token']) {
+    const vp=d['venice-token'].usd, vc=d['venice-token'].usd_24h_change;
+    setTicker('vvv', vp, vc);
+    const vLive=document.getElementById('vvv-live'); if (vLive) vLive.textContent = fmt(vp)+' LIVE';
+    const vCard=document.getElementById('vvv-card-price'); if (vCard) { vCard.textContent=fmt(vp); vCard.className='crypto-price '+(vc>=0?'up':'down'); }
+    const vChg=document.getElementById('vvv-card-chg'); if (vChg) { const {text}=fmtChange(vc); vChg.textContent=text+' 24H · ATH $22'; }
+  }
+  cryptoOk = true;
+}
+async function fetchStocks() {
+  const r = await fetch(PROXY, { headers:{ Accept:'application/json' } });
+  if (!r.ok) throw new Error('Yahoo/proxy ' + r.status);
+  const d = await r.json();
+  const quotes = d?.quoteResponse?.result || [];
+  if (!quotes.length) throw new Error('No quotes returned');
+  quotes.forEach(q => {
+    const id = q.symbol === 'CL=F' ? 'oil' : q.symbol.toLowerCase();
+    setTicker(id, q.regularMarketPrice, q.regularMarketChangePercent);
+  });
+  stocksOk = quotes.length > 0;
+}
+function updateStatus() {
+  const dot=document.getElementById('sdot'), label=document.getElementById('slabel');
+  const now=new Date();
+  const ts=now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
+  const ds=now.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  document.getElementById('supdate').textContent='Last fetched: '+ds+' '+ts;
+  if (cryptoOk && stocksOk) { dot.className='live-dot'; label.innerHTML='<b style="color:var(--green)">LIVE</b> — Crypto ✓ · Stocks ✓'; }
+  else if (cryptoOk) { dot.className='live-dot stale'; label.innerHTML='<b style="color:var(--orange)">PARTIAL</b> — Crypto ✓ · Stocks proxy retry'; ['nvda','asml','tsm','pltr','oklo','coin','avav','et','oil'].forEach(id=>{const p=document.getElementById('price-'+id);if(p&&(p.textContent==='…'||p.textContent==='N/A')){p.textContent='—';p.className='ticker-price na';}}); }
+  else { dot.className='live-dot error'; label.innerHTML='<b style="color:var(--red)">ERROR</b> — Check network'; }
+}
+async function refreshAll() {
+  const btn=document.getElementById('rbtn');
+  if (btn) { btn.textContent='⟳ FETCHING…'; btn.classList.add('spin'); }
+  document.getElementById('sdot').className='live-dot stale';
+  document.getElementById('slabel').textContent='Fetching…';
+  cryptoOk=false; stocksOk=false;
+  const results=await Promise.allSettled([fetchCrypto(), fetchStocks()]);
+  if (results[0].status==='fulfilled') cryptoOk=true; else console.warn('Crypto:', results[0].reason);
+  if (results[1].status==='fulfilled') stocksOk=true; else console.warn('Stocks:', results[1].reason);
+  updateStatus();
+  countdown=60;
+  if (btn) { btn.textContent='⟳ REFRESH DATA ('+countdown+'s)'; btn.classList.remove('spin'); }
+}
+refreshAll();
+setInterval(refreshAll, 60000);
+setInterval(()=>{const btn=document.getElementById('rbtn');if(btn&&!btn.classList.contains('spin')){countdown=Math.max(0,countdown-1);btn.textContent='⟳ REFRESH DATA ('+countdown+'s)';}}, 1000);
+</script>
+</body>
+</html>

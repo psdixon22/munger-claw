@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Munger Claw — Loading Latest Dashboard</title>
+<style>
+  body{margin:0;background:#0a0e14;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:20px}
+  .box{max-width:520px}
+  h1{color:#ffb14a;margin:0 0 8px;font-size:22px;letter-spacing:0.5px}
+  .sub{color:#8b949e;font-size:14px;margin-bottom:24px}
+  .spinner{border:3px solid #1f2a37;border-top:3px solid #ffb14a;border-radius:50%;width:34px;height:34px;animation:spin 0.9s linear infinite;margin:12px auto}
+  @keyframes spin{100%{transform:rotate(360deg)}}
+  a{color:#58a6ff;text-decoration:none;font-size:13px}
+  a:hover{text-decoration:underline}
+  .manual{margin-top:26px;font-size:12px;color:#8b949e}
+  .manual code{background:#111821;padding:2px 6px;border-radius:4px;color:#ffb14a;font-size:11px}
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>MUNGER CLAW</h1>
+  <div class="sub">Loading latest daily dashboard…</div>
+  <div class="spinner"></div>
+  <div class="manual">
+    If redirect doesn't happen: <a href="#" id="fallback">click here</a> &nbsp;·&nbsp; <a href="history.html">view history</a>
+  </div>
+</div>
+<script>
+// Find the most recent munger_claw_*.html and redirect to it.
+// Uses filename pattern: munger_claw_{month}{day}_{year}.html (e.g. munger_claw_april16_2026.html)
+
+const MONTH_MAP = {
+  january:1, february:2, march:3, april:4, may:5, june:6,
+  july:7, august:8, september:9, october:10, november:11, december:12
+};
+
+async function findLatest() {
+  // Build a candidate list going backwards from today, up to 60 days
+  const today = new Date();
+  const candidates = [];
+  for (let i = 0; i < 60; i++) {
+    const d = new Date(today.getTime() - i*24*60*60*1000);
+    const month = d.toLocaleString('en-US',{month:'long'}).toLowerCase();
+    const day = d.getDate();
+    const year = d.getFullYear();
+    candidates.push(`munger_claw_${month}${day}_${year}.html`);
+  }
+
+  // HEAD-check each candidate until we find one that exists
+  for (const f of candidates) {
+    try {
+      const res = await fetch(f, {method:'HEAD'});
+      if (res.ok) {
+        document.getElementById('fallback').href = f;
+        window.location.replace(f);
+        return;
+      }
+    } catch(e) { /* try next */ }
+  }
+  // None found — show message
+  document.querySelector('.sub').textContent = 'No dashboard file found. Check /history.html';
+  document.querySelector('.spinner').style.display = 'none';
+}
+
+findLatest();
+</script>
+</body>
+</html>
