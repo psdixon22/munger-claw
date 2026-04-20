@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Munger Claw · Apr 20 2026 · 11AM ET</title>
+<title>Munger Claw · Apr 19 2026 · Live</title>
 <style>
   :root {
     --bg:#0a0e14; --panel:#12171f; --panel2:#1a2130; --border:#2a3345;
     --text:#e6edf3; --muted:#8b949e; --accent:#f5a623; --green:#3fb950;
     --red:#f85149; --blue:#58a6ff; --yellow:#e3b341; --purple:#bc8cff;
-    --urgent:#ff4444; --inzone:#2ea043;
+    --urgent:#ff4444;
   }
-  * { box-sizing: border-box; margin:0; padding:0; }
-  body { font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system,'Segoe UI',system-ui,sans-serif;
     background:var(--bg); color:var(--text); line-height:1.5; font-size:14px; }
   .container { max-width:1400px; margin:0 auto; padding:20px; }
   .header { display:flex; justify-content:space-between; align-items:center;
@@ -35,13 +35,18 @@
   .panel h2 { color:var(--accent); font-size:18px; margin-bottom:12px;
     padding-bottom:8px; border-bottom:1px solid var(--border);}
   .panel h3 { color:var(--blue); font-size:15px; margin:12px 0 6px; }
-  .ticker-bar { display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));
+  .ticker-bar { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));
     gap:10px; margin-bottom:16px; }
   .ticker-cell { background:var(--panel2); padding:12px; border-radius:8px;
-    border-left:3px solid var(--accent); }
-  .ticker-cell .sym { font-weight:700; color:var(--blue); font-size:13px; }
+    border-left:3px solid var(--accent); position:relative;}
+  .ticker-cell .sym { font-weight:700; color:var(--blue); font-size:13px; display:flex; justify-content:space-between;}
   .ticker-cell .px { font-size:18px; font-weight:700; margin:4px 0;}
-  .ticker-cell .chg { font-size:12px; }
+  .ticker-cell .chg { font-size:11px; }
+  .ticker-cell .src { font-size:9px; color:var(--muted); position:absolute; top:6px; right:8px;}
+  .live-dot { display:inline-block; width:6px; height:6px; background:var(--green);
+    border-radius:50%; margin-right:4px; animation:blink 2s infinite;}
+  .stale-dot { background:var(--yellow); }
+  @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:.3;} }
   .up { color:var(--green); }
   .dn { color:var(--red); }
   .flat { color:var(--muted); }
@@ -52,26 +57,26 @@
   tr:hover { background:rgba(245,166,35,.05);}
   .badge { padding:3px 8px; border-radius:12px; font-size:11px; font-weight:700;
     display:inline-block; }
-  .b-inzone { background:rgba(62,185,80,.2); color:var(--green);
-    border:1px solid var(--green);}
-  .b-above { background:rgba(139,148,158,.2); color:var(--muted);
-    border:1px solid var(--muted);}
-  .b-approaching { background:rgba(227,179,65,.2); color:var(--yellow);
-    border:1px solid var(--yellow);}
+  .b-inzone { background:rgba(62,185,80,.2); color:var(--green); border:1px solid var(--green);}
+  .b-above { background:rgba(139,148,158,.2); color:var(--muted); border:1px solid var(--muted);}
+  .b-approaching { background:rgba(227,179,65,.2); color:var(--yellow); border:1px solid var(--yellow);}
   .b-atstop { background:rgba(255,68,68,.3); color:#fff; border:1px solid var(--urgent);
     animation:pulse 2s infinite;}
-  .b-conv { background:rgba(88,166,255,.2); color:var(--blue);
-    border:1px solid var(--blue);}
+  .b-new { background:rgba(88,166,255,.22); color:var(--blue); border:1px solid var(--blue);}
+  .b-resize { background:rgba(188,140,255,.22); color:var(--purple); border:1px solid var(--purple);}
   @keyframes pulse { 0%{opacity:1;} 50%{opacity:.6;} 100%{opacity:1;} }
+  .actual-input { width:70px; padding:4px 6px; background:var(--panel2); color:var(--text);
+    border:1px solid var(--border); border-radius:4px; font-family:inherit; font-size:12px;}
+  .actual-input:focus { outline:none; border-color:var(--blue);}
   .alert { padding:12px 16px; border-radius:8px; margin:8px 0; font-weight:600;}
   .alert-inzone { background:linear-gradient(90deg,rgba(62,185,80,.15),transparent);
     border-left:4px solid var(--green); color:var(--green);}
-  .alert-atstop { background:linear-gradient(90deg,rgba(255,68,68,.2),transparent);
-    border-left:4px solid var(--urgent); color:var(--urgent);}
+  .alert-approach { background:linear-gradient(90deg,rgba(227,179,65,.15),transparent);
+    border-left:4px solid var(--yellow); color:var(--yellow);}
   .alert-feed { background:linear-gradient(90deg,rgba(188,140,255,.15),transparent);
     border-left:4px solid var(--purple); color:var(--purple);}
-  .alert-warn { background:linear-gradient(90deg,rgba(227,179,65,.15),transparent);
-    border-left:4px solid var(--yellow); color:var(--yellow);}
+  .alert-warn { background:linear-gradient(90deg,rgba(248,81,73,.15),transparent);
+    border-left:4px solid var(--red); color:var(--red);}
   .kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
     gap:12px; margin:12px 0;}
   .kpi { background:var(--panel2); padding:14px; border-radius:8px;}
@@ -80,7 +85,6 @@
   .convbar { display:inline-block; width:40px; height:8px; background:var(--border);
     border-radius:4px; overflow:hidden; margin-left:6px; vertical-align:middle;}
   .convbar span { display:block; height:100%; background:var(--accent); }
-  pre, code { font-family:'SFMono-Regular',Consolas,monospace; font-size:12px; }
   .chat-area { background:var(--panel2); padding:10px; border-radius:8px;
     height:400px; overflow-y:auto; margin-bottom:10px;}
   .chat-input { width:100%; padding:10px; background:var(--panel2); color:var(--text);
@@ -89,6 +93,7 @@
     border-radius:8px; font-weight:700; cursor:pointer; margin:4px;}
   .btn:hover { opacity:.9;}
   .btn-secondary { background:var(--panel2); color:var(--text); border:1px solid var(--border);}
+  .btn-refresh { position:absolute; top:16px; right:16px; padding:6px 12px; font-size:11px;}
   ul { margin-left:20px; margin-top:6px;}
   li { margin:4px 0;}
   .footer { text-align:center; padding:20px; color:var(--muted); font-size:11px;
@@ -101,477 +106,1189 @@
     color:var(--text); border:1px solid var(--border); border-radius:6px; font-family:inherit;}
   .msg-user { background:rgba(88,166,255,.1); padding:8px 12px; border-radius:8px; margin:6px 0;
     border-left:3px solid var(--blue);}
-  .msg-ai { background:rgba(245,166,35,.08); padding:8px 12px; border-radius:8px; margin:6px 0;
-    border-left:3px solid var(--accent);}
-  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px;}
-  @media (max-width:768px){.grid-2{grid-template-columns:1fr;}}
-  .disclaimer { background:rgba(245,166,35,.08); border:1px dashed var(--accent);
-    padding:10px 14px; border-radius:8px; font-size:12px; color:var(--muted); margin-top:16px;}
+  .msg-assistant { background:rgba(62,185,80,.08); padding:8px 12px; border-radius:8px; margin:6px 0;
+    border-left:3px solid var(--green);}
+  .freshness-bar { display:flex; justify-content:space-between; align-items:center;
+    padding:10px 14px; background:var(--panel2); border:1px solid var(--border);
+    border-radius:8px; margin-bottom:16px; font-size:12px;}
+  .freshness-bar .live { color:var(--green); font-weight:600;}
+  .freshness-bar .stale { color:var(--yellow); font-weight:600;}
 </style>
 </head>
 <body>
 <div class="container">
-  <div class="header">
-    <div>
-      <h1>🦞 MUNGER CLAW</h1>
-      <div class="subtitle">Alpha Dashboard · Mon Apr 20 2026 · 11:00 AM ET Run · Inception basket live · TSLA earnings Wed 4/22 after close</div>
-    </div>
-    <div class="bias-badge">BIAS: CAUTIOUS RISK-ON · IRAN TAIL</div>
+
+<div class="header">
+  <div>
+    <h1>🦞 MUNGER CLAW · ALPHA DASHBOARD</h1>
+    <div class="subtitle">Sunday, April 19, 2026 · Live crypto via CoinGecko · Live stocks via Cloudflare Worker (configure in Settings)</div>
   </div>
+  <div class="bias-badge">REFLATIONARY SCARCITY · COMPUTE CRUNCH</div>
+</div>
 
-  <div class="tabs">
-    <div class="tab active" onclick="showTab(event,'dashboard')">📊 Dashboard</div>
-    <div class="tab" onclick="showTab(event,'portfolio')">💼 Portfolio</div>
-    <div class="tab" onclick="showTab(event,'chat')">💬 Chat</div>
-    <div class="tab" onclick="showTab(event,'feed')">📡 Feed</div>
-    <div class="tab" onclick="showTab(event,'settings')">⚙️ Settings</div>
+<!-- Data freshness bar -->
+<div class="freshness-bar">
+  <div>
+    <span class="live-dot"></span><strong>Crypto:</strong> <span id="crypto-freshness" class="live">Live via CoinGecko (refreshes every 60s)</span>
   </div>
-
-  <!-- =============== DASHBOARD TAB =============== -->
-  <div id="dashboard" class="tab-content active">
-    <!-- Ticker bar -->
-    <div class="ticker-bar">
-      <div class="ticker-cell"><div class="sym">HYPE</div><div class="px">$43.02</div><div class="chg dn">−1.1% · IN ZONE</div></div>
-      <div class="ticker-cell"><div class="sym">NVDA</div><div class="px">$199.78</div><div class="chg flat">−0.9% · IN ZONE</div></div>
-      <div class="ticker-cell"><div class="sym">PLTR</div><div class="px">$146.00</div><div class="chg flat">~0% · IN ZONE</div></div>
-      <div class="ticker-cell"><div class="sym">VVV</div><div class="px">$9.05</div><div class="chg dn">−1.8% · at zone top</div></div>
-      <div class="ticker-cell"><div class="sym">OKLO</div><div class="px">$66.81</div><div class="chg flat">−0.04% · IN ZONE</div></div>
-      <div class="ticker-cell"><div class="sym">RCAT</div><div class="px">$12.74</div><div class="chg flat">−0.2% · IN ZONE (top)</div></div>
-      <div class="ticker-cell"><div class="sym">BTC</div><div class="px">$75,324</div><div class="chg dn">−$475 · Iran tension</div></div>
-      <div class="ticker-cell"><div class="sym">TSLA</div><div class="px">$400.62</div><div class="chg up">Above zone · Q1 Wed 4/22</div></div>
-    </div>
-
-    <!-- Executive summary -->
-    <div class="panel">
-      <h2>① Executive Summary</h2>
-      <p><strong>Inception basket is live and holding.</strong> 11AM snapshot: 5 of 6 positions still IN ZONE, VVV sitting right at the zone top ($9.05 vs $9.00). Portfolio is tracking <strong>−$96 (−0.96%)</strong> on day 1 — well inside normal noise. Nothing is at a stop.</p>
-      <p><strong>What changed overnight and into this morning:</strong> The U.S.-Iran ceasefire is cracking. Sunday the U.S. Navy fired on and seized an Iranian container ship in the Gulf of Oman; Trump called Iran's conduct a "total violation." WTI crude jumped &gt;6% to ~$89. U.S. equity futures opened lower, BTC dripped to $75.3k (−$475), ETH $2,318 (−$25). This is the <em>one risk-off variable</em> to track for the rest of the week. If the Strait of Hormuz closes, everything trades — oil rips, equities compress, BTC retests $70k.</p>
-      <p><strong>Net alpha view (unchanged core):</strong> Compute-shortage + power-buildout thesis intact. Hayes remains the most important tape for HYPE — his $1.1M April accumulation + $150 August target still the governing signal. <strong>Luke Gromen shift to track:</strong> he is now fading BTC short-term (sees $40k-50k chop risk) while staying bullish debasement <em>via gold</em>. That is a tangible change since the April 13 update and is a meaningful input to any BTC-adjacent sizing decision (HYPE, VVV, MSTR-related).</p>
-      <p><strong>Top 2 immediate action items:</strong></p>
-      <ul>
-        <li><strong>Do NOT chase VVV above $9.50.</strong> It ran $8.56 → $9.23 into weekend; $9.05 now. If you haven't scaled in the second half yet, wait for the $8.50-8.75 retest. Position is already live at entry.</li>
-        <li><strong>Hold the $900 TSLA cash reserve until Wednesday 4/22 post-close.</strong> Consensus $0.37 EPS / $22.71B rev vs Refinitiv Smart Est $0.30 / $21.52B (−20.6% surprise skew). Deliveries already missed at 358k. Robotaxi narrative priced in at $400. <strong>Default stance: wait for the miss → buy the $340-360 zone.</strong> If the stock rips on a beat, buy the $420 breakout instead — do not enter between $360-420.</li>
-      </ul>
-    </div>
-
-    <!-- Zone alert banner -->
-    <div class="panel">
-      <h2>② Zone Alerts</h2>
-      <div class="alert alert-inzone">🟢 <strong>5 OF 6 IN ZONE</strong> · HYPE ($43.02) · NVDA ($199.78) · PLTR ($146.00) · OKLO ($66.81) · RCAT ($12.74). No action required.</div>
-      <div class="alert alert-warn">⚠️ <strong>VVV at zone boundary:</strong> $9.05 vs $9.00 top (+0.6%). Position is already entered; no add until $8.50-8.75. If it gaps &gt; $9.50, pull the line entirely and wait for a pullback.</div>
-      <div class="alert alert-warn">⚠️ <strong>Macro tail — Iran:</strong> Hormuz escalation → oil-spike risk. If WTI &gt; $95 and BTC breaks $72k, begin partial HYPE trim (25% off the 28% allocation).</div>
-      <div class="alert alert-warn">⚠️ <strong>Luke Gromen shift:</strong> Fading BTC short-term, bullish gold. Not yet a trigger for portfolio change but a flag: if BTC loses $72k on volume, re-size HYPE/VVV.</div>
-    </div>
-
-    <!-- High conviction ideas -->
-    <div class="panel">
-      <h2>③ Highest-Conviction Ideas</h2>
-      <table>
-        <thead><tr><th>Ticker</th><th>Thesis</th><th>Bull / Bear</th><th>Conv</th><th>Vehicle</th><th>Entry</th><th>Stop</th><th>T1 / T2</th><th>Size</th></tr></thead>
-        <tbody>
-          <tr><td><strong>HYPE</strong></td><td>Hayes $10.4M position + $1.1M add April. Bitwise BHYP ETF S-1. HyperEVM L1 live. HIP4 binary options launched. CFTC pledged to "onshore" DEXs → U.S. access catalyst.</td><td>B: ETF + CFTC access = institutional rails.<br>Br: Near-term Iran / liquidity; $47.50 must break for next leg. Hayes himself: "no-trade zone until Treasury refunding May 1."</td><td>9/10<span class="convbar"><span style="width:90%"></span></span></td><td>Spot token</td><td>$42-46</td><td>$36</td><td>$80 / $150</td><td>28% / $2.8k</td></tr>
-          <tr><td><strong>NVDA</strong></td><td>Jensen Dwarkesh Apr 15: supply-chain moat confirmed, H-200 China approved, Anthropic = all TPU growth reframe. TSM Q1 +58% (Apr 16) validates demand.</td><td>B: Vera Rubin → Rubin Ultra → Feynman roadmap intact. China H-200 incremental.<br>Br: TSM/ASML sold on their beats ("buy the rumor" exhaustion) — expectations lid near term.</td><td>8/10<span class="convbar"><span style="width:80%"></span></span></td><td>Stock</td><td>$185-205</td><td>$165</td><td>$250 / $320</td><td>22% / $2.2k</td></tr>
-          <tr><td><strong>PLTR</strong></td><td>FAA modernization work + Iran war contracts reinforcing government moat (FPJ Apr 20). Homeland Security Committee members buying. Morgan Stanley PT $205. Earnings May 4.</td><td>B: AIP = logic-layer std; Rule of 40 ~118.<br>Br: Had April drawdown to $65 intraday on tariff panic; still rich; guide-below-whisper risk May 4.</td><td>7/10<span class="convbar"><span style="width:70%"></span></span></td><td>Stock</td><td>$140-155</td><td>$115</td><td>$185 / $220</td><td>17% / $1.7k</td></tr>
-          <tr><td><strong>VVV</strong></td><td>Venice AI capital token. 42% supply burned, burn rate accelerating — more VVV burned this month than all of March (CoinGecko). 18% staking APY. $430M mkt cap. Up 460% YTD. Wyckoff accumulation signal (Bankless Times Apr 14).</td><td>B: Uncensored-AI regulatory tailwind + censorship narrative.<br>Br: $9 resistance tagged; small-cap crypto liquidity; Hormuz risk-off will hit first.</td><td>7/10<span class="convbar"><span style="width:70%"></span></span></td><td>Spot token</td><td>$7.50-9.00</td><td>$5.50</td><td>$25 / $50</td><td>10% / $1.0k</td></tr>
-          <tr><td><strong>OKLO</strong></td><td>Nuclear microreactor for AI. $2.5B cash. White House space nuclear mandate (Apr 17). Altman-backed. Range $64.53-$74.21 on Apr 19. Analyst PT $102 (avg).</td><td>B: Only NRC-track AI-power pure-play.<br>Br: Pre-revenue; insider sells Apr 1 ($21M); analyst range $60-$150 = genuine disagreement.</td><td>7/10<span class="convbar"><span style="width:70%"></span></span></td><td>Stock</td><td>$62-75</td><td>$48</td><td>$100 / $140</td><td>10% / $1.0k</td></tr>
-          <tr><td><strong>RCAT</strong></td><td>Anduril drone ecosystem proxy. NATO ally selected Black Widow (March). Acquired Apium Swarm Robotics Mar 30 — distributed multi-agent autonomy. All-In Apr 6 episode (Palantir & Anduril execs) = thesis re-affirmation.</td><td>B: DoD SRR + NATO demand. Acquisition expands moat.<br>Br: 52wk $4.60-$18.78; high beta; small position for a reason.</td><td>5/10<span class="convbar"><span style="width:50%"></span></span></td><td>Stock</td><td>$10-13</td><td>$8.50</td><td>$22 / $35</td><td>4% / $0.4k</td></tr>
-          <tr style="background:rgba(88,166,255,.05);"><td><strong>TSLA</strong> (cash)</td><td>Q1 earnings Wed 4/22 post-close. Refinitiv Smart Est $0.30/$21.52B vs consensus $0.37/$22.71B. Deliveries 358k already missed internal 365k. Terafab capex NOT in 2026 guide — upward surprise risk. Most consequential print of the week.</td><td>B: Cybercab + Optimus Gen3 + Terafab capex reveal.<br>Br: Auto GM compression; $400 is +12% in 8 weeks; FSD V14 regulatory noise.</td><td>6/10<span class="convbar"><span style="width:60%"></span></span></td><td>Stock (cash)</td><td>$340-360 miss / $420 breakout</td><td>$295 (miss) / $380 (breakout)</td><td>$480 / $550</td><td>$900 cash</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Thematic Proxy Trades -->
-    <div class="panel">
-      <h2>④ Thematic Proxy Trades</h2>
-      <div class="grid-2">
-        <div>
-          <h3>AI Hardware / Compute</h3>
-          <p>Core: <strong>NVDA</strong>. Watch: <strong>TSM</strong> ($165-175), <strong>ASML</strong> ($1,250-1,380).</p>
-          <p>Edge: TSM Q1 +58% YoY net income proved demand is structural. But post-earnings tape sold both names → wait for the dip, don't chase the narrative.</p>
-        </div>
-        <div>
-          <h3>AI Energy Buildout</h3>
-          <p>Core: <strong>OKLO</strong>. Watch alt-proxies: <strong>VST, CEG, TLN</strong>. BE remains expensive at $207 — do not chase.</p>
-          <p>Edge: White House space nuclear mandate Apr 17. All-In nuclear thesis still governing.</p>
-        </div>
-        <div>
-          <h3>Defense / Anduril Supply-Chain</h3>
-          <p>Core: <strong>RCAT</strong>. Watch: <strong>LTRX</strong> ($5.45, 3x YoY), <strong>OPTX</strong> (EagleEye polymer optics), <strong>ONDS</strong> (Safe Pro Group $14M).</p>
-          <p>Edge: LTRX raised drone rev to $8-12M; in Anduril Ghost supply chain. OPTX on "superhuman perception" IVAS-successor. Consider <strong>LTRX as the asymmetric satellite</strong> — small-cap optionality at $5.45.</p>
-        </div>
-        <div>
-          <h3>Iran / Oil / Macro Hedge</h3>
-          <p>Not currently sized. If Hormuz closes: consider <strong>USO / ET / XLE</strong> tactical hedge. Energy Transfer (ET) at $18.61-18.84 is the calm-cashflow option on pipe tolls even if oil spikes.</p>
-          <p>Trigger: WTI sustained &gt; $95.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- TSLA Earnings Playbook -->
-    <div class="panel">
-      <h2>⑤ TSLA Earnings Playbook — Wed Apr 22 post-close</h2>
-      <table>
-        <thead><tr><th>Scenario</th><th>Probability</th><th>Trigger</th><th>Action</th><th>Stop</th><th>T1 / T2</th></tr></thead>
-        <tbody>
-          <tr><td><strong>Miss (Refinitiv-style)</strong></td><td>53%</td><td>EPS &lt; $0.35 or rev &lt; $22B; gap-down to $350-380</td><td>Buy $340-360 zone with full $900 reserve</td><td>$295</td><td>$480 / $550</td></tr>
-          <tr><td><strong>In-line print</strong></td><td>25%</td><td>EPS $0.36-0.40, rev $22-23B, no Terafab/Robotaxi update</td><td>No action — hold cash</td><td>—</td><td>—</td></tr>
-          <tr><td><strong>Beat + Terafab reveal</strong></td><td>22%</td><td>EPS &gt; $0.42, rev &gt; $23B, concrete 2026 capex &gt; $25B, AI5 timeline, or Cybercab delivery date</td><td>Buy $420 breakout (post-gap, NOT on first spike)</td><td>$380</td><td>$480 / $550</td></tr>
-        </tbody>
-      </table>
-      <p><em>Key: Do not enter between $360 and $420. That's "waiting for clarity" zone. Either confirmed miss-and-retest OR confirmed beat-and-breakout.</em></p>
-    </div>
-
-    <!-- Thinker Signal Matrix -->
-    <div class="panel">
-      <h2>⑥ Thinker Signal Matrix (last 7 days)</h2>
-      <table>
-        <thead><tr><th>Source</th><th>Date</th><th>Key Signal</th><th>Portfolio Implication</th></tr></thead>
-        <tbody>
-          <tr><td><strong>All-In Pod (E268)</strong></td><td>Apr 17</td><td>"OpenAI's Identity Crisis, Datacenter Wars, Iran News, Mamdani's First Tax" — Travis Kalanick guest. Datacenter wars segment = NVDA / nuclear / AI infra tailwind. Mamdani NY tax = NY-tech migration narrative.</td><td>Reinforces NVDA + OKLO + energy buildout. No re-size needed.</td></tr>
-          <tr><td><strong>All-In Pod (E267)</strong></td><td>Apr 10</td><td>"Anthropic's $30B ramp, Mythos Doomsday, OpenClaw Ankled, Iran War Ceasefire, Israel's Influence." Anthropic ramp = Dario thesis.</td><td>NVDA + Anthropic private exposure (VCX watchlist, but still above zone).</td></tr>
-          <tr><td><strong>All-In (Apr 6)</strong></td><td>Apr 6</td><td>Palantir & Anduril execs — "Drones, AI, end of traditional warfare."</td><td>PLTR + RCAT thesis re-affirmed. LTRX/OPTX/ONDS as add-on proxies.</td></tr>
-          <tr><td><strong>Arthur Hayes</strong></td><td>Apr 12, Apr 17</td><td>Additional $1.1M HYPE buy (first add in 3 months). Target $150 Aug 2026 needs 30d revenue run-rate $1.4B. Also: "crypto is a no-trade zone until Treasury refunding May 1."</td><td>HYPE 9/10 conviction maintained. Do not add; respect the near-term liquidity lid.</td></tr>
-          <tr><td><strong>Jensen Huang (Dwarkesh)</strong></td><td>Apr 15</td><td>TPU competition framed as "all Anthropic growth" — NVDA moat defended; H-200 China approved; NVIDIA will NOT become a hyperscaler.</td><td>NVDA thesis confirmed. No change.</td></tr>
-          <tr><td><strong>Luke Gromen (FFTT)</strong></td><td>Multi-week shift</td><td><strong>NEW:</strong> Fading BTC short-term; sees $40k-$50k chop risk. Still bullish debasement, but preferring GOLD over BTC. Warning signs: BTC lagging gold, key MA breaks, quantum discussion.</td><td>Flag: if BTC loses $72k on volume → trim HYPE/VVV 20-25%. Consider a small GLD/IAU hedge outside model portfolio.</td></tr>
-          <tr><td><strong>Lyn Alden</strong></td><td>Current</td><td>BTC "only way out" of debt-based fiat system. Expects $100k reclaim 2026. Cautions "no one is owed a bull market."</td><td>Balances Gromen's short-term fade. Long-term BTC thesis intact — hold HYPE conviction.</td></tr>
-          <tr><td><strong>Michael Saylor (Strategy)</strong></td><td>Apr 13</td><td>+13,927 BTC ($1B) at $71,902 avg, funded entirely via STRC preferred (no MSTR dilution). Holdings 780,897 BTC; targeting 1M by EOY.</td><td>Structural BTC bid. Non-dilutive funding is a real shift in MSTR mechanics — supportive for BTC floor.</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Crypto Alpha -->
-    <div class="panel">
-      <h2>⑦ Crypto Alpha — HYPE + VVV (mandate)</h2>
-      <div class="grid-2">
-        <div>
-          <h3>Hyperliquid (HYPE) — $43.02</h3>
-          <p><strong>Thesis:</strong> Most profitable DEX in crypto. On-chain perps flywheel. Token buybacks from fees. Hayes' largest non-BTC holding.</p>
-          <p><strong>Catalysts near-term:</strong> (1) Bitwise BHYP ETF S-1 approval; (2) CFTC "onshore" DEX framework → U.S. user access; (3) HIP4 binary options revenue ramp; (4) HyperEVM L1 ecosystem growth.</p>
-          <p><strong>Key level:</strong> Must reclaim $47.50 for next leg. $45 is immediate resistance. Below $42 → test $36 stop on Hormuz risk-off.</p>
-          <p><strong>Hayes calculus:</strong> $150 target needs 30-day annualized revenue ≈ $1.4B (vs current ~$843M). Has hit it before (August 2025). Plausible if permissionless markets + binary options compound.</p>
-        </div>
-        <div>
-          <h3>Venice Token (VVV) — $9.05</h3>
-          <p><strong>Thesis:</strong> Uncensored AI inference capital token. 42% of supply already burned; burn rate accelerating — more VVV burned this month than all of March. 18% staking APY. 450k+ users. $430M market cap (top-100 crypto).</p>
-          <p><strong>Why VVV not DIEM:</strong> VVV is the capital asset with revenue share and burn. DIEM is a utility token ($1/day API credits) — not a speculative instrument.</p>
-          <p><strong>Catalysts:</strong> AI-regulation / censorship debates; burn rate compounding; Wyckoff accumulation signal per Bankless Times Apr 14.</p>
-          <p><strong>Risk:</strong> $9 resistance tagged. Hormuz-driven crypto risk-off would hit VVV first (small-cap illiquidity). $8.50-8.75 is re-entry zone; $5.50 is stop.</p>
-        </div>
-      </div>
-      <h3>Additional crypto — high-bar screen (no new adds)</h3>
-      <p>Screen pass through top non-HYPE/VVV names — none currently meet the "exceptionally high standards of fundamentals, team, usage, moat, alignment" bar. SOL and ETH are quality but not asymmetric at current prices. Re-screening weekly.</p>
-    </div>
-
-    <!-- Congressional & Smart Money -->
-    <div class="panel">
-      <h2>⑧ Congressional & Smart-Money Signals</h2>
-      <table>
-        <thead><tr><th>Signal</th><th>Source</th><th>Read</th></tr></thead>
-        <tbody>
-          <tr><td>NVDA = top congressional buy 2025 ($11.2M House inflows, 2x MSFT)</td><td>Unusual Whales</td><td>Structural bid. Aligns with our 22% NVDA weight.</td></tr>
-          <tr><td>PLTR buying by members of Homeland Security + Counterterrorism/Intel Subcommittees</td><td>Unusual Whales</td><td>Info-advantage pattern — our PLTR 17% weight is consistent with this signal.</td></tr>
-          <tr><td>Shkreli-style edge — PLTR FAA modernization + Iran war contracts</td><td>FPJ Apr 20</td><td>Government contract flow compounding; supports PLTR into May 4 print.</td></tr>
-          <tr><td>Saylor STRC preferred mechanism (non-dilutive BTC funding)</td><td>CoinDesk Apr 13</td><td>Removes classic "MSTR dilution" bear case; supportive for BTC floor structurally.</td></tr>
-          <tr><td>Arthur Hayes tape — biggest non-BTC position is HYPE</td><td>Hayes X, Maelstrom disclosures</td><td>Governing signal for HYPE. Do not reduce below 25% allocation unless he flips.</td></tr>
-        </tbody>
-      </table>
-      <p><em>Note: Live Unusual Whales / Quiver / Capitol Trades 24-48h filings not programmatically retrieved this run — will refresh at 5PM run.</em></p>
-    </div>
-
-    <!-- Binary Prediction -->
-    <div class="panel">
-      <h2>⑨ Binary Prediction-Market Candidates</h2>
-      <table>
-        <thead><tr><th>Proposition</th><th>Our P(yes)</th><th>Resolution</th><th>Rationale</th></tr></thead>
-        <tbody>
-          <tr><td>TSLA Q1 EPS ≥ $0.37 consensus</td><td>35%</td><td>Wed Apr 22</td><td>Delivery miss already; Refinitiv Smart Est at $0.30; margin compression.</td></tr>
-          <tr><td>TSLA gaps &gt; 5% up or down post-print</td><td>75%</td><td>Wed Apr 22 after-hours</td><td>Implied move ~7%; stretched positioning.</td></tr>
-          <tr><td>HYPE reclaims $47.50 by May 15</td><td>55%</td><td>May 15</td><td>Needs Hormuz stable + BHYP ETF news drip. Hayes lid "no-trade until May 1" suggests chop first.</td></tr>
-          <tr><td>BTC loses $72k by end of April</td><td>35%</td><td>Apr 30</td><td>Gromen fade + Iran tail. Saylor bid + ETF flows counter.</td></tr>
-          <tr><td>VVV &gt; $10 by June 1</td><td>45%</td><td>Jun 1</td><td>Burn rate compounding; but needs risk-on tape. Small-cap beta.</td></tr>
-          <tr><td>Strait of Hormuz disruption event by May 15</td><td>28%</td><td>May 15</td><td>Ceasefire fragile; ship seizure already raised vol.</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- TV Panel -->
-    <div class="panel">
-      <h2>⑩ TradingView TA Panel</h2>
-      <div class="alert alert-warn">📡 <strong>TradingView MCP offline this run</strong> — no CDP bridge connected. Prices and zone status sourced from web providers (Yahoo/Coinbase/CoinGecko/Fortune/CMC). RSI/EMA readouts paused until bridge is reconnected.</div>
-      <p>When the bridge is live, this section will show daily RSI(14), EMA20, EMA50 for HYPE, NVDA, PLTR, VVV, OKLO, RCAT + watchlist TSLA/ASML/TSM/BTC, plus zone-proximity screenshots.</p>
-    </div>
-
-    <!-- Feed Digest -->
-    <div class="panel">
-      <h2>⑪ Feed Digest (user-submitted via ntfy)</h2>
-      <div class="alert alert-feed">📡 <strong>No MUNGER_CLAW_FEED items in the last 24 hours.</strong> Submit research via the Feed tab (URL + notes) and it will be ingested on the next run.</div>
-    </div>
-
-    <!-- Portfolio P&L Summary -->
-    <div class="panel">
-      <h2>⑫ Portfolio P&L Summary (11AM ET snapshot)</h2>
-      <div class="kpi-grid">
-        <div class="kpi"><div class="label">Total Value</div><div class="value">$9,904</div></div>
-        <div class="kpi"><div class="label">Cost Basis</div><div class="value">$10,000</div></div>
-        <div class="kpi"><div class="label">P&L $</div><div class="value dn">−$96</div></div>
-        <div class="kpi"><div class="label">P&L %</div><div class="value dn">−0.96%</div></div>
-        <div class="kpi"><div class="label">Cash Reserve</div><div class="value">$900</div></div>
-        <div class="kpi"><div class="label">Positions</div><div class="value">6 / 6 live</div></div>
-      </div>
-      <table>
-        <thead><tr><th>Ticker</th><th>Shares/Tokens</th><th>Entry</th><th>Current</th><th>Value</th><th>P&L $</th><th>P&L %</th><th>Zone</th></tr></thead>
-        <tbody>
-          <tr><td>HYPE</td><td>63.6</td><td>$44.00</td><td>$43.02</td><td>$2,736</td><td class="dn">−$62</td><td class="dn">−2.23%</td><td><span class="badge b-inzone">IN ZONE</span></td></tr>
-          <tr><td>NVDA</td><td>11.0</td><td>$200.00</td><td>$199.78</td><td>$2,198</td><td class="dn">−$2</td><td class="dn">−0.11%</td><td><span class="badge b-inzone">IN ZONE</span></td></tr>
-          <tr><td>PLTR</td><td>11.5</td><td>$148.00</td><td>$146.00</td><td>$1,679</td><td class="dn">−$23</td><td class="dn">−1.35%</td><td><span class="badge b-inzone">IN ZONE</span></td></tr>
-          <tr><td>VVV</td><td>114.0</td><td>$8.75</td><td>$9.05</td><td>$1,032</td><td class="up">+$34</td><td class="up">+3.43%</td><td><span class="badge b-approaching">AT TOP</span></td></tr>
-          <tr><td>OKLO</td><td>14.5</td><td>$69.00</td><td>$66.81</td><td>$969</td><td class="dn">−$32</td><td class="dn">−3.17%</td><td><span class="badge b-inzone">IN ZONE</span></td></tr>
-          <tr><td>RCAT</td><td>30.8</td><td>$13.00</td><td>$12.74</td><td>$392</td><td class="dn">−$8</td><td class="dn">−2.00%</td><td><span class="badge b-inzone">IN ZONE</span></td></tr>
-          <tr style="font-weight:700;background:var(--panel2);"><td>TOTAL</td><td>—</td><td>—</td><td>—</td><td>$9,006 + $900 cash = $9,906</td><td class="dn">−$94</td><td class="dn">−0.94%</td><td>—</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="disclaimer">
-      <strong>Legal:</strong> This is not financial advice. Speculative trading involves substantial risk of loss. Past performance is no guarantee of future results. Every idea screened against the Catholic ethical filter (abortion, embryonic stem-cell research, pornography, euthanasia, contraception manufacturing/distribution) — all positions pass.
-    </div>
+  <div>
+    <span class="live-dot stale-dot" id="stock-dot"></span><strong>Stocks:</strong> <span id="stock-freshness" class="stale">Server-baked — configure Stock Worker URL in Settings for live</span>
   </div>
-
-  <!-- =============== PORTFOLIO TAB =============== -->
-  <div id="portfolio" class="tab-content">
-    <div class="panel">
-      <h2>Model Portfolio — Live P&L (11AM ET)</h2>
-      <table>
-        <thead><tr><th>Ticker</th><th>Alloc</th><th>Entry</th><th>Current</th><th>Zone</th><th>P&L $</th><th>P&L %</th></tr></thead>
-        <tbody id="portfolioTbody"></tbody>
-      </table>
-    </div>
-    <div class="panel">
-      <h2>Watchlist</h2>
-      <table>
-        <thead><tr><th>Ticker</th><th>Zone</th><th>Current</th><th>Distance</th><th>Trigger</th></tr></thead>
-        <tbody id="watchTbody"></tbody>
-      </table>
-    </div>
-    <div class="panel">
-      <h2>Actual Positions (Peter-confirmed)</h2>
-      <p style="color:var(--muted);">Record real executed entries to track actual vs. model performance.</p>
-      <button class="btn" onclick="alert('Record Entry modal: ticker, shares, price, date. Persists to localStorage mc_actual_positions.');">Record Entry</button>
-      <div id="actualPositions" style="margin-top:10px;color:var(--muted);"><em>No actual positions recorded yet.</em></div>
-    </div>
-    <div class="disclaimer"><strong>Legal:</strong> This is not financial advice. Speculative trading involves substantial risk of loss.</div>
-  </div>
-
-  <!-- =============== CHAT TAB =============== -->
-  <div id="chat" class="tab-content">
-    <div class="panel">
-      <h2>💬 Chat with Munger Claw</h2>
-      <div id="chatArea" class="chat-area"></div>
-      <textarea id="chatInput" class="chat-input" rows="3" placeholder="Ask about a position, zone, or thesis..."></textarea>
-      <div style="margin-top:10px;">
-        <button class="btn" onclick="sendChat()">Send</button>
-        <button class="btn btn-secondary" onclick="clearChat()">Clear</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- =============== FEED TAB =============== -->
-  <div id="feed" class="tab-content">
-    <div class="panel">
-      <h2>📡 Submit Research to Feed</h2>
-      <p style="color:var(--muted);">Paste a URL, tweet, article, or transcript. Next Munger Claw run ingests it via ntfy topic <span class="ntfy-topic">mungerclaw-psd22</span>.</p>
-      <div class="input-group">
-        <label>Source (URL or title)</label>
-        <input id="feedSource" type="text" placeholder="https://... or X post by @hayes...">
-      </div>
-      <div class="input-group">
-        <label>Focus / your notes</label>
-        <input id="feedFocus" type="text" placeholder="What's the key takeaway or question?">
-      </div>
-      <div class="input-group">
-        <label>Content (paste)</label>
-        <textarea id="feedContent" rows="6" placeholder="Paste article text, transcript, or relevant chunk..."></textarea>
-      </div>
-      <button class="btn" onclick="submitFeed()">📤 Submit to ntfy</button>
-      <div id="feedLog" style="margin-top:14px;"></div>
-    </div>
-  </div>
-
-  <!-- =============== SETTINGS TAB =============== -->
-  <div id="settings" class="tab-content">
-    <div class="panel">
-      <h2>⚙️ Settings</h2>
-      <div class="input-group">
-        <label>Cloudflare Worker URL (for chat)</label>
-        <input id="workerUrl" type="text" placeholder="https://....workers.dev">
-      </div>
-      <div class="input-group">
-        <label>Proximity alert threshold (%)</label>
-        <input id="proximityPct" type="number" value="5" step="0.5">
-      </div>
-      <div class="input-group">
-        <label>ntfy topic</label>
-        <div class="ntfy-topic">mungerclaw-psd22</div>
-      </div>
-      <button class="btn" onclick="saveSettings()">Save</button>
-      <button class="btn btn-secondary" onclick="resetData()">Reset Local Data</button>
-    </div>
-  </div>
-
-  <div class="footer">
-    🦞 Munger Claw · Alpha Dashboard · Apr 20 2026 · 11AM ET Run · Next run 5PM ET<br>
-    This is not financial advice. Speculative trading involves substantial risk of loss.
+  <div>
+    <button class="btn btn-secondary" style="padding:6px 12px; font-size:11px; margin-right:6px;" onclick="refreshCrypto()">⟳ Crypto</button>
+    <button class="btn btn-secondary" style="padding:6px 12px; font-size:11px;" onclick="refreshStocks()">⟳ Stocks</button>
   </div>
 </div>
 
+<div class="tabs">
+  <div class="tab active" onclick="showTab('dashboard', this)">📊 Dashboard</div>
+  <div class="tab" onclick="showTab('portfolio', this)">💼 Portfolio</div>
+  <div class="tab" onclick="showTab('chat', this)">💬 Chat</div>
+  <div class="tab" onclick="showTab('feed', this)">📥 Feed</div>
+  <div class="tab" onclick="showTab('settings', this)">⚙️ Settings</div>
+</div>
+
+<!-- =============== DASHBOARD TAB =============== -->
+<div id="dashboard" class="tab-content active">
+
+<!-- Ticker bar -->
+<div class="ticker-bar" id="ticker-bar"></div>
+
+<!-- Zone alerts (rendered by JS) -->
+<div class="panel">
+  <h2>⚡ Zone Alerts</h2>
+  <div id="zone-alerts"></div>
+</div>
+
+<!-- Executive summary -->
+<div class="panel">
+  <h2>1 · Executive Summary</h2>
+  <p><strong>Net alpha view:</strong> Jordi Visser's Apr 19 macro note, Jensen's Apr 15 Dwarkesh interview, and Elon's TerraFab disclosure all converge on the same structural thesis: we are in a <em>reflationary, stagflation-leaning industrial scarcity regime</em>. Every part of the physical AI stack — CPUs, DRAM, NAND, power, transformers, electricians — is short. Intel chips are "genuinely unavailable." Anthropic revenue tripled in four months with reliability degrading to 98.95% uptime. Nvidia chip prices +48% in two months. Every current Munger Claw position is on the correct side of this thesis.</p>
+  <p><strong>Market regime:</strong> S&P at new all-time highs, up three weeks (after five weeks down). NASDAQ 100 RSI oversold→overbought in 11 sessions — fastest in 40 years. CTA positioning flipped massive-short to massive-long. YTD leaders: energy, semis, capital goods, materials. Inflation risk tilting <em>above 4%</em> on chipflation + oil reset + plastics + fertilizer.</p>
+  <p><strong>Top actions right now:</strong></p>
+  <ol style="margin-left:24px; margin-top:8px;">
+    <li><strong>HYPE pulled back below zone low ($41.19 vs $42 floor).</strong> APPROACHING-from-below flag is live. On the model entry of $44.70, this is a -7.9% drawdown but still well above the $36 stop. This is a <em>test</em>, not a break. Next unlock is May 6 — expect chop. Hold, do not add below $41 without confirmation close above $44.</li>
+    <li><strong>VVV popped above zone ($9.18 vs $9.00 ceiling)</strong> on Venice-uncensored-AI narrative. Already +6.1% in the position. Don't chase; next leg = $15+ breakout via API adoption.</li>
+    <li><strong>TSLA Wed Apr 22:</strong> Cash reserve armed. Now at $400.62 — above the $340-360 entry zone. Playbook unchanged.</li>
+  </ol>
+</div>
+
+<!-- Highest-conviction ideas -->
+<div class="panel">
+  <h2>2 · Highest-Conviction Ideas</h2>
+  <table id="conviction-table">
+    <tr><th>Ticker</th><th>Thesis (1-line)</th><th>Conv</th><th>Entry / Stop / T1-T2</th><th>Current Status</th></tr>
+  </table>
+</div>
+
+<!-- Thematic proxy trades -->
+<div class="panel">
+  <h2>3 · Thematic Proxy Trades (Jordi-Validated)</h2>
+  <h3>AI Power / Nuclear / Grid (priority)</h3>
+  <p>Jordi's Apr 19 note is explicit: <em>"You want to be investing in power. The energy names have come off because of oil. That is a mistake."</em> OKLO in portfolio captures this. Battery names are his next flag:</p>
+  <ul>
+    <li><strong>EOS (Eos Energy):</strong> Battery storage, flagged as underperformer with asymmetric setup. Not yet in portfolio — watchlist.</li>
+    <li><strong>Fluence (FLNC):</strong> Utility-scale storage. Same thesis. Watchlist.</li>
+    <li><strong>Bloom Energy (BE):</strong> Still above $150–175 zone. Oracle 2.8 GW deal proved thesis but entry compressed. DO NOT chase.</li>
+    <li><strong>Vistra (VST), Talen (TLN), Constellation (CEG):</strong> Power sector holds. Validated but not in model portfolio.</li>
+  </ul>
+  <h3>AI Hardware / Packaging / Optical / Rack</h3>
+  <p>Jordi flags packaging semis, optical, rack as "first inning" — only just broke 2-year highs. NVDA covers the apex. Adjacent plays he mentioned: <strong>Marvell (MRVL), Cadence (CDNS), Synopsys (SNPS), Intel (INTC).</strong> Intel went $25 → ~$70 in 6 months on CPU shortage.</p>
+  <h3>Defense / Anduril Ecosystem</h3>
+  <p>RCAT covers drone. Adjacent watch: <strong>LTRX, OPTX, ONDS</strong> — smaller Anduril supply-chain plays, speculative tier only.</p>
+  <h3>Compute Scarcity Pure Plays</h3>
+  <ul>
+    <li><strong>CoreWeave (CRWV):</strong> Revenue $9B → $30B annualized per Jordi. CDS tightening. Purest compute-scarcity stock.</li>
+    <li><strong>Oracle (ORCL):</strong> Jordi reframes as "compute company, not software." Recovered from software-fears selloff.</li>
+  </ul>
+</div>
+
+<!-- TSLA Playbook -->
+<div class="panel">
+  <h2>4 · TSLA Earnings Playbook · Wednesday April 22 PM</h2>
+  <p>Current <strong>$400.62</strong> (previous close $348.95 — already ran). Market assigns 53% miss probability.</p>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="label">Consensus EPS</div><div class="value">$0.37</div></div>
+    <div class="kpi"><div class="label">Consensus Rev</div><div class="value">$22.71B</div></div>
+    <div class="kpi"><div class="label">Refinitiv Smart Est</div><div class="value">-20.6% surprise</div></div>
+    <div class="kpi"><div class="label">Q1 Deliveries</div><div class="value">358,023 (miss)</div></div>
+  </div>
+  <h3>Scenario playbook (prices now $400+ vs old $389 read)</h3>
+  <ul>
+    <li><strong>Miss (53%):</strong> Gap to $340–360 → deploy full $900 cash reserve. Stop $295. T1 $480 / T2 $550.</li>
+    <li><strong>Beat (47%):</strong> TSLA already ran ~15% this week; beat likely half-priced in. Wait for $420 breakout confirmation, don't chase. Deploy on pullback $415–420 only.</li>
+    <li><strong>Neither triggers:</strong> Hold cash. Next catalyst = Robotaxi / Optimus unit reveals or Terrafab capex detail.</li>
+  </ul>
+</div>
+
+<!-- Thinker Signal Matrix -->
+<div class="panel">
+  <h2>5 · Thinker Signal Matrix</h2>
+  <table>
+    <tr><th>Source</th><th>Date</th><th>Key Takeaway</th><th>Implication for Portfolio</th></tr>
+    <tr>
+      <td><strong>Jordi Visser</strong><br/><em>(via user feed)</em></td><td>Apr 19</td>
+      <td>"Reflationary stagflation-leaning industrial scarcity regime." Compute crunch is real. Chipflation from Korea. Added NVDA this week. Energy names a "gift on the dip."</td>
+      <td>🟢 Validates OKLO, NVDA, PLTR, RCAT. EOS/Fluence → watchlist. Risk flag: earnings revisions negative 2 weeks + CPI &gt; 4% = multiple compression.</td>
+    </tr>
+    <tr>
+      <td><strong>All-In Pod E268</strong><br/>(+ Travis Kalanick guest)</td><td>Apr 17</td>
+      <td>"OpenAI's Identity Crisis, Datacenter Wars." Anthropic's valuation flip and compute issues. Big Tech compute monopoly.</td>
+      <td>🟢 Datacenter wars = OKLO + power thesis. Anthropic compute demand = NVDA/CRWV tailwind.</td>
+    </tr>
+    <tr>
+      <td><strong>Jensen × Dwarkesh</strong></td><td>Apr 15</td>
+      <td>Bottleneck is "plumbers and electricians." $100B+ upstream commits. Anthropic = all TPU growth.</td>
+      <td>🟢 NVDA 9/10 confirmed. Install base moat = earnings revision cushion.</td>
+    </tr>
+    <tr>
+      <td><strong>Elon Musk</strong> (Limitless pod)</td><td>~Apr 17</td>
+      <td>Current global fabs = 2% of needed. Terrafab SF-sized. $5–13T capex. Optimus 1–10B/yr.</td>
+      <td>🟢 TSLA Apr 22 watch Terrafab capex. SpaceX IPO (Jun roadshow).</td>
+    </tr>
+    <tr>
+      <td><strong>Arthur Hayes</strong></td><td>Apr 8</td>
+      <td>"Only thing we're buying is $HYPE." Position >$10M. $150 Aug target. BHYP ETF Apr 10 filing.</td>
+      <td>🟢 HYPE 9/10. Watch May 6 unlock supply test. Current $41.19 below zone = patience for reclaim.</td>
+    </tr>
+    <tr>
+      <td><strong>Lyn Alden</strong></td><td>Mar/Apr</td>
+      <td>Four-year cycle weakening. $100K BTC 2026/27. No capitulation signal.</td>
+      <td>🟢 BTC breakout ($75K) aligns. Crypto tide benefits HYPE + VVV.</td>
+    </tr>
+    <tr>
+      <td><strong>Luke Gromen</strong></td><td>Apr 10, 14</td>
+      <td>Bond yields trending higher; gold recycling trade accelerating. Paulson bond-crash warning.</td>
+      <td>🟡 Bond vol = variable to watch. Scarcity longs outperform on relative basis but absolute drawdown risk.</td>
+    </tr>
+    <tr>
+      <td><strong>Michael Saylor / Strategy</strong></td><td>Apr 13</td>
+      <td>Added 13,927 BTC for ~$1B. Total 780,897 BTC @ $75,577 avg cost. Target 1M BTC by year-end.</td>
+      <td>🟡 Not in model (Peter has separate exposure). Structural BTC bid.</td>
+    </tr>
+  </table>
+</div>
+
+<!-- Crypto Alpha -->
+<div class="panel">
+  <h2>6 · Crypto Alpha (Live)</h2>
+  <h3 id="hype-header">Hyperliquid (HYPE)</h3>
+  <p>Market cap ~$9.79B, rank ~#13. 30-day revenue $52.7M. Arthur Hayes $10M+ long. <strong>Catalysts:</strong> (1) BHYP ETF amended S-1 Apr 10 — 0.67% fee, NYSE Arca, 85% staking passthrough; analyst consensus "launch near." (2) HIP-4 prediction markets Q2 2026 = expansion beyond perps. (3) HyperEVM L1. (4) May 6 unlock: 9.92M HYPE (~1% supply). <strong>Current status:</strong> below zone low $42 — needs to reclaim $42 daily close to reactivate zone. Break $40 = bearish divergence, would re-evaluate.</p>
+  <h3 id="vvv-header">Venice (VVV)</h3>
+  <p>Circulating supply 45.6M. Market cap ~$418M. Emissions cut 25% Feb 10. 18% staking APY. Buy-and-burn. <strong>Current status:</strong> above zone high $9 — riding on censorship-resistant-AI narrative. Don't chase further; next leg = API/enterprise adoption proof points. BUY VVV, NOT DIEM.</p>
+  <h3>Additional crypto assessment</h3>
+  <p>No additional crypto meets our threshold this cycle. BTC (live) holding $75K, weekly MACD buy signal intact. ETH (live) at $2,312 — broke trendline and March highs per Jordi. Peter has separate BTC/MSTR exposure; do not duplicate.</p>
+</div>
+
+<!-- Congressional / Smart Money -->
+<div class="panel">
+  <h2>7 · Congressional &amp; Smart-Money Signals</h2>
+  <p>2025 full-year: NVDA +$11.2M inflows (#1 by dollar volume). PLTR accumulated by Homeland Security / Counterterrorism subcommittee (info-edge signal). Semis +$17M net buy; software -$11.7M net sell — mirrors Jordi's "software rotation" thesis. Rep. Terri Sewell 67.9% 2025 return via NVDA April 2025 buys.</p>
+  <p><strong>Read-through:</strong> Congressional flow still biased to NVDA/PLTR/semis. No contra-signals on Munger Claw positions. For real-time Apr 2026 filings: unusualwhales.com/politics/insider_trades.</p>
+  <h3>Shkreli-style public-data edges</h3>
+  <ul>
+    <li>Anthropic revenue tripled Jan–Mar, reliability dropped to 98.95% — not in consensus compute-capex models.</li>
+    <li>Intel CPU shortage: PC makers report CPUs "genuinely unavailable." 90% industrial CPU market share. Sell-side still prices on secular-decline assumption.</li>
+    <li>DRAM contracts +60% QoQ possible per Taiwan supply chain — MU models don't price this.</li>
+  </ul>
+</div>
+
+<!-- Binary prediction markets -->
+<div class="panel">
+  <h2>8 · Binary Prediction-Market Candidates</h2>
+  <table>
+    <tr><th>Binary</th><th>Resolution</th><th>Munger Claw edge</th></tr>
+    <tr><td>TSLA Q1 EPS beat consensus ($0.37)?</td><td>Apr 22 PM</td><td>Polymarket 47% beat. Refinitiv Smart Est -20.6%. TSLA already ran 15% WoW — some beat priced in. Edge: NO tilt 55%.</td></tr>
+    <tr><td>BHYP ETF approved by end Q2 2026?</td><td>Jun 30</td><td>Amended S-1 Apr 10 = late-stage. Edge: YES tilt.</td></tr>
+    <tr><td>BTC above $85K by end of May 2026?</td><td>May 31</td><td>Weekly MACD buy, ETH broke out. MSTR accumulating. Edge: YES lean 55–60%.</td></tr>
+    <tr><td>CPI print &gt;4.0% for any month in 2026?</td><td>Monthly</td><td>Chipflation + oil reset. Edge: YES tilt 60%+.</td></tr>
+    <tr><td>Fed cuts H1 2026?</td><td>Jun FOMC</td><td>Inflation re-accelerating. Edge: NO tilt.</td></tr>
+    <tr><td>SpaceX IPO priced by year-end?</td><td>Dec 31</td><td>Confidential S-1 Apr 1, Jun 8 roadshow. Edge: YES lean 70%+.</td></tr>
+  </table>
+</div>
+
+<!-- Data sourcing notes -->
+<div class="panel">
+  <h2>9 · Data Architecture &amp; Freshness (v2 — Live Stocks Enabled)</h2>
+  <p><strong>Price sources:</strong></p>
+  <ul>
+    <li><strong>Crypto (BTC, ETH, HYPE, VVV):</strong> CoinGecko public API hit client-side from your browser every 60 seconds. No API key. CORS-enabled. 🟢 dot = live.</li>
+    <li><strong>Stocks (NVDA, PLTR, OKLO, RCAT, TSLA, TSM, ASML):</strong> Yahoo Finance blocks browser fetches (no CORS), so live stock prices are served through a tiny Cloudflare Worker you deploy. Setup guide: <code>STOCK_WORKER_SETUP.md</code>. Once the Stock Worker URL is set in Settings, the dashboard polls it every 60s and the 🟢 dot lights up. If no worker URL is set, the dashboard falls back to server-baked prices from the last scheduled run (5am / 11am / 5pm / 11pm ET).</li>
+    <li><strong>Manual refresh:</strong> Click ⟳ Crypto or ⟳ Stocks buttons in the freshness bar to force an update.</li>
+  </ul>
+  <p><strong>What was fixed:</strong> prior dashboard pulled prices via web search, which surfaced stale/synthesized results (HYPE showed $43.27 vs actual $41.19, VVV showed $8.50 vs actual $9.18). That entire code path is retired. Crypto now hits CoinGecko directly; stocks hit Yahoo via your Worker proxy.</p>
+  <p><strong>Why a Worker and not direct-to-Yahoo:</strong> browsers refuse to read cross-origin responses unless the server sends <code>Access-Control-Allow-Origin</code> — Yahoo doesn't. A Cloudflare Worker sits server-side, fetches Yahoo freely, then serves your dashboard with CORS open. Free tier covers ~100k requests/day; you'll use about 10k/day even polling continuously.</p>
+</div>
+
+<!-- Feed Digest -->
+<div class="panel">
+  <h2>10 · Feed Digest</h2>
+  <div class="alert alert-feed">🟣 1 item ingested in last 24h.</div>
+  <h3>Item 1 · Jordi Visser Weekly Update · Apr 19</h3>
+  <p><strong>Source:</strong> <a href="https://www.youtube.com/watch?v=sZU5Y0n3YwY" style="color:var(--blue);">https://www.youtube.com/watch?v=sZU5Y0n3YwY</a></p>
+  <p><strong>Key extracted signals (12 chapters):</strong></p>
+  <ul>
+    <li><strong>Market regime:</strong> Reflationary stagflation-leaning industrial scarcity regime. NASDAQ RSI 28→70 in 11 sessions (40-yr record).</li>
+    <li><strong>YTD leaders:</strong> Energy, semis, capital goods, materials, hardware, transportation.</li>
+    <li><strong>Chipflation:</strong> Korea import/export inflation explosive. DRAM +60% QoQ possible. NVDA chips +48% in 2 months.</li>
+    <li><strong>Compute crunch:</strong> Intel CPUs "genuinely unavailable." Uber CTO maxed 2026 AI budget on Claude Code alone. CoreWeave $9B→$30B annualized.</li>
+    <li><strong>Terrafab:</strong> Elon — current global fabs = 2% of required. $5–13T capex.</li>
+    <li><strong>Jensen × Musk convergence:</strong> Power is THE bottleneck. Cadence, Synopsys, Marvell, packaging, optical "first inning."</li>
+    <li><strong>Batteries:</strong> EOS, Fluence flagged underperformers with catch-up setup.</li>
+    <li><strong>Bitcoin:</strong> Weekly MACD buy signal. Miners breaking out. Ethereum broke trendline + March highs.</li>
+    <li><strong>Risk flags:</strong> Earnings revisions negative 2 weeks in a row. CPI &gt;4% historically bad S&P. Bond vol is the variable.</li>
+    <li><strong>TSLA:</strong> Not in Jordi's model but "still love it" — waiting for catalyst.</li>
+    <li><strong>NVDA:</strong> Jordi added more this week.</li>
+  </ul>
+  <p><strong>Net impact:</strong> Reinforced NVDA (9/10), OKLO (8/10), HYPE (9/10). Added EOS/Fluence to watchlist. No rebalance required.</p>
+</div>
+
+<!-- Portfolio P&L -->
+<div class="panel">
+  <h2>11 · Portfolio P&amp;L (Live)</h2>
+  <div class="kpi-grid" id="pnl-kpi"></div>
+  <table id="pnl-table">
+    <tr><th>Ticker</th><th>Shares</th><th>Entry</th><th>Current</th><th>Value</th><th>P&amp;L</th><th>P&amp;L %</th><th>Zone</th></tr>
+  </table>
+  <p style="color:var(--muted); font-size:11px; margin-top:8px;">Crypto rows update every 60s client-side. Stock rows update with next scheduled task run.</p>
+</div>
+
+</div> <!-- end dashboard tab -->
+
+<!-- =============== PORTFOLIO TAB =============== -->
+<div id="portfolio" class="tab-content">
+
+  <!-- Rebalance alert banner (populated by JS) -->
+  <div id="rebalance-banner"></div>
+
+  <!-- Model-change-since-last-visit (populated by JS, hidden if empty) -->
+  <div id="model-change-panel"></div>
+
+  <div class="panel">
+    <h2>Model vs Actual · Base <span id="base-capital-label">$10,000</span></h2>
+    <div class="kpi-grid" id="port-kpi"></div>
+    <p style="color:var(--muted); font-size:12px; margin:6px 0 10px 0;">
+      <strong>Model</strong> = what Munger Claw recommends for your base capital.
+      <strong>Actual</strong> = what you actually hold (edit shares + avg cost inline, autosaves).
+      <strong>Action</strong> flag fires when actual value drifts ±<span id="threshold-label">15</span>% from model target.
+    </p>
+    <div style="overflow-x:auto;">
+      <table id="portfolio-table">
+        <tr>
+          <th>Ticker</th>
+          <th>Conv</th>
+          <th>Model %</th>
+          <th>Model $</th>
+          <th>Model Sh</th>
+          <th>Actual Sh</th>
+          <th>Avg Cost</th>
+          <th>Price</th>
+          <th>Actual $</th>
+          <th>Actual %</th>
+          <th>Δ vs Model</th>
+          <th>P&amp;L</th>
+          <th>Action</th>
+        </tr>
+      </table>
+    </div>
+    <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+      <button class="btn btn-secondary" onclick="resetActualsToModel()">Reset Actuals → Model</button>
+      <button class="btn btn-secondary" onclick="clearAllActuals()">Clear All Actuals</button>
+      <span style="color:var(--muted); font-size:11px; align-self:center;">Actuals persist in browser localStorage. To reset an individual row, clear both fields.</span>
+    </div>
+  </div>
+  <div class="panel">
+    <h2>Watchlist</h2>
+    <table>
+      <tr><th>Ticker</th><th>Entry Zone</th><th>Current</th><th>Distance</th><th>Trigger</th></tr>
+      <tr><td><strong>TSLA</strong></td><td>$340–360</td><td>$400.62</td><td class="flat">+11.3% above</td><td>Apr 22 miss → deploy cash reserve</td></tr>
+      <tr><td><strong>TSM</strong></td><td>$165–175 (legacy) / $370+ today</td><td>$370.50</td><td class="flat">—</td><td>Zone needs re-calibration post-run; watch-only</td></tr>
+      <tr><td><strong>ASML</strong></td><td>$1,250–1,380</td><td>$1,459.80</td><td class="flat">+5.8% above</td><td>China fear dip / market correction to $1,250–1,380</td></tr>
+      <tr><td><strong>BE (Bloom)</strong></td><td>$150–175</td><td>~$207</td><td class="flat">+18% above</td><td>Don't chase after Oracle 2.8GW news pop</td></tr>
+      <tr><td><strong>EOS Energy</strong> <em>(NEW)</em></td><td>TBD — research</td><td>—</td><td>—</td><td>Jordi Apr 19: battery storage catch-up setup</td></tr>
+      <tr><td><strong>Fluence (FLNC)</strong> <em>(NEW)</em></td><td>TBD — research</td><td>—</td><td>—</td><td>Jordi Apr 19: utility-scale storage</td></tr>
+      <tr><td><strong>BTC</strong></td><td>$68–74K</td><td id="btc-watch">—</td><td class="flat">Live</td><td>Weekly MACD buy confirmed — Peter has separate exposure</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- =============== CHAT TAB =============== -->
+<div id="chat" class="tab-content">
+  <div class="panel">
+    <h2>💬 Chat with Munger Claw</h2>
+    <p style="color:var(--muted); margin-bottom:10px;">Uses Cloudflare Worker endpoint set in Settings. System prompt pre-loaded with live portfolio state.</p>
+    <div class="chat-area" id="chat-area">
+      <div class="msg-assistant"><strong>Munger Claw:</strong> Ready. Crypto prices now live via CoinGecko. HYPE sitting below zone (bearish flag) — watching for $42 reclaim. VVV above zone ceiling — riding. TSLA Wed. What do you want to dig into?</div>
+    </div>
+    <div style="display:flex; gap:8px;">
+      <input class="chat-input" id="chat-input" placeholder="Ask anything..."/>
+      <button class="btn" onclick="sendChat()">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- =============== FEED TAB =============== -->
+<div id="feed" class="tab-content">
+  <div class="panel">
+    <h2>📥 Submit Content to Munger Claw</h2>
+    <p style="color:var(--muted); margin-bottom:10px;">Push URL/transcript to ntfy topic <span class="ntfy-topic">mungerclaw-psd22</span>. Ingested in next scheduled run.</p>
+    <div class="input-group"><label>Source URL</label><input id="feed-url" placeholder="https://..."/></div>
+    <div class="input-group"><label>Focus notes</label><input id="feed-focus" placeholder="e.g. 'Gromen on gold $5K target'"/></div>
+    <div class="input-group"><label>Content (paste transcript/text)</label><textarea id="feed-content" rows="6"></textarea></div>
+    <button class="btn" onclick="submitFeed()">Submit to Feed</button>
+    <button class="btn btn-secondary" onclick="clearFeedForm()">Clear</button>
+  </div>
+  <div class="panel">
+    <h2>Recent Feed Submissions</h2>
+    <div id="feed-log"></div>
+  </div>
+</div>
+
+<!-- =============== SETTINGS TAB =============== -->
+<div id="settings" class="tab-content">
+  <div class="panel">
+    <h2>⚙️ Settings</h2>
+    <div class="input-group"><label>Chat Worker URL (Cloudflare)</label><input id="worker-url" placeholder="https://..."/></div>
+    <div class="input-group"><label>Stock Worker URL (Cloudflare — see STOCK_WORKER_SETUP.md)</label><input id="stock-worker-url" placeholder="https://munger-claw-stocks.your-subdomain.workers.dev"/></div>
+    <div class="input-group"><label>Proximity threshold % (approaching zone alerts)</label><input id="prox-pct" type="number" value="5"/></div>
+    <div class="input-group"><label>Crypto refresh interval (seconds)</label><input id="crypto-interval" type="number" value="60"/></div>
+    <div class="input-group"><label>Stock refresh interval (seconds)</label><input id="stock-interval" type="number" value="60"/></div>
+    <div class="input-group"><label>Base capital ($) — used for Model $ sizing in Portfolio tab</label><input id="base-capital" type="number" step="500" value="10000"/></div>
+    <div class="input-group"><label>Rebalance threshold (%) — Action flag fires when Actual drifts ±X% from Model</label><input id="rebalance-threshold" type="number" step="1" min="1" max="50" value="15"/></div>
+    <div class="input-group"><label>ntfy topic (read-only)</label><input value="mungerclaw-psd22" readonly/></div>
+    <button class="btn" onclick="saveSettings()">Save Settings</button>
+    <button class="btn btn-secondary" onclick="refreshStocks()">Test Stock Worker</button>
+    <button class="btn btn-secondary" onclick="clearChat()">Clear Chat</button>
+    <button class="btn btn-secondary" onclick="clearFeed()">Clear Feed Log</button>
+  </div>
+  <div class="panel">
+    <h2>Legal Disclaimer</h2>
+    <p style="color:var(--muted); font-size:12px;">This is not financial advice. Speculative trading involves substantial risk of loss. Past performance is no guarantee of future results. The Munger Claw agent applies a Catholic ethical filter excluding companies directly involved in abortion, embryonic stem-cell research, pornography, euthanasia, or contraception manufacturing/distribution per traditional Catholic doctrine.</p>
+  </div>
+</div>
+
+<div class="footer">
+  Munger Claw · Apr 19 2026 · Live crypto (CoinGecko) · Live stocks (Cloudflare Worker proxy to Yahoo)
+  <br/>Not financial advice · Speculation involves substantial risk of loss · Past performance no guarantee of future results
+</div>
+</div>
+
 <script>
-// Model portfolio — single source of truth
-const MODEL = [
-  {ticker:'HYPE', entryLow:42, entryHigh:46, entry:44.00, shares:63.6, cost:2800, stop:36, t1:80, t2:150, current:43.02, alloc:'28%'},
-  {ticker:'NVDA', entryLow:185, entryHigh:205, entry:200.00, shares:11.0, cost:2200, stop:165, t1:250, t2:320, current:199.78, alloc:'22%'},
-  {ticker:'PLTR', entryLow:140, entryHigh:155, entry:148.00, shares:11.5, cost:1700, stop:115, t1:185, t2:220, current:146.00, alloc:'17%'},
-  {ticker:'VVV',  entryLow:7.50, entryHigh:9.00, entry:8.75, shares:114.0, cost:1000, stop:5.50, t1:25, t2:50, current:9.05, alloc:'10%'},
-  {ticker:'OKLO', entryLow:62, entryHigh:75, entry:69.00, shares:14.5, cost:1000, stop:48, t1:100, t2:140, current:66.81, alloc:'10%'},
-  {ticker:'RCAT', entryLow:10, entryHigh:13, entry:13.00, shares:30.8, cost:400, stop:8.50, t1:22, t2:35, current:12.74, alloc:'4%'},
+// ============================================================
+// POSITION DATA — entry/stop/targets are STATIC; prices are LIVE
+// ============================================================
+const POSITIONS = [
+  { ticker:'HYPE', type:'crypto', cgId:'hyperliquid',
+    entryLow:42, entryHigh:46, modelEntry:44.70, shares:67.1, cost:3000,
+    stop:36, t1:80, t2:150, alloc:'30%', conv:9,
+    thesis:'97% of revenue buys back HYPE. BHYP ETF amended S-1 Apr 10, launch near. Hayes $10M+ long. HIP-4 prediction markets Q2.' },
+  { ticker:'NVDA', type:'stock', entryLow:185, entryHigh:200, modelEntry:198.50, shares:12.6, cost:2500,
+    stop:160, t1:250, t2:320, alloc:'25%', conv:9,
+    thesis:'Chip prices +48% in 2 months. Anthropic = all TPU growth. Plumbers/electricians bottleneck. Jordi added more this week.' },
+  { ticker:'PLTR', type:'stock', entryLow:130, entryHigh:145, modelEntry:142.35, shares:12.6, cost:1800,
+    stop:110, t1:180, t2:220, alloc:'18%', conv:7,
+    thesis:'Defense AI monopoly. AIP compounding with agentic tailwind. Morgan Stanley PT $205.' },
+  { ticker:'VVV', type:'crypto', cgId:'venice-token',
+    entryLow:7.50, entryHigh:9.00, modelEntry:8.65, shares:138.7, cost:1200,
+    stop:5.50, t1:25, t2:50, alloc:'12%', conv:7,
+    thesis:'Censorship-resistant decentralized AI. Emissions cut 25% Feb 10. 18% staking APY. Buy-and-burn.' },
+  { ticker:'OKLO', type:'stock', entryLow:55, entryHigh:65, modelEntry:63.35, shares:15.8, cost:1000,
+    stop:42, t1:90, t2:130, alloc:'10%', conv:8,
+    thesis:'Nuclear microreactor. Jensen + Musk converge: energy is THE bottleneck. White House space nuclear fast-track. +30% WoW.' },
+  { ticker:'RCAT', type:'stock', entryLow:10, entryHigh:13, modelEntry:12.94, shares:38.6, cost:500,
+    stop:8.50, t1:22, t2:35, alloc:'5%', conv:5,
+    thesis:'Anduril drone proxy. NATO UAS contract + AI robotics partnerships. $1.54B cap.' }
 ];
-const WATCH = [
-  {ticker:'TSLA', entryLow:340, entryHigh:360, current:400.62, trigger:'Q1 earnings Wed 4/22 post-close → miss to $340-360 OR beat to $420 breakout'},
-  {ticker:'TSM',  entryLow:165, entryHigh:175, current:178, trigger:'Tariff / China dip to $165-175 (price may be higher post-Apr 17 earnings — reassess)'},
-  {ticker:'ASML', entryLow:1250, entryHigh:1380, current:1450, trigger:'Near 52-wk high; wait for pullback on China export headline'},
-  {ticker:'BE',   entryLow:150, entryHigh:175, current:207, trigger:'Do NOT chase; Oracle deal priced; wait for tech-sector correction'},
-  {ticker:'VCX',  entryLow:45, entryHigh:75, current:96, trigger:'Anthropic flip may keep premium elevated permanently; re-screen post-SpaceX IPO'},
-];
 
-function zoneStatus(p, low, high, stop) {
-  if (p <= stop) return {label:'AT STOP', cls:'b-atstop'};
-  if (p >= low && p <= high) return {label:'IN ZONE', cls:'b-inzone'};
-  if (p < low && (low - p)/low <= 0.05) return {label:'APPROACHING', cls:'b-approaching'};
-  if (p > high) return {label:`ABOVE +${(((p-high)/high)*100).toFixed(1)}%`, cls:'b-above'};
-  return {label:'BELOW', cls:'b-above'};
-}
+// Server-fetched STOCK PRICES (baked in at dashboard generation time)
+// These refresh when the scheduled task runs.
+const STOCK_PRICES = {
+  'NVDA': { price: 201.68, prevClose: 188.63, fetchedAt: '2026-04-19T19:58:00-04:00' },
+  'PLTR': { price: 146.39, prevClose: 128.06, fetchedAt: '2026-04-19T19:58:00-04:00' },
+  'OKLO': { price: 66.81,  prevClose: 50.25,  fetchedAt: '2026-04-19T19:58:00-04:00' },
+  'RCAT': { price: 12.72,  prevClose: 12.37,  fetchedAt: '2026-04-19T19:58:00-04:00' },
+  'TSLA': { price: 400.62, prevClose: 348.95, fetchedAt: '2026-04-19T19:58:00-04:00' },
+  'TSM':  { price: 370.50, prevClose: 370.60, fetchedAt: '2026-04-19T19:58:00-04:00' },
+  'ASML': { price: 1459.80, prevClose: 1478.28, fetchedAt: '2026-04-19T19:58:00-04:00' }
+};
 
-function renderPortfolio() {
-  const tbody = document.getElementById('portfolioTbody');
-  if (!tbody) return;
-  let rows = '';
-  let totalValue = 0, totalCost = 0;
-  MODEL.forEach(p => {
-    const value = p.shares * p.current;
-    const pnl = value - p.cost;
-    const pnlPct = (pnl / p.cost) * 100;
-    const z = zoneStatus(p.current, p.entryLow, p.entryHigh, p.stop);
-    totalValue += value; totalCost += p.cost;
-    const pnlCls = pnl >= 0 ? 'up' : 'dn';
-    rows += `<tr><td><strong>${p.ticker}</strong></td><td>${p.alloc}</td><td>$${p.entry.toFixed(2)}</td><td>$${p.current.toFixed(2)}</td><td><span class="badge ${z.cls}">${z.label}</span></td><td class="${pnlCls}">${pnl>=0?'+':''}$${pnl.toFixed(0)}</td><td class="${pnlCls}">${pnlPct>=0?'+':''}${pnlPct.toFixed(2)}%</td></tr>`;
-  });
-  const totPnl = totalValue - totalCost;
-  const totPct = (totPnl/totalCost)*100;
-  rows += `<tr style="font-weight:700;background:var(--panel2);"><td>TOTAL</td><td>100%</td><td>—</td><td>—</td><td>—</td><td class="${totPnl>=0?'up':'dn'}">${totPnl>=0?'+':''}$${totPnl.toFixed(0)}</td><td class="${totPnl>=0?'up':'dn'}">${totPct>=0?'+':''}${totPct.toFixed(2)}%</td></tr>`;
-  tbody.innerHTML = rows;
-}
-function renderWatch() {
-  const tbody = document.getElementById('watchTbody');
-  if (!tbody) return;
-  let rows = '';
-  WATCH.forEach(w => {
-    const dist = w.current > w.entryHigh ? `+${(((w.current-w.entryHigh)/w.entryHigh)*100).toFixed(1)}% above` :
-                 w.current < w.entryLow ? `−${(((w.entryLow-w.current)/w.entryLow)*100).toFixed(1)}% below` :
-                 'IN ZONE';
-    rows += `<tr><td><strong>${w.ticker}</strong></td><td>$${w.entryLow}-${w.entryHigh}</td><td>$${w.current}</td><td>${dist}</td><td>${w.trigger}</td></tr>`;
-  });
-  tbody.innerHTML = rows;
-}
+// Live crypto cache (populated by CoinGecko fetch)
+let CRYPTO_LIVE = {};
 
-function showTab(e, id) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  if (e && e.target) e.target.classList.add('active');
-  const pane = document.getElementById(id);
-  if (pane) pane.classList.add('active');
-  if (id === 'portfolio') { renderPortfolio(); renderWatch(); }
-  if (id === 'chat') { loadChat(); }
-  if (id === 'feed') { loadFeedLog(); }
-  if (id === 'settings') {
-    document.getElementById('workerUrl').value = localStorage.getItem('workerUrl') || '';
-    document.getElementById('proximityPct').value = localStorage.getItem('proximityPct') || '5';
+// ============================================================
+// CORE FUNCTIONS
+// ============================================================
+function getCurrentPrice(pos) {
+  if (pos.type === 'crypto') {
+    return (CRYPTO_LIVE[pos.cgId] && CRYPTO_LIVE[pos.cgId].usd) || null;
+  } else {
+    return STOCK_PRICES[pos.ticker] ? STOCK_PRICES[pos.ticker].price : null;
   }
 }
 
-// Chat
-function loadChat() {
-  const area = document.getElementById('chatArea');
-  const data = JSON.parse(localStorage.getItem('mc_chat') || '[]');
-  area.innerHTML = data.map(m => `<div class="${m.role==='user'?'msg-user':'msg-ai'}"><strong>${m.role==='user'?'You':'Munger Claw'}:</strong> ${m.text}</div>`).join('') || '<div style="color:var(--muted);padding:10px;"><em>Start a conversation. Requires Worker URL in Settings.</em></div>';
+function getChange24h(pos) {
+  if (pos.type === 'crypto') {
+    return (CRYPTO_LIVE[pos.cgId] && CRYPTO_LIVE[pos.cgId].usd_24h_change) || null;
+  } else {
+    const s = STOCK_PRICES[pos.ticker];
+    if (!s) return null;
+    return ((s.price - s.prevClose) / s.prevClose) * 100;
+  }
+}
+
+function zoneStatus(pos, price) {
+  if (price === null || price === undefined) return { label:'NO DATA', cls:'b-above' };
+  const proxPct = parseFloat(localStorage.getItem('proximityPct') || '5') / 100;
+  if (price <= pos.stop) return { label:'AT STOP', cls:'b-atstop' };
+  if (price >= pos.entryLow && price <= pos.entryHigh) return { label:'IN ZONE', cls:'b-inzone' };
+  if (price < pos.entryLow && price >= pos.entryLow * (1 - proxPct)) {
+    const pct = ((pos.entryLow - price) / pos.entryLow * 100).toFixed(1);
+    return { label:`APPROACHING (-${pct}%)`, cls:'b-approaching' };
+  }
+  if (price > pos.entryHigh) {
+    const pct = ((price - pos.entryHigh) / pos.entryHigh * 100).toFixed(1);
+    return { label:`+${pct}% above`, cls:'b-above' };
+  }
+  const pct = ((pos.entryLow - price) / pos.entryLow * 100).toFixed(1);
+  return { label:`BELOW -${pct}%`, cls:'b-approaching' };
+}
+
+function stockIsLive() {
+  return !!(localStorage.getItem('stockWorkerUrl') || '').trim();
+}
+
+// ============================================================
+// MODEL-VS-ACTUAL STATE
+// ============================================================
+// Seed values come from the portfolio_log.json that backs the
+// Monday Apr 21 inception model. User can overwrite these at
+// any time — they persist in localStorage under 'mc_actuals'.
+const ACTUALS_SEED = {
+  'HYPE': { shares: 63.6,  avgCost: 44.00 },
+  'NVDA': { shares: 11.0,  avgCost: 200.00 },
+  'PLTR': { shares: 11.5,  avgCost: 148.00 },
+  'VVV':  { shares: 114.0, avgCost: 8.75 },
+  'OKLO': { shares: 14.5,  avgCost: 69.00 },
+  'RCAT': { shares: 30.8,  avgCost: 13.00 }
+};
+
+function getBaseCapital() {
+  return parseFloat(localStorage.getItem('baseCapital') || '10000') || 10000;
+}
+function getRebalanceThreshold() {
+  return parseFloat(localStorage.getItem('rebalanceThreshold') || '15') / 100;
+}
+function getModelPct(pos) {
+  // alloc is stored as '30%' string
+  const m = (pos.alloc || '').match(/[\d.]+/);
+  return m ? parseFloat(m[0]) : 0;
+}
+function loadActuals() {
+  const stored = localStorage.getItem('mc_actuals');
+  if (stored) {
+    try { return JSON.parse(stored); } catch(e) {}
+  }
+  // First-load seed
+  const seed = JSON.parse(JSON.stringify(ACTUALS_SEED));
+  localStorage.setItem('mc_actuals', JSON.stringify(seed));
+  return seed;
+}
+function saveActualField(ticker, field, value) {
+  const a = loadActuals();
+  a[ticker] = a[ticker] || { shares: 0, avgCost: 0 };
+  const num = parseFloat(value);
+  a[ticker][field] = isNaN(num) ? 0 : num;
+  // If both fields go to 0, drop the record (lets user "clear" a row)
+  if (!a[ticker].shares && !a[ticker].avgCost) delete a[ticker];
+  localStorage.setItem('mc_actuals', JSON.stringify(a));
+  renderAll();
+}
+function resetActualsToModel() {
+  if (!confirm('Reset actual holdings to the model allocation seed (from portfolio_log.json)?')) return;
+  localStorage.setItem('mc_actuals', JSON.stringify(JSON.parse(JSON.stringify(ACTUALS_SEED))));
+  renderAll();
+}
+function clearAllActuals() {
+  if (!confirm('Clear ALL actual holdings? This only clears what you see on this dashboard — your real broker positions are untouched.')) return;
+  localStorage.setItem('mc_actuals', JSON.stringify({}));
+  renderAll();
+}
+
+// Classify action state for a position based on actualUSD vs modelUSD
+function classifyAction(pos, actualUSD, modelUSD) {
+  const th = getRebalanceThreshold();
+  if (actualUSD === 0 || (!actualUSD && actualUSD !== 0)) {
+    return { label: 'NEW · BUY', cls: 'b-new', priority: 3,
+             detail: `Model allocates ${fmtUSD(modelUSD,0)} — you hold $0.` };
+  }
+  if (modelUSD === 0) {
+    return { label: 'EXIT', cls: 'b-atstop', priority: 3,
+             detail: 'Model no longer recommends this position.' };
+  }
+  const ratio = (actualUSD - modelUSD) / modelUSD;
+  const pctStr = (Math.abs(ratio) * 100).toFixed(0) + '%';
+  if (ratio < -0.7)     return { label: 'BUY',  cls: 'b-atstop',      priority: 3, detail: `Actual ${pctStr} under model. Add conviction.` };
+  if (ratio < -th)      return { label: 'ADD',  cls: 'b-approaching', priority: 2, detail: `Actual ${pctStr} under model target.` };
+  if (ratio <= th)      return { label: 'HOLD', cls: 'b-inzone',      priority: 0, detail: 'Within rebalance tolerance.' };
+  if (ratio <= 0.5)     return { label: 'TRIM', cls: 'b-approaching', priority: 2, detail: `Actual ${pctStr} over model target.` };
+  return                       { label: 'OVER', cls: 'b-atstop',      priority: 3, detail: `Actual ${pctStr} over model. Trim.` };
+}
+
+// ============================================================
+// MODEL CHANGE DETECTION (snapshot previous run, diff this run)
+// ============================================================
+function currentModelSignature() {
+  return POSITIONS.map(p => ({
+    ticker: p.ticker,
+    pct: getModelPct(p),
+    conv: p.conv,
+    entryLow: p.entryLow,
+    entryHigh: p.entryHigh,
+    stop: p.stop
+  }));
+}
+function detectModelChanges() {
+  const prev = JSON.parse(localStorage.getItem('mc_model_snapshot') || 'null');
+  const curr = currentModelSignature();
+  const changes = [];
+  if (!prev) {
+    // First ever load — store baseline, no changes to report
+    localStorage.setItem('mc_model_snapshot', JSON.stringify(curr));
+    return { changes: [], baseline: true };
+  }
+  const prevMap = Object.fromEntries(prev.map(p => [p.ticker, p]));
+  const currMap = Object.fromEntries(curr.map(p => [p.ticker, p]));
+  // Adds
+  curr.forEach(p => {
+    if (!prevMap[p.ticker]) {
+      changes.push({ type: 'ADD', ticker: p.ticker,
+        detail: `New position: ${p.pct}% allocation, conv ${p.conv}/10.` });
+    } else {
+      const old = prevMap[p.ticker];
+      if (old.pct !== p.pct) {
+        changes.push({ type: 'RESIZE', ticker: p.ticker,
+          detail: `Allocation ${old.pct}% → ${p.pct}%.` });
+      }
+      if (old.stop !== p.stop) {
+        changes.push({ type: 'STOP', ticker: p.ticker,
+          detail: `Stop moved ${fmtUSD(old.stop,2)} → ${fmtUSD(p.stop,2)}.` });
+      }
+      if (old.entryLow !== p.entryLow || old.entryHigh !== p.entryHigh) {
+        changes.push({ type: 'ZONE', ticker: p.ticker,
+          detail: `Entry zone ${fmtUSD(old.entryLow,2)}-${fmtUSD(old.entryHigh,2)} → ${fmtUSD(p.entryLow,2)}-${fmtUSD(p.entryHigh,2)}.` });
+      }
+    }
+  });
+  // Removes
+  prev.forEach(p => {
+    if (!currMap[p.ticker]) {
+      changes.push({ type: 'REMOVE', ticker: p.ticker,
+        detail: `No longer in model. If held, consider EXIT.` });
+    }
+  });
+  // Update snapshot only if user acknowledges (they can click Ack button) — for now auto-update.
+  localStorage.setItem('mc_model_snapshot', JSON.stringify(curr));
+  return { changes, baseline: false };
+}
+
+function fmtUSD(n, decimals) {
+  if (n === null || n === undefined || isNaN(n)) return '—';
+  if (decimals !== undefined) return '$' + Number(n).toFixed(decimals);
+  if (n >= 1000) return '$' + n.toLocaleString('en-US', {maximumFractionDigits:0});
+  if (n >= 10) return '$' + n.toFixed(2);
+  return '$' + n.toFixed(2);
+}
+
+// ============================================================
+// CRYPTO LIVE FETCH (CoinGecko)
+// ============================================================
+let cryptoRefreshTimer = null;
+async function fetchCrypto() {
+  const ids = 'bitcoin,ethereum,hyperliquid,venice-token';
+  const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true&include_market_cap=true&include_last_updated_at=true`;
+  try {
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    CRYPTO_LIVE = data;
+    const ts = new Date().toLocaleTimeString();
+    const cf = document.getElementById('crypto-freshness');
+    if (cf) { cf.textContent = `Live · updated ${ts}`; cf.className = 'live'; }
+    renderAll();
+  } catch (e) {
+    const cf = document.getElementById('crypto-freshness');
+    if (cf) { cf.textContent = `Fetch failed: ${e.message} — retrying next interval`; cf.className = 'stale'; }
+  }
+}
+function refreshCrypto() { fetchCrypto(); }
+function startCryptoAutoRefresh() {
+  if (cryptoRefreshTimer) clearInterval(cryptoRefreshTimer);
+  const interval = parseInt(localStorage.getItem('cryptoInterval') || '60') * 1000;
+  cryptoRefreshTimer = setInterval(fetchCrypto, interval);
+}
+
+// ============================================================
+// STOCK LIVE FETCH (via user-deployed Cloudflare Worker)
+// ============================================================
+// Why a worker: Yahoo's chart API doesn't send CORS headers, so
+// the browser cannot call it directly. The worker is a tiny proxy
+// that fetches Yahoo server-side and returns JSON with CORS open.
+// See STOCK_WORKER_SETUP.md for deploy instructions.
+let stockRefreshTimer = null;
+async function fetchStocks() {
+  const base = (localStorage.getItem('stockWorkerUrl') || '').trim();
+  const sf = document.getElementById('stock-freshness');
+  const dot = document.getElementById('stock-dot');
+
+  if (!base) {
+    // No worker configured — fall back to baked prices, show hint
+    if (sf) {
+      sf.textContent = 'Server-baked (19:58 ET Sun) — set Stock Worker URL in Settings for live';
+      sf.className = 'stale';
+    }
+    if (dot) dot.className = 'live-dot stale-dot';
+    return;
+  }
+
+  // Unique stock tickers from POSITIONS + everything in STOCK_PRICES
+  const posTickers = POSITIONS.filter(p => p.type === 'stock').map(p => p.ticker);
+  const extraTickers = Object.keys(STOCK_PRICES);
+  const tickers = Array.from(new Set([...posTickers, ...extraTickers]));
+  const url = base.replace(/\/+$/, '') + '/?symbols=' + encodeURIComponent(tickers.join(','));
+
+  try {
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error('worker HTTP ' + resp.status);
+    const payload = await resp.json();
+    if (!payload || !payload.data) throw new Error('bad worker response');
+
+    let updated = 0;
+    let errored = [];
+    Object.entries(payload.data).forEach(([sym, val]) => {
+      if (val && typeof val.price === 'number') {
+        STOCK_PRICES[sym] = {
+          price: val.price,
+          prevClose: val.prevClose != null ? val.prevClose :
+                     (STOCK_PRICES[sym] ? STOCK_PRICES[sym].prevClose : val.price),
+          fetchedAt: payload.fetchedAt,
+          marketState: val.marketState || null
+        };
+        updated++;
+      } else if (val && val.error) {
+        errored.push(sym + ':' + val.error);
+      }
+    });
+
+    const ts = new Date().toLocaleTimeString();
+    const marketStates = Object.values(payload.data)
+      .map(v => v && v.marketState).filter(Boolean);
+    const regular = marketStates.includes('REGULAR');
+    const mstate = regular ? 'OPEN' :
+      (marketStates.includes('POST') ? 'POST' :
+       marketStates.includes('PRE') ? 'PRE' : 'CLOSED');
+
+    if (sf) {
+      sf.textContent = `Live via Worker · ${updated}/${tickers.length} symbols · market ${mstate} · ${ts}` +
+        (errored.length ? ` · errors: ${errored.slice(0,2).join(', ')}` : '');
+      sf.className = 'live';
+    }
+    if (dot) dot.className = 'live-dot';
+    renderAll();
+  } catch (e) {
+    if (sf) {
+      sf.textContent = `Stock fetch failed: ${e.message} — falling back to baked prices`;
+      sf.className = 'stale';
+    }
+    if (dot) dot.className = 'live-dot stale-dot';
+  }
+}
+function refreshStocks() { fetchStocks(); }
+function startStockAutoRefresh() {
+  if (stockRefreshTimer) clearInterval(stockRefreshTimer);
+  const interval = parseInt(localStorage.getItem('stockInterval') || '60') * 1000;
+  stockRefreshTimer = setInterval(fetchStocks, interval);
+}
+
+// ============================================================
+// RENDER: TICKER BAR
+// ============================================================
+function renderTickerBar() {
+  const bar = document.getElementById('ticker-bar');
+  if (!bar) return;
+  const cells = [];
+  POSITIONS.forEach(pos => {
+    const price = getCurrentPrice(pos);
+    const chg = getChange24h(pos);
+    const z = zoneStatus(pos, price);
+    const chgStr = chg !== null ? `${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%` : '—';
+    const chgCls = chg === null ? 'flat' : (chg >= 0 ? 'up' : 'dn');
+    const decimals = price !== null && price < 100 ? 2 : 2;
+    cells.push(`<div class="ticker-cell">
+      <div class="sym"><span>${pos.ticker}</span><span style="color:var(--muted);font-weight:400;font-size:10px;">${pos.type === 'crypto' ? '● live' : (stockIsLive() ? '● live' : 'baked')}</span></div>
+      <div class="px">${fmtUSD(price, decimals)}</div>
+      <div class="chg ${chgCls}">${chgStr} · <span class="badge ${z.cls}" style="padding:1px 6px;font-size:9px;">${z.label}</span></div>
+    </div>`);
+  });
+  // BTC + TSLA extras
+  const btc = CRYPTO_LIVE.bitcoin ? CRYPTO_LIVE.bitcoin.usd : null;
+  const btcChg = CRYPTO_LIVE.bitcoin ? CRYPTO_LIVE.bitcoin.usd_24h_change : null;
+  cells.push(`<div class="ticker-cell">
+    <div class="sym"><span>BTC</span><span style="color:var(--muted);font-weight:400;font-size:10px;">● live</span></div>
+    <div class="px">${btc ? '$' + btc.toLocaleString('en-US',{maximumFractionDigits:0}) : '—'}</div>
+    <div class="chg ${btcChg !== null && btcChg >= 0 ? 'up' : 'dn'}">${btcChg !== null ? (btcChg >= 0 ? '+' : '') + btcChg.toFixed(2) + '%' : '—'} · Weekly MACD buy</div>
+  </div>`);
+  const eth = CRYPTO_LIVE.ethereum ? CRYPTO_LIVE.ethereum.usd : null;
+  cells.push(`<div class="ticker-cell">
+    <div class="sym"><span>ETH</span><span style="color:var(--muted);font-weight:400;font-size:10px;">● live</span></div>
+    <div class="px">${eth ? '$' + eth.toLocaleString('en-US',{maximumFractionDigits:2}) : '—'}</div>
+    <div class="chg flat">Broke trendline</div>
+  </div>`);
+  const tslaP = STOCK_PRICES.TSLA.price;
+  const tslaPC = STOCK_PRICES.TSLA.prevClose;
+  const tslaChg = ((tslaP - tslaPC) / tslaPC * 100).toFixed(2);
+  cells.push(`<div class="ticker-cell">
+    <div class="sym"><span>TSLA</span><span style="color:var(--muted);font-weight:400;font-size:10px;">${stockIsLive() ? '● live' : 'baked'}</span></div>
+    <div class="px">$${tslaP.toFixed(2)}</div>
+    <div class="chg ${tslaChg >= 0 ? 'up' : 'dn'}">${tslaChg >= 0 ? '+' : ''}${tslaChg}% · Q1 Wed Apr 22</div>
+  </div>`);
+  bar.innerHTML = cells.join('');
+
+  // Update BTC in watchlist
+  const btcWatch = document.getElementById('btc-watch');
+  if (btcWatch && btc) btcWatch.textContent = '$' + btc.toLocaleString('en-US',{maximumFractionDigits:0});
+}
+
+// ============================================================
+// RENDER: ZONE ALERTS
+// ============================================================
+function renderZoneAlerts() {
+  const el = document.getElementById('zone-alerts');
+  if (!el) return;
+  const alerts = [];
+  POSITIONS.forEach(pos => {
+    const price = getCurrentPrice(pos);
+    if (price === null) return;
+    const z = zoneStatus(pos, price);
+    if (z.cls === 'b-atstop') {
+      alerts.push(`<div class="alert alert-warn">🔴 URGENT · ${pos.ticker} ${fmtUSD(price,2)} · AT STOP (${fmtUSD(pos.stop,2)}). Risk rule: exit position.</div>`);
+    } else if (z.cls === 'b-inzone') {
+      alerts.push(`<div class="alert alert-inzone">🟢 ${pos.ticker} ${fmtUSD(price,2)} · IN ZONE (${fmtUSD(pos.entryLow,2)}–${fmtUSD(pos.entryHigh,2)}). Entry window open.</div>`);
+    } else if (z.cls === 'b-approaching') {
+      alerts.push(`<div class="alert alert-approach">🟡 ${pos.ticker} ${fmtUSD(price,2)} · ${z.label} · entry at ${fmtUSD(pos.entryLow,2)}. Patience.</div>`);
+    }
+  });
+  alerts.push(`<div class="alert alert-feed">🟣 FEED: Jordi Visser Apr 19 pod ingested — industrial scarcity regime, compute crunch confirmed.</div>`);
+  el.innerHTML = alerts.join('');
+}
+
+// ============================================================
+// RENDER: CONVICTION TABLE
+// ============================================================
+function renderConvictionTable() {
+  const t = document.getElementById('conviction-table');
+  if (!t) return;
+  const rows = [t.querySelector('tr').outerHTML];
+  [...POSITIONS].sort((a,b) => b.conv - a.conv).forEach(pos => {
+    const price = getCurrentPrice(pos);
+    const z = zoneStatus(pos, price);
+    rows.push(`<tr>
+      <td><strong>${pos.ticker}</strong><br/><span class="badge ${z.cls}">${z.label}</span></td>
+      <td>${pos.thesis}</td>
+      <td>${pos.conv}/10 <span class="convbar"><span style="width:${pos.conv*10}%"></span></span></td>
+      <td>Entry ${fmtUSD(pos.entryLow,2)}–${fmtUSD(pos.entryHigh,2)} · Stop ${fmtUSD(pos.stop,2)} · T1 ${fmtUSD(pos.t1,2)} / T2 ${fmtUSD(pos.t2,2)}</td>
+      <td>Live: ${fmtUSD(price,2)}</td>
+    </tr>`);
+  });
+  t.innerHTML = rows.join('');
+}
+
+// ============================================================
+// RENDER: P&L TABLES
+// ============================================================
+function renderPnL() {
+  // Main P&L table
+  const tpl = document.getElementById('pnl-table');
+  const kpi = document.getElementById('pnl-kpi');
+  const port = document.getElementById('portfolio-table');
+  const portKpi = document.getElementById('port-kpi');
+  let totalVal = 0, totalCost = 0;
+
+  if (tpl) {
+    const rows = [tpl.querySelector('tr').outerHTML];
+    POSITIONS.forEach(pos => {
+      const price = getCurrentPrice(pos);
+      if (price === null) {
+        rows.push(`<tr><td><strong>${pos.ticker}</strong></td><td>${pos.shares}</td><td>${fmtUSD(pos.modelEntry,2)}</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>`);
+        return;
+      }
+      const val = pos.shares * price;
+      const pnl = val - pos.cost;
+      const pnlPct = pnl / pos.cost * 100;
+      totalVal += val; totalCost += pos.cost;
+      const z = zoneStatus(pos, price);
+      const cls = pnl >= 0 ? 'up' : 'dn';
+      rows.push(`<tr>
+        <td><strong>${pos.ticker}</strong></td>
+        <td>${pos.shares}</td>
+        <td>${fmtUSD(pos.modelEntry,2)}</td>
+        <td>${fmtUSD(price,2)}</td>
+        <td>${fmtUSD(val,2)}</td>
+        <td class="${cls}">${pnl >= 0 ? '+' : ''}${fmtUSD(pnl,2)}</td>
+        <td class="${cls}">${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(2)}%</td>
+        <td><span class="badge ${z.cls}">${z.label}</span></td>
+      </tr>`);
+    });
+    const totalPnL = totalVal - totalCost;
+    const totalPct = totalPnL / totalCost * 100;
+    const cls = totalPnL >= 0 ? 'up' : 'dn';
+    rows.push(`<tr style="background:rgba(245,166,35,.08);">
+      <td colspan="4"><strong>Total</strong></td>
+      <td><strong>${fmtUSD(totalVal,2)}</strong></td>
+      <td class="${cls}"><strong>${totalPnL >= 0 ? '+' : ''}${fmtUSD(totalPnL,2)}</strong></td>
+      <td class="${cls}"><strong>${totalPct >= 0 ? '+' : ''}${totalPct.toFixed(2)}%</strong></td>
+      <td></td>
+    </tr>`);
+    tpl.innerHTML = rows.join('');
+  }
+
+  if (kpi) {
+    const totalPnL = totalVal - totalCost;
+    const totalPct = totalCost ? totalPnL / totalCost * 100 : 0;
+    const cls = totalPnL >= 0 ? 'up' : 'dn';
+    kpi.innerHTML = `
+      <div class="kpi"><div class="label">Total Value</div><div class="value">${fmtUSD(totalVal,2)}</div></div>
+      <div class="kpi"><div class="label">Total P&L</div><div class="value ${cls}">${totalPnL >= 0 ? '+' : ''}${fmtUSD(totalPnL,2)}</div></div>
+      <div class="kpi"><div class="label">Return %</div><div class="value ${cls}">${totalPct >= 0 ? '+' : ''}${totalPct.toFixed(2)}%</div></div>
+      <div class="kpi"><div class="label">Inception</div><div class="value">${fmtUSD(totalCost,0)}</div></div>`;
+  }
+
+  // Portfolio tab (rebuilt by renderPortfolioFull — called separately so
+  // it has access to actuals / base-capital / action flags in one place)
+  renderPortfolioFull();
+}
+
+// ============================================================
+// RENDER: PORTFOLIO TAB (Model vs Actual + Action Flags)
+// ============================================================
+function renderPortfolioFull() {
+  const port = document.getElementById('portfolio-table');
+  const portKpi = document.getElementById('port-kpi');
+  const banner = document.getElementById('rebalance-banner');
+  const baseLabel = document.getElementById('base-capital-label');
+  const thLabel = document.getElementById('threshold-label');
+  if (!port) return;
+
+  const base = getBaseCapital();
+  const th = getRebalanceThreshold();
+  if (baseLabel) baseLabel.textContent = fmtUSD(base, 0);
+  if (thLabel) thLabel.textContent = (th * 100).toFixed(0);
+
+  const actuals = loadActuals();
+
+  // Totals
+  let totalModelUSD = 0, totalActualUSD = 0, totalCostBasis = 0, totalPnL = 0;
+  const actions = [];
+
+  const rows = [port.querySelector('tr').outerHTML];
+  POSITIONS.forEach(pos => {
+    const price = getCurrentPrice(pos);
+    const modelPct = getModelPct(pos);
+    const modelUSD = base * modelPct / 100;
+    const modelShares = pos.modelEntry ? modelUSD / pos.modelEntry : null;
+
+    const a = actuals[pos.ticker] || { shares: 0, avgCost: 0 };
+    const actualShares = a.shares || 0;
+    const avgCost = a.avgCost || 0;
+    const actualUSD = (price != null) ? actualShares * price : 0;
+    const costBasis = actualShares * avgCost;
+    const pnl = (price != null && actualShares > 0) ? (actualUSD - costBasis) : 0;
+    const pnlPct = costBasis > 0 ? pnl / costBasis * 100 : 0;
+    const deltaUSD = actualUSD - modelUSD;
+    const action = classifyAction(pos, actualUSD, modelUSD);
+
+    totalModelUSD += modelUSD;
+    totalActualUSD += actualUSD;
+    totalCostBasis += costBasis;
+    totalPnL += pnl;
+
+    if (action.priority > 0) {
+      actions.push({ ticker: pos.ticker, ...action, deltaUSD, modelUSD });
+    }
+
+    const pnlCls = pnl >= 0 ? 'up' : 'dn';
+    const deltaCls = Math.abs(deltaUSD) < (modelUSD * th) ? 'flat' : (deltaUSD > 0 ? 'up' : 'dn');
+    const actualPctOfBase = base > 0 ? (actualUSD / base * 100) : 0;
+
+    rows.push(`<tr>
+      <td><strong>${pos.ticker}</strong></td>
+      <td>${pos.conv || '—'}/10</td>
+      <td>${modelPct.toFixed(0)}%</td>
+      <td>${fmtUSD(modelUSD,0)}</td>
+      <td>${modelShares != null ? modelShares.toFixed(2) : '—'}</td>
+      <td><input class="actual-input" type="number" step="any" min="0" value="${actualShares || ''}" placeholder="0"
+             onchange="saveActualField('${pos.ticker}','shares',this.value)" title="Actual shares you hold"/></td>
+      <td><input class="actual-input" type="number" step="any" min="0" value="${avgCost || ''}" placeholder="0"
+             onchange="saveActualField('${pos.ticker}','avgCost',this.value)" title="Your average cost per share"/></td>
+      <td>${price != null ? fmtUSD(price,2) : '—'}</td>
+      <td>${actualShares > 0 ? fmtUSD(actualUSD,0) : '<span style="color:var(--muted);">—</span>'}</td>
+      <td>${actualShares > 0 ? actualPctOfBase.toFixed(1) + '%' : '—'}</td>
+      <td class="${deltaCls}">${actualShares > 0 ? (deltaUSD >= 0 ? '+' : '') + fmtUSD(deltaUSD,0) : '—'}</td>
+      <td class="${pnlCls}">${actualShares > 0 ? (pnl >= 0 ? '+' : '') + fmtUSD(pnl,0) + ' <span style="color:var(--muted);font-size:10px;">(' + (pnlPct >= 0 ? '+' : '') + pnlPct.toFixed(1) + '%)</span>' : '—'}</td>
+      <td><span class="badge ${action.cls}" title="${action.detail.replace(/"/g,'&quot;')}">${action.label}</span></td>
+    </tr>`);
+  });
+
+  // Total row
+  const totalPnLCls = totalPnL >= 0 ? 'up' : 'dn';
+  const totalDelta = totalActualUSD - totalModelUSD;
+  const totalDeltaCls = Math.abs(totalDelta) < (totalModelUSD * th) ? 'flat' : (totalDelta > 0 ? 'up' : 'dn');
+  const actualPctOfBase = base > 0 ? (totalActualUSD / base * 100) : 0;
+  rows.push(`<tr style="background:rgba(245,166,35,.08);font-weight:700;">
+    <td colspan="3">Total Deployed</td>
+    <td>${fmtUSD(totalModelUSD,0)}</td>
+    <td></td>
+    <td colspan="2" style="text-align:right;">Actual →</td>
+    <td></td>
+    <td>${fmtUSD(totalActualUSD,0)}</td>
+    <td>${actualPctOfBase.toFixed(1)}%</td>
+    <td class="${totalDeltaCls}">${totalDelta >= 0 ? '+' : ''}${fmtUSD(totalDelta,0)}</td>
+    <td class="${totalPnLCls}">${totalPnL >= 0 ? '+' : ''}${fmtUSD(totalPnL,0)}</td>
+    <td></td>
+  </tr>`);
+  port.innerHTML = rows.join('');
+
+  // KPIs
+  if (portKpi) {
+    const deployPct = base > 0 ? (totalActualUSD / base * 100) : 0;
+    const cashFree = base - totalActualUSD;
+    const pnlPctTotal = totalCostBasis > 0 ? (totalPnL / totalCostBasis * 100) : 0;
+    const pnlCls = totalPnL >= 0 ? 'up' : 'dn';
+    portKpi.innerHTML = `
+      <div class="kpi"><div class="label">Model Target</div><div class="value">${fmtUSD(totalModelUSD,0)}</div></div>
+      <div class="kpi"><div class="label">Actual Deployed</div><div class="value">${fmtUSD(totalActualUSD,0)}</div></div>
+      <div class="kpi"><div class="label">% of Base Deployed</div><div class="value">${deployPct.toFixed(1)}%</div></div>
+      <div class="kpi"><div class="label">Cash Free</div><div class="value">${fmtUSD(cashFree,0)}</div></div>
+      <div class="kpi"><div class="label">Unrealized P&L</div><div class="value ${pnlCls}">${totalPnL >= 0 ? '+' : ''}${fmtUSD(totalPnL,0)}</div></div>
+      <div class="kpi"><div class="label">P&L %</div><div class="value ${pnlCls}">${pnlPctTotal >= 0 ? '+' : ''}${pnlPctTotal.toFixed(2)}%</div></div>`;
+  }
+
+  // Rebalance banner
+  if (banner) {
+    if (actions.length === 0) {
+      banner.innerHTML = `<div class="alert alert-inzone">✓ All positions within ±${(th*100).toFixed(0)}% of model target. No rebalance needed.</div>`;
+    } else {
+      const critical = actions.filter(a => a.priority === 3);
+      const moderate = actions.filter(a => a.priority === 2);
+      const topAction = actions.sort((a,b) => b.priority - a.priority || Math.abs(b.deltaUSD) - Math.abs(a.deltaUSD))[0];
+      const cls = critical.length ? 'alert-warn' : 'alert-approach';
+      banner.innerHTML = `<div class="alert ${cls}">⚡ <strong>${actions.length} position${actions.length>1?'s':''} need action</strong>
+        ${critical.length ? ` · ${critical.length} critical` : ''}${moderate.length ? ` · ${moderate.length} moderate` : ''}
+         · Biggest drift: <strong>${topAction.ticker}</strong> · ${topAction.label} · ${topAction.detail}</div>`;
+    }
+  }
+
+  // Model change panel (one-time per run; stored in localStorage so banner
+  // only appears when the model actually shifts between dashboard runs).
+  renderModelChangePanel();
+}
+
+function renderModelChangePanel() {
+  const panel = document.getElementById('model-change-panel');
+  if (!panel) return;
+  // Use a cached result so detectModelChanges isn't re-run (it rewrites the snapshot)
+  if (!window.__mc_changes) window.__mc_changes = detectModelChanges();
+  const { changes, baseline } = window.__mc_changes;
+  if (baseline) {
+    panel.innerHTML = `<div class="alert alert-feed">📸 Baseline model snapshot saved. Next dashboard run, any changes (new positions, resizes, stop moves) will appear here.</div>`;
+    return;
+  }
+  if (!changes.length) {
+    panel.innerHTML = '';
+    return;
+  }
+  const rowsHtml = changes.map(c => {
+    const tagCls = c.type === 'ADD' ? 'b-new' :
+                   c.type === 'REMOVE' ? 'b-atstop' :
+                   c.type === 'RESIZE' ? 'b-resize' :
+                   c.type === 'STOP' ? 'b-approaching' : 'b-above';
+    return `<li><span class="badge ${tagCls}" style="margin-right:8px;">${c.type}</span><strong>${c.ticker}</strong> — ${c.detail}</li>`;
+  }).join('');
+  panel.innerHTML = `<div class="panel" style="border-left:4px solid var(--blue);">
+    <h2>🔔 Model Changes Since Last Visit</h2>
+    <ul style="margin-left:18px;">${rowsHtml}</ul>
+    <button class="btn btn-secondary" style="margin-top:8px;" onclick="document.getElementById('model-change-panel').innerHTML='';">Dismiss</button>
+  </div>`;
+}
+
+function renderAll() {
+  renderTickerBar();
+  renderZoneAlerts();
+  renderConvictionTable();
+  renderPnL();
+}
+
+// ============================================================
+// TABS, CHAT, FEED (unchanged behavior, using Worker URL from settings)
+// ============================================================
+function showTab(id, el) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+}
+function saveSettings() {
+  const wu = document.getElementById('worker-url').value.trim();
+  const sw = document.getElementById('stock-worker-url').value.trim();
+  const pp = document.getElementById('prox-pct').value;
+  const ci = document.getElementById('crypto-interval').value;
+  const si = document.getElementById('stock-interval').value;
+  const bc = document.getElementById('base-capital').value;
+  const rt = document.getElementById('rebalance-threshold').value;
+  if (wu) localStorage.setItem('workerUrl', wu); else localStorage.removeItem('workerUrl');
+  if (sw) localStorage.setItem('stockWorkerUrl', sw); else localStorage.removeItem('stockWorkerUrl');
+  if (pp) localStorage.setItem('proximityPct', pp);
+  if (ci) localStorage.setItem('cryptoInterval', ci);
+  if (si) localStorage.setItem('stockInterval', si);
+  if (bc) localStorage.setItem('baseCapital', bc);
+  if (rt) localStorage.setItem('rebalanceThreshold', rt);
+  startCryptoAutoRefresh();
+  startStockAutoRefresh();
+  renderAll();
+  // Kick an immediate stock fetch if URL was just set
+  if (sw) fetchStocks();
+  alert('Settings saved.');
+}
+function loadSettings() {
+  const wu = localStorage.getItem('workerUrl');
+  const sw = localStorage.getItem('stockWorkerUrl');
+  const pp = localStorage.getItem('proximityPct') || '5';
+  const ci = localStorage.getItem('cryptoInterval') || '60';
+  const si = localStorage.getItem('stockInterval') || '60';
+  const bc = localStorage.getItem('baseCapital') || '10000';
+  const rt = localStorage.getItem('rebalanceThreshold') || '15';
+  if (wu) document.getElementById('worker-url').value = wu;
+  if (sw) document.getElementById('stock-worker-url').value = sw;
+  document.getElementById('prox-pct').value = pp;
+  document.getElementById('crypto-interval').value = ci;
+  document.getElementById('stock-interval').value = si;
+  const bcEl = document.getElementById('base-capital'); if (bcEl) bcEl.value = bc;
+  const rtEl = document.getElementById('rebalance-threshold'); if (rtEl) rtEl.value = rt;
+}
+let chatHistory = JSON.parse(localStorage.getItem('mc_chat') || '[]');
+function renderChat() {
+  const area = document.getElementById('chat-area');
+  if (!area) return;
+  chatHistory.forEach(m => {
+    const d = document.createElement('div');
+    d.className = m.role === 'user' ? 'msg-user' : 'msg-assistant';
+    d.innerHTML = `<strong>${m.role === 'user' ? 'You' : 'Munger Claw'}:</strong> ${m.content}`;
+    area.appendChild(d);
+  });
 }
 async function sendChat() {
-  const input = document.getElementById('chatInput');
+  const input = document.getElementById('chat-input');
   const text = input.value.trim();
   if (!text) return;
-  const workerUrl = localStorage.getItem('workerUrl');
-  const data = JSON.parse(localStorage.getItem('mc_chat') || '[]');
-  data.push({role:'user', text});
-  localStorage.setItem('mc_chat', JSON.stringify(data));
   input.value = '';
-  loadChat();
-  if (!workerUrl) {
-    data.push({role:'ai', text:'⚠️ Set your Cloudflare Worker URL in Settings to enable chat.'});
-    localStorage.setItem('mc_chat', JSON.stringify(data));
-    loadChat();
+  chatHistory.push({role:'user', content:text});
+  const area = document.getElementById('chat-area');
+  const u = document.createElement('div');
+  u.className = 'msg-user';
+  u.innerHTML = `<strong>You:</strong> ${text}`;
+  area.appendChild(u);
+  const url = localStorage.getItem('workerUrl');
+  if (!url) {
+    const e = document.createElement('div');
+    e.className = 'msg-assistant';
+    e.innerHTML = `<strong>Munger Claw:</strong> Worker URL not set. Go to Settings.`;
+    area.appendChild(e);
     return;
   }
   try {
-    const context = `Portfolio state (Apr 20 2026 11AM): ${JSON.stringify(MODEL)}. Cash reserve $900 for TSLA 4/22. BTC $75,324 (Iran tension). HYPE $43.02 in zone. Luke Gromen fading BTC short-term.`;
-    const resp = await fetch(workerUrl, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({messages:[{role:'system',content:'You are Munger Claw. Context: '+context},...data.map(m=>({role:m.role==='user'?'user':'assistant',content:m.text}))]})});
-    const j = await resp.json();
-    data.push({role:'ai', text: j.response || j.content || JSON.stringify(j)});
-  } catch (e) {
-    data.push({role:'ai', text: '❌ Chat error: ' + e.message});
+    const port = POSITIONS.map(p => {
+      const price = getCurrentPrice(p);
+      return `${p.ticker}: ${p.shares} @ $${p.modelEntry} now $${price ? price.toFixed(2) : '?'}`;
+    }).join('; ');
+    const sys = `You are Munger Claw. Today Apr 19 2026. Portfolio: ${port}. Jordi Visser Apr 19 confirmed compute scarcity regime.`;
+    const resp = await fetch(url, {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({messages:[{role:'system', content:sys}, ...chatHistory]})});
+    const data = await resp.json();
+    const reply = data.reply || data.content || JSON.stringify(data);
+    chatHistory.push({role:'assistant', content:reply});
+    const r = document.createElement('div');
+    r.className = 'msg-assistant';
+    r.innerHTML = `<strong>Munger Claw:</strong> ${reply}`;
+    area.appendChild(r);
+    area.scrollTop = area.scrollHeight;
+    localStorage.setItem('mc_chat', JSON.stringify(chatHistory));
+  } catch(e) {
+    const ed = document.createElement('div');
+    ed.className = 'msg-assistant';
+    ed.innerHTML = `<strong>Munger Claw:</strong> Error: ${e.message}`;
+    area.appendChild(ed);
   }
-  localStorage.setItem('mc_chat', JSON.stringify(data));
-  loadChat();
 }
-function clearChat() { localStorage.removeItem('mc_chat'); loadChat(); }
-
-// Feed
+function clearChat() {
+  chatHistory = [];
+  localStorage.removeItem('mc_chat');
+  const a = document.getElementById('chat-area');
+  if (a) a.innerHTML = '<div class="msg-assistant"><strong>Munger Claw:</strong> History cleared.</div>';
+}
 async function submitFeed() {
-  const source = document.getElementById('feedSource').value.trim();
-  const focus = document.getElementById('feedFocus').value.trim();
-  const content = document.getElementById('feedContent').value.trim();
-  if (!content && !source) { alert('Provide at least a source URL or content.'); return; }
-  const body = `MUNGER_CLAW_FEED\nSOURCE: ${source}\nFOCUS: ${focus}\nCONTENT: ${content}`;
+  const url = document.getElementById('feed-url').value;
+  const focus = document.getElementById('feed-focus').value;
+  const content = document.getElementById('feed-content').value;
+  if (!url && !content) { alert('Enter URL or content.'); return; }
+  const body = `MUNGER_CLAW_FEED\nSOURCE: ${url}\nFOCUS: ${focus}\nCONTENT: ${content}`;
   try {
-    await fetch('https://ntfy.sh/mungerclaw-psd22', {method:'POST', headers:{'Title':'Feed submission','Tags':'inbox_tray'}, body});
+    await fetch('https://ntfy.sh/mungerclaw-psd22', {method:'POST', body});
     const log = JSON.parse(localStorage.getItem('mc_feed_log') || '[]');
-    log.unshift({ts:new Date().toISOString(), source, focus, preview:content.slice(0,200)});
-    localStorage.setItem('mc_feed_log', JSON.stringify(log.slice(0,50)));
-    document.getElementById('feedSource').value=''; document.getElementById('feedFocus').value=''; document.getElementById('feedContent').value='';
-    loadFeedLog();
-    alert('✅ Submitted. Next Munger Claw run will ingest it.');
-  } catch (e) { alert('❌ ' + e.message); }
+    log.unshift({ts:new Date().toISOString(), url, focus, content:content.slice(0,200)});
+    localStorage.setItem('mc_feed_log', JSON.stringify(log));
+    alert('Submitted to ntfy. Picked up in next run.');
+    clearFeedForm();
+    renderFeedLog();
+  } catch(e) { alert('Error: ' + e.message); }
 }
-function loadFeedLog() {
+function clearFeedForm() {
+  document.getElementById('feed-url').value = '';
+  document.getElementById('feed-focus').value = '';
+  document.getElementById('feed-content').value = '';
+}
+function clearFeed() {
+  localStorage.removeItem('mc_feed_log');
+  renderFeedLog();
+}
+function renderFeedLog() {
   const log = JSON.parse(localStorage.getItem('mc_feed_log') || '[]');
-  const div = document.getElementById('feedLog');
-  if (!log.length) { div.innerHTML = '<em style="color:var(--muted);">No feed items submitted yet.</em>'; return; }
-  div.innerHTML = '<h3>Recent submissions</h3>' + log.map(l => `<div style="padding:8px;background:var(--panel2);margin:6px 0;border-radius:6px;"><div style="color:var(--muted);font-size:11px;">${l.ts}</div><div><strong>${l.source||'(no URL)'}</strong></div><div style="color:var(--muted);font-size:12px;">${l.focus||''}</div><div style="font-size:12px;margin-top:4px;">${l.preview}...</div></div>`).join('');
+  const el = document.getElementById('feed-log');
+  if (!el) return;
+  if (!log.length) { el.innerHTML = '<p style="color:var(--muted);">No submissions yet.</p>'; return; }
+  el.innerHTML = log.map(i => `<div style="padding:10px; background:var(--panel2); border-radius:6px; margin:6px 0;">
+    <div style="color:var(--muted); font-size:11px;">${new Date(i.ts).toLocaleString()}</div>
+    <div style="color:var(--blue);">${i.url || '(no url)'}</div>
+    <div>${i.focus || ''}</div>
+    <div style="color:var(--muted); font-size:12px;">${i.content || ''}</div>
+  </div>`).join('');
 }
 
-// Settings
-function saveSettings() {
-  localStorage.setItem('workerUrl', document.getElementById('workerUrl').value);
-  localStorage.setItem('proximityPct', document.getElementById('proximityPct').value);
-  alert('✅ Saved');
-}
-function resetData() {
-  if (!confirm('Clear chat, feed log, and settings?')) return;
-  localStorage.removeItem('mc_chat'); localStorage.removeItem('mc_feed_log');
-  localStorage.removeItem('workerUrl'); localStorage.removeItem('proximityPct');
-  alert('✅ Cleared'); location.reload();
-}
-
-// Init
-renderPortfolio();
-renderWatch();
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  loadSettings();
+  renderChat();
+  renderFeedLog();
+  // First-pass render with baked prices so the page isn't blank
+  renderAll();
+  // Kick live fetches (crypto always, stocks only if worker is configured)
+  fetchCrypto();
+  startCryptoAutoRefresh();
+  fetchStocks();
+  startStockAutoRefresh();
+  const ci = document.getElementById('chat-input');
+  if (ci) ci.addEventListener('keypress', e => { if (e.key === 'Enter') sendChat(); });
+});
 </script>
 </body>
 </html>

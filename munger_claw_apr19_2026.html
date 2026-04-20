@@ -62,7 +62,12 @@
   .b-approaching { background:rgba(227,179,65,.2); color:var(--yellow); border:1px solid var(--yellow);}
   .b-atstop { background:rgba(255,68,68,.3); color:#fff; border:1px solid var(--urgent);
     animation:pulse 2s infinite;}
+  .b-new { background:rgba(88,166,255,.22); color:var(--blue); border:1px solid var(--blue);}
+  .b-resize { background:rgba(188,140,255,.22); color:var(--purple); border:1px solid var(--purple);}
   @keyframes pulse { 0%{opacity:1;} 50%{opacity:.6;} 100%{opacity:1;} }
+  .actual-input { width:70px; padding:4px 6px; background:var(--panel2); color:var(--text);
+    border:1px solid var(--border); border-radius:4px; font-family:inherit; font-size:12px;}
+  .actual-input:focus { outline:none; border-color:var(--blue);}
   .alert { padding:12px 16px; border-radius:8px; margin:8px 0; font-weight:600;}
   .alert-inzone { background:linear-gradient(90deg,rgba(62,185,80,.15),transparent);
     border-left:4px solid var(--green); color:var(--green);}
@@ -352,12 +357,45 @@
 
 <!-- =============== PORTFOLIO TAB =============== -->
 <div id="portfolio" class="tab-content">
+
+  <!-- Rebalance alert banner (populated by JS) -->
+  <div id="rebalance-banner"></div>
+
+  <!-- Model-change-since-last-visit (populated by JS, hidden if empty) -->
+  <div id="model-change-panel"></div>
+
   <div class="panel">
-    <h2>Model Portfolio · $10,000 Inception</h2>
+    <h2>Model vs Actual · Base <span id="base-capital-label">$10,000</span></h2>
     <div class="kpi-grid" id="port-kpi"></div>
-    <table id="portfolio-table">
-      <tr><th>Ticker</th><th>Alloc</th><th>Entry Range</th><th>Model Entry</th><th>Current</th><th>Zone</th><th>P&amp;L</th><th>P&amp;L %</th></tr>
-    </table>
+    <p style="color:var(--muted); font-size:12px; margin:6px 0 10px 0;">
+      <strong>Model</strong> = what Munger Claw recommends for your base capital.
+      <strong>Actual</strong> = what you actually hold (edit shares + avg cost inline, autosaves).
+      <strong>Action</strong> flag fires when actual value drifts ±<span id="threshold-label">15</span>% from model target.
+    </p>
+    <div style="overflow-x:auto;">
+      <table id="portfolio-table">
+        <tr>
+          <th>Ticker</th>
+          <th>Conv</th>
+          <th>Model %</th>
+          <th>Model $</th>
+          <th>Model Sh</th>
+          <th>Actual Sh</th>
+          <th>Avg Cost</th>
+          <th>Price</th>
+          <th>Actual $</th>
+          <th>Actual %</th>
+          <th>Δ vs Model</th>
+          <th>P&amp;L</th>
+          <th>Action</th>
+        </tr>
+      </table>
+    </div>
+    <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+      <button class="btn btn-secondary" onclick="resetActualsToModel()">Reset Actuals → Model</button>
+      <button class="btn btn-secondary" onclick="clearAllActuals()">Clear All Actuals</button>
+      <span style="color:var(--muted); font-size:11px; align-self:center;">Actuals persist in browser localStorage. To reset an individual row, clear both fields.</span>
+    </div>
   </div>
   <div class="panel">
     <h2>Watchlist</h2>
@@ -415,6 +453,8 @@
     <div class="input-group"><label>Proximity threshold % (approaching zone alerts)</label><input id="prox-pct" type="number" value="5"/></div>
     <div class="input-group"><label>Crypto refresh interval (seconds)</label><input id="crypto-interval" type="number" value="60"/></div>
     <div class="input-group"><label>Stock refresh interval (seconds)</label><input id="stock-interval" type="number" value="60"/></div>
+    <div class="input-group"><label>Base capital ($) — used for Model $ sizing in Portfolio tab</label><input id="base-capital" type="number" step="500" value="10000"/></div>
+    <div class="input-group"><label>Rebalance threshold (%) — Action flag fires when Actual drifts ±X% from Model</label><input id="rebalance-threshold" type="number" step="1" min="1" max="50" value="15"/></div>
     <div class="input-group"><label>ntfy topic (read-only)</label><input value="mungerclaw-psd22" readonly/></div>
     <button class="btn" onclick="saveSettings()">Save Settings</button>
     <button class="btn btn-secondary" onclick="refreshStocks()">Test Stock Worker</button>
@@ -515,6 +555,140 @@ function zoneStatus(pos, price) {
 
 function stockIsLive() {
   return !!(localStorage.getItem('stockWorkerUrl') || '').trim();
+}
+
+// ============================================================
+// MODEL-VS-ACTUAL STATE
+// ============================================================
+// Seed values come from the portfolio_log.json that backs the
+// Monday Apr 21 inception model. User can overwrite these at
+// any time — they persist in localStorage under 'mc_actuals'.
+const ACTUALS_SEED = {
+  'HYPE': { shares: 63.6,  avgCost: 44.00 },
+  'NVDA': { shares: 11.0,  avgCost: 200.00 },
+  'PLTR': { shares: 11.5,  avgCost: 148.00 },
+  'VVV':  { shares: 114.0, avgCost: 8.75 },
+  'OKLO': { shares: 14.5,  avgCost: 69.00 },
+  'RCAT': { shares: 30.8,  avgCost: 13.00 }
+};
+
+function getBaseCapital() {
+  return parseFloat(localStorage.getItem('baseCapital') || '10000') || 10000;
+}
+function getRebalanceThreshold() {
+  return parseFloat(localStorage.getItem('rebalanceThreshold') || '15') / 100;
+}
+function getModelPct(pos) {
+  // alloc is stored as '30%' string
+  const m = (pos.alloc || '').match(/[\d.]+/);
+  return m ? parseFloat(m[0]) : 0;
+}
+function loadActuals() {
+  const stored = localStorage.getItem('mc_actuals');
+  if (stored) {
+    try { return JSON.parse(stored); } catch(e) {}
+  }
+  // First-load seed
+  const seed = JSON.parse(JSON.stringify(ACTUALS_SEED));
+  localStorage.setItem('mc_actuals', JSON.stringify(seed));
+  return seed;
+}
+function saveActualField(ticker, field, value) {
+  const a = loadActuals();
+  a[ticker] = a[ticker] || { shares: 0, avgCost: 0 };
+  const num = parseFloat(value);
+  a[ticker][field] = isNaN(num) ? 0 : num;
+  // If both fields go to 0, drop the record (lets user "clear" a row)
+  if (!a[ticker].shares && !a[ticker].avgCost) delete a[ticker];
+  localStorage.setItem('mc_actuals', JSON.stringify(a));
+  renderAll();
+}
+function resetActualsToModel() {
+  if (!confirm('Reset actual holdings to the model allocation seed (from portfolio_log.json)?')) return;
+  localStorage.setItem('mc_actuals', JSON.stringify(JSON.parse(JSON.stringify(ACTUALS_SEED))));
+  renderAll();
+}
+function clearAllActuals() {
+  if (!confirm('Clear ALL actual holdings? This only clears what you see on this dashboard — your real broker positions are untouched.')) return;
+  localStorage.setItem('mc_actuals', JSON.stringify({}));
+  renderAll();
+}
+
+// Classify action state for a position based on actualUSD vs modelUSD
+function classifyAction(pos, actualUSD, modelUSD) {
+  const th = getRebalanceThreshold();
+  if (actualUSD === 0 || (!actualUSD && actualUSD !== 0)) {
+    return { label: 'NEW · BUY', cls: 'b-new', priority: 3,
+             detail: `Model allocates ${fmtUSD(modelUSD,0)} — you hold $0.` };
+  }
+  if (modelUSD === 0) {
+    return { label: 'EXIT', cls: 'b-atstop', priority: 3,
+             detail: 'Model no longer recommends this position.' };
+  }
+  const ratio = (actualUSD - modelUSD) / modelUSD;
+  const pctStr = (Math.abs(ratio) * 100).toFixed(0) + '%';
+  if (ratio < -0.7)     return { label: 'BUY',  cls: 'b-atstop',      priority: 3, detail: `Actual ${pctStr} under model. Add conviction.` };
+  if (ratio < -th)      return { label: 'ADD',  cls: 'b-approaching', priority: 2, detail: `Actual ${pctStr} under model target.` };
+  if (ratio <= th)      return { label: 'HOLD', cls: 'b-inzone',      priority: 0, detail: 'Within rebalance tolerance.' };
+  if (ratio <= 0.5)     return { label: 'TRIM', cls: 'b-approaching', priority: 2, detail: `Actual ${pctStr} over model target.` };
+  return                       { label: 'OVER', cls: 'b-atstop',      priority: 3, detail: `Actual ${pctStr} over model. Trim.` };
+}
+
+// ============================================================
+// MODEL CHANGE DETECTION (snapshot previous run, diff this run)
+// ============================================================
+function currentModelSignature() {
+  return POSITIONS.map(p => ({
+    ticker: p.ticker,
+    pct: getModelPct(p),
+    conv: p.conv,
+    entryLow: p.entryLow,
+    entryHigh: p.entryHigh,
+    stop: p.stop
+  }));
+}
+function detectModelChanges() {
+  const prev = JSON.parse(localStorage.getItem('mc_model_snapshot') || 'null');
+  const curr = currentModelSignature();
+  const changes = [];
+  if (!prev) {
+    // First ever load — store baseline, no changes to report
+    localStorage.setItem('mc_model_snapshot', JSON.stringify(curr));
+    return { changes: [], baseline: true };
+  }
+  const prevMap = Object.fromEntries(prev.map(p => [p.ticker, p]));
+  const currMap = Object.fromEntries(curr.map(p => [p.ticker, p]));
+  // Adds
+  curr.forEach(p => {
+    if (!prevMap[p.ticker]) {
+      changes.push({ type: 'ADD', ticker: p.ticker,
+        detail: `New position: ${p.pct}% allocation, conv ${p.conv}/10.` });
+    } else {
+      const old = prevMap[p.ticker];
+      if (old.pct !== p.pct) {
+        changes.push({ type: 'RESIZE', ticker: p.ticker,
+          detail: `Allocation ${old.pct}% → ${p.pct}%.` });
+      }
+      if (old.stop !== p.stop) {
+        changes.push({ type: 'STOP', ticker: p.ticker,
+          detail: `Stop moved ${fmtUSD(old.stop,2)} → ${fmtUSD(p.stop,2)}.` });
+      }
+      if (old.entryLow !== p.entryLow || old.entryHigh !== p.entryHigh) {
+        changes.push({ type: 'ZONE', ticker: p.ticker,
+          detail: `Entry zone ${fmtUSD(old.entryLow,2)}-${fmtUSD(old.entryHigh,2)} → ${fmtUSD(p.entryLow,2)}-${fmtUSD(p.entryHigh,2)}.` });
+      }
+    }
+  });
+  // Removes
+  prev.forEach(p => {
+    if (!currMap[p.ticker]) {
+      changes.push({ type: 'REMOVE', ticker: p.ticker,
+        detail: `No longer in model. If held, consider EXIT.` });
+    }
+  });
+  // Update snapshot only if user acknowledges (they can click Ack button) — for now auto-update.
+  localStorage.setItem('mc_model_snapshot', JSON.stringify(curr));
+  return { changes, baseline: false };
 }
 
 function fmtUSD(n, decimals) {
@@ -788,40 +962,162 @@ function renderPnL() {
       <div class="kpi"><div class="label">Inception</div><div class="value">${fmtUSD(totalCost,0)}</div></div>`;
   }
 
-  // Portfolio tab
-  if (port) {
-    const rows = [port.querySelector('tr').outerHTML];
-    POSITIONS.forEach(pos => {
-      const price = getCurrentPrice(pos);
-      if (price === null) return;
-      const val = pos.shares * price;
-      const pnl = val - pos.cost;
-      const pnlPct = pnl / pos.cost * 100;
-      const z = zoneStatus(pos, price);
-      const cls = pnl >= 0 ? 'up' : 'dn';
-      rows.push(`<tr>
-        <td><strong>${pos.ticker}</strong></td>
-        <td>${pos.alloc}</td>
-        <td>${fmtUSD(pos.entryLow,2)}–${fmtUSD(pos.entryHigh,2)}</td>
-        <td>${fmtUSD(pos.modelEntry,2)}</td>
-        <td>${fmtUSD(price,2)}</td>
-        <td><span class="badge ${z.cls}">${z.label}</span></td>
-        <td class="${cls}">${pnl >= 0 ? '+' : ''}${fmtUSD(pnl,2)}</td>
-        <td class="${cls}">${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(2)}%</td>
-      </tr>`);
-    });
-    port.innerHTML = rows.join('');
-  }
+  // Portfolio tab (rebuilt by renderPortfolioFull — called separately so
+  // it has access to actuals / base-capital / action flags in one place)
+  renderPortfolioFull();
+}
+
+// ============================================================
+// RENDER: PORTFOLIO TAB (Model vs Actual + Action Flags)
+// ============================================================
+function renderPortfolioFull() {
+  const port = document.getElementById('portfolio-table');
+  const portKpi = document.getElementById('port-kpi');
+  const banner = document.getElementById('rebalance-banner');
+  const baseLabel = document.getElementById('base-capital-label');
+  const thLabel = document.getElementById('threshold-label');
+  if (!port) return;
+
+  const base = getBaseCapital();
+  const th = getRebalanceThreshold();
+  if (baseLabel) baseLabel.textContent = fmtUSD(base, 0);
+  if (thLabel) thLabel.textContent = (th * 100).toFixed(0);
+
+  const actuals = loadActuals();
+
+  // Totals
+  let totalModelUSD = 0, totalActualUSD = 0, totalCostBasis = 0, totalPnL = 0;
+  const actions = [];
+
+  const rows = [port.querySelector('tr').outerHTML];
+  POSITIONS.forEach(pos => {
+    const price = getCurrentPrice(pos);
+    const modelPct = getModelPct(pos);
+    const modelUSD = base * modelPct / 100;
+    const modelShares = pos.modelEntry ? modelUSD / pos.modelEntry : null;
+
+    const a = actuals[pos.ticker] || { shares: 0, avgCost: 0 };
+    const actualShares = a.shares || 0;
+    const avgCost = a.avgCost || 0;
+    const actualUSD = (price != null) ? actualShares * price : 0;
+    const costBasis = actualShares * avgCost;
+    const pnl = (price != null && actualShares > 0) ? (actualUSD - costBasis) : 0;
+    const pnlPct = costBasis > 0 ? pnl / costBasis * 100 : 0;
+    const deltaUSD = actualUSD - modelUSD;
+    const action = classifyAction(pos, actualUSD, modelUSD);
+
+    totalModelUSD += modelUSD;
+    totalActualUSD += actualUSD;
+    totalCostBasis += costBasis;
+    totalPnL += pnl;
+
+    if (action.priority > 0) {
+      actions.push({ ticker: pos.ticker, ...action, deltaUSD, modelUSD });
+    }
+
+    const pnlCls = pnl >= 0 ? 'up' : 'dn';
+    const deltaCls = Math.abs(deltaUSD) < (modelUSD * th) ? 'flat' : (deltaUSD > 0 ? 'up' : 'dn');
+    const actualPctOfBase = base > 0 ? (actualUSD / base * 100) : 0;
+
+    rows.push(`<tr>
+      <td><strong>${pos.ticker}</strong></td>
+      <td>${pos.conv || '—'}/10</td>
+      <td>${modelPct.toFixed(0)}%</td>
+      <td>${fmtUSD(modelUSD,0)}</td>
+      <td>${modelShares != null ? modelShares.toFixed(2) : '—'}</td>
+      <td><input class="actual-input" type="number" step="any" min="0" value="${actualShares || ''}" placeholder="0"
+             onchange="saveActualField('${pos.ticker}','shares',this.value)" title="Actual shares you hold"/></td>
+      <td><input class="actual-input" type="number" step="any" min="0" value="${avgCost || ''}" placeholder="0"
+             onchange="saveActualField('${pos.ticker}','avgCost',this.value)" title="Your average cost per share"/></td>
+      <td>${price != null ? fmtUSD(price,2) : '—'}</td>
+      <td>${actualShares > 0 ? fmtUSD(actualUSD,0) : '<span style="color:var(--muted);">—</span>'}</td>
+      <td>${actualShares > 0 ? actualPctOfBase.toFixed(1) + '%' : '—'}</td>
+      <td class="${deltaCls}">${actualShares > 0 ? (deltaUSD >= 0 ? '+' : '') + fmtUSD(deltaUSD,0) : '—'}</td>
+      <td class="${pnlCls}">${actualShares > 0 ? (pnl >= 0 ? '+' : '') + fmtUSD(pnl,0) + ' <span style="color:var(--muted);font-size:10px;">(' + (pnlPct >= 0 ? '+' : '') + pnlPct.toFixed(1) + '%)</span>' : '—'}</td>
+      <td><span class="badge ${action.cls}" title="${action.detail.replace(/"/g,'&quot;')}">${action.label}</span></td>
+    </tr>`);
+  });
+
+  // Total row
+  const totalPnLCls = totalPnL >= 0 ? 'up' : 'dn';
+  const totalDelta = totalActualUSD - totalModelUSD;
+  const totalDeltaCls = Math.abs(totalDelta) < (totalModelUSD * th) ? 'flat' : (totalDelta > 0 ? 'up' : 'dn');
+  const actualPctOfBase = base > 0 ? (totalActualUSD / base * 100) : 0;
+  rows.push(`<tr style="background:rgba(245,166,35,.08);font-weight:700;">
+    <td colspan="3">Total Deployed</td>
+    <td>${fmtUSD(totalModelUSD,0)}</td>
+    <td></td>
+    <td colspan="2" style="text-align:right;">Actual →</td>
+    <td></td>
+    <td>${fmtUSD(totalActualUSD,0)}</td>
+    <td>${actualPctOfBase.toFixed(1)}%</td>
+    <td class="${totalDeltaCls}">${totalDelta >= 0 ? '+' : ''}${fmtUSD(totalDelta,0)}</td>
+    <td class="${totalPnLCls}">${totalPnL >= 0 ? '+' : ''}${fmtUSD(totalPnL,0)}</td>
+    <td></td>
+  </tr>`);
+  port.innerHTML = rows.join('');
+
+  // KPIs
   if (portKpi) {
-    const totalPnL = totalVal - totalCost;
-    const totalPct = totalCost ? totalPnL / totalCost * 100 : 0;
-    const cls = totalPnL >= 0 ? 'up' : 'dn';
+    const deployPct = base > 0 ? (totalActualUSD / base * 100) : 0;
+    const cashFree = base - totalActualUSD;
+    const pnlPctTotal = totalCostBasis > 0 ? (totalPnL / totalCostBasis * 100) : 0;
+    const pnlCls = totalPnL >= 0 ? 'up' : 'dn';
     portKpi.innerHTML = `
-      <div class="kpi"><div class="label">Current Value</div><div class="value">${fmtUSD(totalVal,2)}</div></div>
-      <div class="kpi"><div class="label">Unrealized P&L</div><div class="value ${cls}">${totalPnL >= 0 ? '+' : ''}${fmtUSD(totalPnL,2)}</div></div>
-      <div class="kpi"><div class="label">% Return</div><div class="value ${cls}">${totalPct >= 0 ? '+' : ''}${totalPct.toFixed(2)}%</div></div>
-      <div class="kpi"><div class="label">Cash Reserve</div><div class="value">$900 (for TSLA)</div></div>`;
+      <div class="kpi"><div class="label">Model Target</div><div class="value">${fmtUSD(totalModelUSD,0)}</div></div>
+      <div class="kpi"><div class="label">Actual Deployed</div><div class="value">${fmtUSD(totalActualUSD,0)}</div></div>
+      <div class="kpi"><div class="label">% of Base Deployed</div><div class="value">${deployPct.toFixed(1)}%</div></div>
+      <div class="kpi"><div class="label">Cash Free</div><div class="value">${fmtUSD(cashFree,0)}</div></div>
+      <div class="kpi"><div class="label">Unrealized P&L</div><div class="value ${pnlCls}">${totalPnL >= 0 ? '+' : ''}${fmtUSD(totalPnL,0)}</div></div>
+      <div class="kpi"><div class="label">P&L %</div><div class="value ${pnlCls}">${pnlPctTotal >= 0 ? '+' : ''}${pnlPctTotal.toFixed(2)}%</div></div>`;
   }
+
+  // Rebalance banner
+  if (banner) {
+    if (actions.length === 0) {
+      banner.innerHTML = `<div class="alert alert-inzone">✓ All positions within ±${(th*100).toFixed(0)}% of model target. No rebalance needed.</div>`;
+    } else {
+      const critical = actions.filter(a => a.priority === 3);
+      const moderate = actions.filter(a => a.priority === 2);
+      const topAction = actions.sort((a,b) => b.priority - a.priority || Math.abs(b.deltaUSD) - Math.abs(a.deltaUSD))[0];
+      const cls = critical.length ? 'alert-warn' : 'alert-approach';
+      banner.innerHTML = `<div class="alert ${cls}">⚡ <strong>${actions.length} position${actions.length>1?'s':''} need action</strong>
+        ${critical.length ? ` · ${critical.length} critical` : ''}${moderate.length ? ` · ${moderate.length} moderate` : ''}
+         · Biggest drift: <strong>${topAction.ticker}</strong> · ${topAction.label} · ${topAction.detail}</div>`;
+    }
+  }
+
+  // Model change panel (one-time per run; stored in localStorage so banner
+  // only appears when the model actually shifts between dashboard runs).
+  renderModelChangePanel();
+}
+
+function renderModelChangePanel() {
+  const panel = document.getElementById('model-change-panel');
+  if (!panel) return;
+  // Use a cached result so detectModelChanges isn't re-run (it rewrites the snapshot)
+  if (!window.__mc_changes) window.__mc_changes = detectModelChanges();
+  const { changes, baseline } = window.__mc_changes;
+  if (baseline) {
+    panel.innerHTML = `<div class="alert alert-feed">📸 Baseline model snapshot saved. Next dashboard run, any changes (new positions, resizes, stop moves) will appear here.</div>`;
+    return;
+  }
+  if (!changes.length) {
+    panel.innerHTML = '';
+    return;
+  }
+  const rowsHtml = changes.map(c => {
+    const tagCls = c.type === 'ADD' ? 'b-new' :
+                   c.type === 'REMOVE' ? 'b-atstop' :
+                   c.type === 'RESIZE' ? 'b-resize' :
+                   c.type === 'STOP' ? 'b-approaching' : 'b-above';
+    return `<li><span class="badge ${tagCls}" style="margin-right:8px;">${c.type}</span><strong>${c.ticker}</strong> — ${c.detail}</li>`;
+  }).join('');
+  panel.innerHTML = `<div class="panel" style="border-left:4px solid var(--blue);">
+    <h2>🔔 Model Changes Since Last Visit</h2>
+    <ul style="margin-left:18px;">${rowsHtml}</ul>
+    <button class="btn btn-secondary" style="margin-top:8px;" onclick="document.getElementById('model-change-panel').innerHTML='';">Dismiss</button>
+  </div>`;
 }
 
 function renderAll() {
@@ -846,13 +1142,18 @@ function saveSettings() {
   const pp = document.getElementById('prox-pct').value;
   const ci = document.getElementById('crypto-interval').value;
   const si = document.getElementById('stock-interval').value;
+  const bc = document.getElementById('base-capital').value;
+  const rt = document.getElementById('rebalance-threshold').value;
   if (wu) localStorage.setItem('workerUrl', wu); else localStorage.removeItem('workerUrl');
   if (sw) localStorage.setItem('stockWorkerUrl', sw); else localStorage.removeItem('stockWorkerUrl');
   if (pp) localStorage.setItem('proximityPct', pp);
   if (ci) localStorage.setItem('cryptoInterval', ci);
   if (si) localStorage.setItem('stockInterval', si);
+  if (bc) localStorage.setItem('baseCapital', bc);
+  if (rt) localStorage.setItem('rebalanceThreshold', rt);
   startCryptoAutoRefresh();
   startStockAutoRefresh();
+  renderAll();
   // Kick an immediate stock fetch if URL was just set
   if (sw) fetchStocks();
   alert('Settings saved.');
@@ -863,11 +1164,15 @@ function loadSettings() {
   const pp = localStorage.getItem('proximityPct') || '5';
   const ci = localStorage.getItem('cryptoInterval') || '60';
   const si = localStorage.getItem('stockInterval') || '60';
+  const bc = localStorage.getItem('baseCapital') || '10000';
+  const rt = localStorage.getItem('rebalanceThreshold') || '15';
   if (wu) document.getElementById('worker-url').value = wu;
   if (sw) document.getElementById('stock-worker-url').value = sw;
   document.getElementById('prox-pct').value = pp;
   document.getElementById('crypto-interval').value = ci;
   document.getElementById('stock-interval').value = si;
+  const bcEl = document.getElementById('base-capital'); if (bcEl) bcEl.value = bc;
+  const rtEl = document.getElementById('rebalance-threshold'); if (rtEl) rtEl.value = rt;
 }
 let chatHistory = JSON.parse(localStorage.getItem('mc_chat') || '[]');
 function renderChat() {
