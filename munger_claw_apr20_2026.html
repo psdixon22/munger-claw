@@ -116,7 +116,7 @@
 <div class="header">
   <div>
     <h1>🦞 MUNGER CLAW · ALPHA DASHBOARD</h1>
-    <div class="subtitle">Sunday, April 19, 2026 · Live crypto via CoinGecko · Stock prices server-fetched at generation time</div>
+    <div class="subtitle">Sunday, April 19, 2026 · Live crypto via CoinGecko · Live stocks via Cloudflare Worker (configure in Settings)</div>
   </div>
   <div class="bias-badge">REFLATIONARY SCARCITY · COMPUTE CRUNCH</div>
 </div>
@@ -127,10 +127,11 @@
     <span class="live-dot"></span><strong>Crypto:</strong> <span id="crypto-freshness" class="live">Live via CoinGecko (refreshes every 60s)</span>
   </div>
   <div>
-    <span class="live-dot stale-dot"></span><strong>Stocks:</strong> <span id="stock-freshness" class="stale">Server-fetched Sun 7:58 PM ET · next refresh Mon 5AM ET run</span>
+    <span class="live-dot stale-dot" id="stock-dot"></span><strong>Stocks:</strong> <span id="stock-freshness" class="stale">Server-baked — configure Stock Worker URL in Settings for live</span>
   </div>
   <div>
-    <button class="btn btn-secondary" style="padding:6px 12px; font-size:11px;" onclick="refreshCrypto()">⟳ Refresh Crypto</button>
+    <button class="btn btn-secondary" style="padding:6px 12px; font-size:11px; margin-right:6px;" onclick="refreshCrypto()">⟳ Crypto</button>
+    <button class="btn btn-secondary" style="padding:6px 12px; font-size:11px;" onclick="refreshStocks()">⟳ Stocks</button>
   </div>
 </div>
 
@@ -303,14 +304,15 @@
 
 <!-- Data sourcing notes -->
 <div class="panel">
-  <h2>9 · Data Architecture &amp; Freshness (New)</h2>
-  <p><strong>Price sources (re-architected):</strong></p>
+  <h2>9 · Data Architecture &amp; Freshness (v2 — Live Stocks Enabled)</h2>
+  <p><strong>Price sources:</strong></p>
   <ul>
-    <li><strong>Crypto (BTC, ETH, HYPE, VVV):</strong> CoinGecko public API hit client-side from your browser every 60 seconds. No API key. CORS-enabled. If you see the 🟢 pulse dot, prices are live.</li>
-    <li><strong>Stocks (NVDA, PLTR, OKLO, RCAT, TSLA, TSM, ASML):</strong> Yahoo Finance blocks browser fetches (no CORS), so these are server-fetched when the scheduled task runs (5am / 11am / 5pm / 11pm ET). The "Server-fetched" timestamp up top tells you when stocks were last updated. Next refresh: Monday 5 AM ET.</li>
-    <li><strong>Manual refresh:</strong> Click ⟳ Refresh Crypto anytime — crypto will update, stock timestamps stay until next scheduled run.</li>
+    <li><strong>Crypto (BTC, ETH, HYPE, VVV):</strong> CoinGecko public API hit client-side from your browser every 60 seconds. No API key. CORS-enabled. 🟢 dot = live.</li>
+    <li><strong>Stocks (NVDA, PLTR, OKLO, RCAT, TSLA, TSM, ASML):</strong> Yahoo Finance blocks browser fetches (no CORS), so live stock prices are served through a tiny Cloudflare Worker you deploy. Setup guide: <code>STOCK_WORKER_SETUP.md</code>. Once the Stock Worker URL is set in Settings, the dashboard polls it every 60s and the 🟢 dot lights up. If no worker URL is set, the dashboard falls back to server-baked prices from the last scheduled run (5am / 11am / 5pm / 11pm ET).</li>
+    <li><strong>Manual refresh:</strong> Click ⟳ Crypto or ⟳ Stocks buttons in the freshness bar to force an update.</li>
   </ul>
-  <p><strong>What was fixed in this run:</strong> prior dashboard pulled prices via web search, which surfaced stale/synthesized results (HYPE showed $43.27 vs actual $41.19, VVV showed $8.50 vs actual $9.18). That entire code path is retired. Crypto now uses exchange API directly; stocks use a known-good Yahoo chart endpoint fetched server-side.</p>
+  <p><strong>What was fixed:</strong> prior dashboard pulled prices via web search, which surfaced stale/synthesized results (HYPE showed $43.27 vs actual $41.19, VVV showed $8.50 vs actual $9.18). That entire code path is retired. Crypto now hits CoinGecko directly; stocks hit Yahoo via your Worker proxy.</p>
+  <p><strong>Why a Worker and not direct-to-Yahoo:</strong> browsers refuse to read cross-origin responses unless the server sends <code>Access-Control-Allow-Origin</code> — Yahoo doesn't. A Cloudflare Worker sits server-side, fetches Yahoo freely, then serves your dashboard with CORS open. Free tier covers ~100k requests/day; you'll use about 10k/day even polling continuously.</p>
 </div>
 
 <!-- Feed Digest -->
@@ -408,11 +410,14 @@
 <div id="settings" class="tab-content">
   <div class="panel">
     <h2>⚙️ Settings</h2>
-    <div class="input-group"><label>Cloudflare Worker URL</label><input id="worker-url" placeholder="https://..."/></div>
+    <div class="input-group"><label>Chat Worker URL (Cloudflare)</label><input id="worker-url" placeholder="https://..."/></div>
+    <div class="input-group"><label>Stock Worker URL (Cloudflare — see STOCK_WORKER_SETUP.md)</label><input id="stock-worker-url" placeholder="https://munger-claw-stocks.your-subdomain.workers.dev"/></div>
     <div class="input-group"><label>Proximity threshold % (approaching zone alerts)</label><input id="prox-pct" type="number" value="5"/></div>
     <div class="input-group"><label>Crypto refresh interval (seconds)</label><input id="crypto-interval" type="number" value="60"/></div>
+    <div class="input-group"><label>Stock refresh interval (seconds)</label><input id="stock-interval" type="number" value="60"/></div>
     <div class="input-group"><label>ntfy topic (read-only)</label><input value="mungerclaw-psd22" readonly/></div>
     <button class="btn" onclick="saveSettings()">Save Settings</button>
+    <button class="btn btn-secondary" onclick="refreshStocks()">Test Stock Worker</button>
     <button class="btn btn-secondary" onclick="clearChat()">Clear Chat</button>
     <button class="btn btn-secondary" onclick="clearFeed()">Clear Feed Log</button>
   </div>
@@ -423,7 +428,7 @@
 </div>
 
 <div class="footer">
-  Munger Claw · Apr 19 2026 · Live crypto via CoinGecko · Stocks via scheduled server-fetch
+  Munger Claw · Apr 19 2026 · Live crypto (CoinGecko) · Live stocks (Cloudflare Worker proxy to Yahoo)
   <br/>Not financial advice · Speculation involves substantial risk of loss · Past performance no guarantee of future results
 </div>
 </div>
@@ -508,6 +513,10 @@ function zoneStatus(pos, price) {
   return { label:`BELOW -${pct}%`, cls:'b-approaching' };
 }
 
+function stockIsLive() {
+  return !!(localStorage.getItem('stockWorkerUrl') || '').trim();
+}
+
 function fmtUSD(n, decimals) {
   if (n === null || n === undefined || isNaN(n)) return '—';
   if (decimals !== undefined) return '$' + Number(n).toFixed(decimals);
@@ -545,6 +554,88 @@ function startCryptoAutoRefresh() {
 }
 
 // ============================================================
+// STOCK LIVE FETCH (via user-deployed Cloudflare Worker)
+// ============================================================
+// Why a worker: Yahoo's chart API doesn't send CORS headers, so
+// the browser cannot call it directly. The worker is a tiny proxy
+// that fetches Yahoo server-side and returns JSON with CORS open.
+// See STOCK_WORKER_SETUP.md for deploy instructions.
+let stockRefreshTimer = null;
+async function fetchStocks() {
+  const base = (localStorage.getItem('stockWorkerUrl') || '').trim();
+  const sf = document.getElementById('stock-freshness');
+  const dot = document.getElementById('stock-dot');
+
+  if (!base) {
+    // No worker configured — fall back to baked prices, show hint
+    if (sf) {
+      sf.textContent = 'Server-baked (19:58 ET Sun) — set Stock Worker URL in Settings for live';
+      sf.className = 'stale';
+    }
+    if (dot) dot.className = 'live-dot stale-dot';
+    return;
+  }
+
+  // Unique stock tickers from POSITIONS + everything in STOCK_PRICES
+  const posTickers = POSITIONS.filter(p => p.type === 'stock').map(p => p.ticker);
+  const extraTickers = Object.keys(STOCK_PRICES);
+  const tickers = Array.from(new Set([...posTickers, ...extraTickers]));
+  const url = base.replace(/\/+$/, '') + '/?symbols=' + encodeURIComponent(tickers.join(','));
+
+  try {
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error('worker HTTP ' + resp.status);
+    const payload = await resp.json();
+    if (!payload || !payload.data) throw new Error('bad worker response');
+
+    let updated = 0;
+    let errored = [];
+    Object.entries(payload.data).forEach(([sym, val]) => {
+      if (val && typeof val.price === 'number') {
+        STOCK_PRICES[sym] = {
+          price: val.price,
+          prevClose: val.prevClose != null ? val.prevClose :
+                     (STOCK_PRICES[sym] ? STOCK_PRICES[sym].prevClose : val.price),
+          fetchedAt: payload.fetchedAt,
+          marketState: val.marketState || null
+        };
+        updated++;
+      } else if (val && val.error) {
+        errored.push(sym + ':' + val.error);
+      }
+    });
+
+    const ts = new Date().toLocaleTimeString();
+    const marketStates = Object.values(payload.data)
+      .map(v => v && v.marketState).filter(Boolean);
+    const regular = marketStates.includes('REGULAR');
+    const mstate = regular ? 'OPEN' :
+      (marketStates.includes('POST') ? 'POST' :
+       marketStates.includes('PRE') ? 'PRE' : 'CLOSED');
+
+    if (sf) {
+      sf.textContent = `Live via Worker · ${updated}/${tickers.length} symbols · market ${mstate} · ${ts}` +
+        (errored.length ? ` · errors: ${errored.slice(0,2).join(', ')}` : '');
+      sf.className = 'live';
+    }
+    if (dot) dot.className = 'live-dot';
+    renderAll();
+  } catch (e) {
+    if (sf) {
+      sf.textContent = `Stock fetch failed: ${e.message} — falling back to baked prices`;
+      sf.className = 'stale';
+    }
+    if (dot) dot.className = 'live-dot stale-dot';
+  }
+}
+function refreshStocks() { fetchStocks(); }
+function startStockAutoRefresh() {
+  if (stockRefreshTimer) clearInterval(stockRefreshTimer);
+  const interval = parseInt(localStorage.getItem('stockInterval') || '60') * 1000;
+  stockRefreshTimer = setInterval(fetchStocks, interval);
+}
+
+// ============================================================
 // RENDER: TICKER BAR
 // ============================================================
 function renderTickerBar() {
@@ -559,7 +650,7 @@ function renderTickerBar() {
     const chgCls = chg === null ? 'flat' : (chg >= 0 ? 'up' : 'dn');
     const decimals = price !== null && price < 100 ? 2 : 2;
     cells.push(`<div class="ticker-cell">
-      <div class="sym"><span>${pos.ticker}</span><span style="color:var(--muted);font-weight:400;font-size:10px;">${pos.type === 'crypto' ? '● live' : 'server'}</span></div>
+      <div class="sym"><span>${pos.ticker}</span><span style="color:var(--muted);font-weight:400;font-size:10px;">${pos.type === 'crypto' ? '● live' : (stockIsLive() ? '● live' : 'baked')}</span></div>
       <div class="px">${fmtUSD(price, decimals)}</div>
       <div class="chg ${chgCls}">${chgStr} · <span class="badge ${z.cls}" style="padding:1px 6px;font-size:9px;">${z.label}</span></div>
     </div>`);
@@ -582,7 +673,7 @@ function renderTickerBar() {
   const tslaPC = STOCK_PRICES.TSLA.prevClose;
   const tslaChg = ((tslaP - tslaPC) / tslaPC * 100).toFixed(2);
   cells.push(`<div class="ticker-cell">
-    <div class="sym"><span>TSLA</span><span style="color:var(--muted);font-weight:400;font-size:10px;">server</span></div>
+    <div class="sym"><span>TSLA</span><span style="color:var(--muted);font-weight:400;font-size:10px;">${stockIsLive() ? '● live' : 'baked'}</span></div>
     <div class="px">$${tslaP.toFixed(2)}</div>
     <div class="chg ${tslaChg >= 0 ? 'up' : 'dn'}">${tslaChg >= 0 ? '+' : ''}${tslaChg}% · Q1 Wed Apr 22</div>
   </div>`);
@@ -750,22 +841,33 @@ function showTab(id, el) {
   el.classList.add('active');
 }
 function saveSettings() {
-  const wu = document.getElementById('worker-url').value;
+  const wu = document.getElementById('worker-url').value.trim();
+  const sw = document.getElementById('stock-worker-url').value.trim();
   const pp = document.getElementById('prox-pct').value;
   const ci = document.getElementById('crypto-interval').value;
-  if (wu) localStorage.setItem('workerUrl', wu);
+  const si = document.getElementById('stock-interval').value;
+  if (wu) localStorage.setItem('workerUrl', wu); else localStorage.removeItem('workerUrl');
+  if (sw) localStorage.setItem('stockWorkerUrl', sw); else localStorage.removeItem('stockWorkerUrl');
   if (pp) localStorage.setItem('proximityPct', pp);
   if (ci) localStorage.setItem('cryptoInterval', ci);
+  if (si) localStorage.setItem('stockInterval', si);
   startCryptoAutoRefresh();
+  startStockAutoRefresh();
+  // Kick an immediate stock fetch if URL was just set
+  if (sw) fetchStocks();
   alert('Settings saved.');
 }
 function loadSettings() {
   const wu = localStorage.getItem('workerUrl');
+  const sw = localStorage.getItem('stockWorkerUrl');
   const pp = localStorage.getItem('proximityPct') || '5';
   const ci = localStorage.getItem('cryptoInterval') || '60';
+  const si = localStorage.getItem('stockInterval') || '60';
   if (wu) document.getElementById('worker-url').value = wu;
+  if (sw) document.getElementById('stock-worker-url').value = sw;
   document.getElementById('prox-pct').value = pp;
   document.getElementById('crypto-interval').value = ci;
+  document.getElementById('stock-interval').value = si;
 }
 let chatHistory = JSON.parse(localStorage.getItem('mc_chat') || '[]');
 function renderChat() {
@@ -872,11 +974,13 @@ document.addEventListener('DOMContentLoaded', () => {
   loadSettings();
   renderChat();
   renderFeedLog();
-  // First-pass render with no crypto data so the page isn't blank
+  // First-pass render with baked prices so the page isn't blank
   renderAll();
-  // Then fetch live and re-render
+  // Kick live fetches (crypto always, stocks only if worker is configured)
   fetchCrypto();
   startCryptoAutoRefresh();
+  fetchStocks();
+  startStockAutoRefresh();
   const ci = document.getElementById('chat-input');
   if (ci) ci.addEventListener('keypress', e => { if (e.key === 'Enter') sendChat(); });
 });
