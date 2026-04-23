@@ -1,18 +1,20 @@
 {
   "_description": "Source of truth for Peter's actual positions. Edited by Claude on user request, committed to the Munger Claw dashboard repo. Overrides the dashboard's localStorage actuals on every page load.",
   "_how_to_update": "Ask Claude in chat: 'I bought 50 NVDA at 201.30 today' or 'Sold half my HYPE at 58'. Claude edits this file, commits, and pushes.",
-  "as_of": "2026-04-22",
+  "as_of": "2026-04-23",
   "base_capital": 10000,
   "positions": [
-    { "ticker": "HYPE", "type": "crypto", "shares": 63.6,  "avg_cost": 44.00, "entry_date": "2026-04-18", "notes": "Inception. Per portfolio_log.json seed." },
-    { "ticker": "NVDA", "type": "stock",  "shares": 11.0,  "avg_cost": 200.00, "entry_date": "2026-04-18", "notes": "Inception." },
-    { "ticker": "PLTR", "type": "stock",  "shares": 11.5,  "avg_cost": 148.00, "entry_date": "2026-04-18", "notes": "Inception." },
-    { "ticker": "VVV",  "type": "crypto", "shares": 114.0, "avg_cost": 8.75,   "entry_date": "2026-04-18", "notes": "Inception." },
-    { "ticker": "OKLO", "type": "stock",  "shares": 14.5,  "avg_cost": 69.00,  "entry_date": "2026-04-18", "notes": "Inception." },
-    { "ticker": "RCAT", "type": "stock",  "shares": 30.8,  "avg_cost": 13.00,  "entry_date": "2026-04-18", "notes": "Inception." }
+    { "ticker": "HYPE", "type": "crypto", "shares": 62.724,  "avg_cost": 44.11,  "entry_date": "2026-04-23", "notes": "Initial fill at $44.11." },
+    { "ticker": "NVDA", "type": "stock",  "shares": 10.0,    "avg_cost": 200.00, "entry_date": "2026-04-23", "notes": "Initial fill." },
+    { "ticker": "PLTR", "type": "stock",  "shares": 12.349,  "avg_cost": 145.76, "entry_date": "2026-04-23", "notes": "Initial fill in entry zone." },
+    { "ticker": "VVV",  "type": "crypto", "shares": 110.762, "avg_cost": 8.92,   "entry_date": "2026-04-23", "notes": "Initial fill at $8.92." },
+    { "ticker": "OKLO", "type": "stock",  "shares": 15.0,    "avg_cost": 65.00,  "entry_date": "2026-04-23", "notes": "Initial fill in entry zone." },
+    { "ticker": "RCAT", "type": "stock",  "shares": 39.0,    "avg_cost": 12.82,  "entry_date": "2026-04-23", "notes": "Initial fill in entry zone." },
+    { "ticker": "TSLA", "type": "stock",  "shares": 2.49,    "avg_cost": 371.53, "entry_date": "2026-04-23", "notes": "Apr 22 earnings playbook deployment. Promoted from watchlist to model on user request." }
   ],
-  "cash": 0,
+  "cash": 45,
   "history": [
-    { "date": "2026-04-18", "action": "seed_from_model", "note": "Positions seeded from model portfolio at inception." }
+    { "date": "2026-04-18", "action": "seed_from_model", "note": "Positions seeded from model portfolio at inception." },
+    { "date": "2026-04-23", "action": "rewrite_from_user_input", "note": "Peter reported actual fills. Replaced seed numbers with real fills: HYPE 62.724@44.11, NVDA 10@200, PLTR 12.349@145.76, VVV 110.762@8.92, OKLO 15@65, RCAT 39@12.82, TSLA 2.49@371.53. Total deployed ~$9,955. TSLA promoted from watchlist to model." }
   ]
 }

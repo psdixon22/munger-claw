@@ -394,7 +394,8 @@
     <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
       <button class="btn btn-secondary" onclick="resetActualsToModel()">Reset Actuals → Model</button>
       <button class="btn btn-secondary" onclick="clearAllActuals()">Clear All Actuals</button>
-      <span style="color:var(--muted); font-size:11px; align-self:center;">Actuals persist in browser localStorage. To reset an individual row, clear both fields.</span>
+      <button class="btn" style="background:var(--accent);color:#0a0e14;font-weight:700;" onclick="syncActualsToGitHub()" title="Copy a Claude prompt for your current edits — paste into chat to commit them to the repo">📋 Sync to GitHub (copy prompt)</button>
+      <span id="actuals-as-of" style="color:var(--muted); font-size:11px; align-self:center;">Edits persist locally. Click Sync to push to repo via Claude.</span>
     </div>
   </div>
   <div class="panel">
@@ -502,7 +503,10 @@ const POSITIONS = [
     thesis:'Nuclear microreactor. Jensen + Musk converge: energy is THE bottleneck. White House space nuclear fast-track. +30% WoW.' },
   { ticker:'RCAT', type:'stock', entryLow:10, entryHigh:13, modelEntry:12.94, shares:38.6, cost:500,
     stop:8.50, t1:22, t2:35, alloc:'5%', conv:5,
-    thesis:'Anduril drone proxy. NATO UAS contract + AI robotics partnerships. $1.54B cap.' }
+    thesis:'Anduril drone proxy. NATO UAS contract + AI robotics partnerships. $1.54B cap.' },
+  { ticker:'TSLA', type:'stock', entryLow:340, entryHigh:360, modelEntry:350.00, shares:2.6, cost:910,
+    stop:295, t1:480, t2:550, alloc:'9%', conv:6,
+    thesis:'Apr 22 earnings playbook fill (2.49 sh @ $371.53). Promoted from watchlist after live deployment. Hold for $420 break confirmation; cut on close < stop.' }
 ];
 
 // Watchlist entries — tracked for zone-alert firing but NOT held.
@@ -512,9 +516,7 @@ const WATCHLIST = [
   { ticker:'IREN', type:'stock', entryLow:40, entryHigh:42, stop:34, t1:65, t2:85, conv:7.5,
     thesis:'AI cloud compounder. $9.7B Microsoft contract. $240M Q1 rev (+355% YoY). 140k GPU deploy by end-2026. Cleanest miner-to-AI pivot.' },
   { ticker:'CIFR', type:'stock', entryLow:15, entryHigh:17, stop:12, t1:30, t2:45, conv:6,
-    thesis:'Miner→AI host. $3B Fluidstack/Google deal. Google backstops $1.73B, takes 5.4% equity warrants. 300MW Barber Lake TX commercializes 2026-27.' },
-  { ticker:'TSLA', type:'stock', entryLow:340, entryHigh:360, stop:295, t1:480, t2:550, conv:6,
-    thesis:'Apr 22 earnings playbook. 53% miss implied. On miss → deploy $900 cash reserve. Beat → wait $420 break.' }
+    thesis:'Miner→AI host. $3B Fluidstack/Google deal. Google backstops $1.73B, takes 5.4% equity warrants. 300MW Barber Lake TX commercializes 2026-27.' }
 ];
 
 // Server-fetched STOCK PRICES (baked in at dashboard generation time)
@@ -1302,6 +1304,43 @@ function renderFeedLog() {
   </div>`).join('');
 }
 
+
+
+// ============================================================
+// SYNC ACTUALS → GITHUB (clipboard handoff to Claude)
+// User edits inline, hits this button, pastes the prompt into
+// any Claude chat. Claude rewrites actual_positions.json,
+// commits, pushes. Source of truth stays in the repo.
+// ============================================================
+async function syncActualsToGitHub() {
+  const a = loadActuals();
+  const base = getBaseCapital();
+  const tickers = Object.keys(a).sort();
+  if (tickers.length === 0) {
+    alert('No actual positions to sync.');
+    return;
+  }
+  const today = new Date().toISOString().slice(0,10);
+  const lines = tickers.map(t => {
+    const r = a[t];
+    return `  ${t.padEnd(5)} ${String(r.shares).padStart(10)} sh @ $${Number(r.avgCost).toFixed(2)}`;
+  }).join('\n');
+  const prompt = [
+    `Update actual_positions.json to match these holdings (as of ${today}, base capital $${base}):`,
+    '',
+    lines,
+    '',
+    'Replace the positions array with these. Keep history; append a new history entry noting this came from a dashboard sync. Then commit and push.'
+  ].join('\n');
+  try {
+    await navigator.clipboard.writeText(prompt);
+    alert('Sync prompt copied to clipboard.\n\nPaste it into Claude chat and Claude will commit your positions to the repo. The dashboard refreshes from the repo on every page load.');
+  } catch(e) {
+    // Fallback: show in a textarea
+    const w = window.open('', '_blank', 'width=600,height=400');
+    w.document.write('<pre style="white-space:pre-wrap;font-family:monospace;padding:20px;">' + prompt.replace(/</g,'&lt;') + '</pre>');
+  }
+}
 
 // ============================================================
 // BOOTSTRAP ACTUALS FROM REPO JSON  (committed source of truth)
