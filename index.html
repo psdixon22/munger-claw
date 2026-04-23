@@ -1302,13 +1302,48 @@ function renderFeedLog() {
   </div>`).join('');
 }
 
+
+// ============================================================
+// BOOTSTRAP ACTUALS FROM REPO JSON  (committed source of truth)
+// Added 2026-04-22. Overrides the localStorage cache with the
+// repo-committed actual_positions.json on every page load so the
+// dashboard reflects what Claude has committed, not whatever the
+// browser remembers. Falls back silently if fetch fails (file:// etc).
+// ============================================================
+async function bootstrapActualsFromJSON() {
+  try {
+    const resp = await fetch('./actual_positions.json?t=' + Date.now(), { cache: 'no-store' });
+    if (!resp.ok) return false;
+    const data = await resp.json();
+    const map = {};
+    (data.positions || []).forEach(p => {
+      if (!p.ticker) return;
+      map[p.ticker] = { shares: Number(p.shares) || 0, avgCost: Number(p.avg_cost) || 0 };
+    });
+    localStorage.setItem('mc_actuals', JSON.stringify(map));
+    if (data.base_capital) localStorage.setItem('baseCapital', String(data.base_capital));
+    // Surface the source-of-truth date on the header if possible
+    if (data.as_of) {
+      const tag = document.getElementById('actuals-as-of');
+      if (tag) tag.textContent = 'Actuals as of ' + data.as_of;
+    }
+    return true;
+  } catch(e) {
+    console.warn('bootstrapActualsFromJSON:', e);
+    return false;
+  }
+}
+
 // ============================================================
 // INIT
 // ============================================================
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   loadSettings();
   renderChat();
   renderFeedLog();
+  // Pull committed actuals from repo BEFORE first render so the page
+  // reflects source-of-truth positions, not stale localStorage.
+  await bootstrapActualsFromJSON();
   // First-pass render with baked prices so the page isn't blank
   renderAll();
   // Kick live fetches (crypto always, stocks only if worker is configured)
