@@ -1,0 +1,30 @@
+{
+  "_description": "Per-ticker alert thresholds used by the Tier-1 price-crossing alert worker. Values mirror the dashboard's Highest-Conviction table. Updated whenever entry zones are recalibrated (20d MA/lo/hi). Edit this file, commit, push — alerts pick up on the next 5-minute cron.",
+  "_as_of": "2026-04-24",
+  "_fields": {
+    "entry_low": "buy zone low",
+    "entry_high": "buy zone high",
+    "stop": "hard exit level",
+    "t1": "first target — consider trimming",
+    "t2": "second target — take profits",
+    "ma20": "20-day moving average (for EXTENDED check)",
+    "extended_mult": "multiple of MA20 above which EXTENDED fires (e.g. 1.15 = +15%)",
+    "coingecko_id": "for crypto — CoinGecko API id"
+  },
+
+  "HYPE": { "entry_low": 38,    "entry_high": 43,   "stop": 34,    "t1": 80,   "t2": 150,  "coingecko_id": "hyperliquid" },
+  "NVDA": { "entry_low": 180,   "entry_high": 200,  "stop": 160,   "t1": 245,  "t2": 300,  "ma20": 186.53, "extended_mult": 1.15 },
+  "PLTR": { "entry_low": 130,   "entry_high": 145,  "stop": 115,   "t1": 185,  "t2": 220,  "ma20": 142.61, "extended_mult": 1.15 },
+  "VVV":  { "entry_low": 7.50,  "entry_high": 8.80, "stop": 6.50,  "t1": 18,   "t2": 30,   "coingecko_id": "venice-token" },
+  "OKLO": { "entry_low": 60,    "entry_high": 70,   "stop": 55,    "t1": 100,  "t2": 140,  "ma20": 56.17,  "extended_mult": 1.15 },
+  "RCAT": { "entry_low": 11,    "entry_high": 13.5, "stop": 9.50,  "t1": 18,   "t2": 22,   "ma20": 12.76,  "extended_mult": 1.25 },
+  "TSLA": { "entry_low": 340,   "entry_high": 375,  "stop": 320,   "t1": 430,  "t2": 500,  "ma20": 368.92, "extended_mult": 1.15 },
+
+  "_watchlist": {
+    "TSM":  { "entry_low": 340,  "entry_high": 360,  "stop": 300,  "t1": 450,  "t2": 520 },
+    "ASML": { "entry_low": 1250, "entry_high": 1400, "stop": 1180, "t1": 1600, "t2": 1800 },
+    "CIFR": { "entry_low": 14,   "entry_high": 17,   "stop": 11,   "t1": 22,   "t2": 28 },
+    "IREN": { "entry_low": 42,   "entry_high": 48,   "stop": 35,   "t1": 60,   "t2": 75 },
+    "AMD":  { "entry_low": 230,  "entry_high": 265,  "stop": 200,  "t1": 340,  "t2": 400 }
+  }
+}
