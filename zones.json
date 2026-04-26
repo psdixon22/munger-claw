@@ -1,30 +1,30 @@
 {
-  "_description": "Per-ticker alert thresholds used by the Tier-1 price-crossing alert worker. Values mirror the dashboard's Highest-Conviction table. Updated whenever entry zones are recalibrated (20d MA/lo/hi). Edit this file, commit, push — alerts pick up on the next 5-minute cron.",
-  "_as_of": "2026-04-24",
+  "_description": "Per-ticker alert thresholds. Updated 2026-04-26 from 20d MA/lo/hi live data.",
+  "_as_of": "2026-04-26",
   "_fields": {
-    "entry_low": "buy zone low",
-    "entry_high": "buy zone high",
-    "stop": "hard exit level",
-    "t1": "first target — consider trimming",
-    "t2": "second target — take profits",
-    "ma20": "20-day moving average (for EXTENDED check)",
-    "extended_mult": "multiple of MA20 above which EXTENDED fires (e.g. 1.15 = +15%)",
-    "coingecko_id": "for crypto — CoinGecko API id"
+    "entry_low": "buy zone low (MA-5%)",
+    "entry_high": "buy zone high (MA+5%, skewed to current price)",
+    "stop": "20d-low × 0.97 or technical invalidation",
+    "t1": "first target",
+    "t2": "second target",
+    "ma20": "20-day moving average",
+    "extended": "true if price >15% above MA20 — trailing stop mode, no adds",
+    "coingecko_id": "for crypto"
   },
 
-  "HYPE": { "entry_low": 38,    "entry_high": 43,   "stop": 34,    "t1": 80,   "t2": 150,  "coingecko_id": "hyperliquid" },
-  "NVDA": { "entry_low": 180,   "entry_high": 200,  "stop": 160,   "t1": 245,  "t2": 300,  "ma20": 186.53, "extended_mult": 1.15 },
-  "PLTR": { "entry_low": 130,   "entry_high": 145,  "stop": 115,   "t1": 185,  "t2": 220,  "ma20": 142.61, "extended_mult": 1.15 },
-  "VVV":  { "entry_low": 7.50,  "entry_high": 8.80, "stop": 6.50,  "t1": 18,   "t2": 30,   "coingecko_id": "venice-token" },
-  "OKLO": { "entry_low": 60,    "entry_high": 70,   "stop": 55,    "t1": 100,  "t2": 140,  "ma20": 56.17,  "extended_mult": 1.15 },
-  "RCAT": { "entry_low": 11,    "entry_high": 13.5, "stop": 9.50,  "t1": 18,   "t2": 22,   "ma20": 12.76,  "extended_mult": 1.25 },
-  "TSLA": { "entry_low": 340,   "entry_high": 375,  "stop": 320,   "t1": 430,  "t2": 500,  "ma20": 368.92, "extended_mult": 1.15 },
+  "HYPE": { "entry_low": 38,    "entry_high": 43,    "stop": 34.00,  "t1": 80,   "t2": 150,  "coingecko_id": "hyperliquid" },
+  "NVDA": { "entry_low": 179,   "entry_high": 198,   "stop": 159.34, "t1": 245,  "t2": 300,  "ma20": 188.38, "extended": false },
+  "PLTR": { "entry_low": 135,   "entry_high": 149,   "stop": 119.00, "t1": 185,  "t2": 220,  "ma20": 142.38, "extended": false },
+  "VVV":  { "entry_low": 8.50,  "entry_high": 9.90,  "stop": 7.50,   "t1": 18,   "t2": 30,   "coingecko_id": "venice-token" },
+  "OKLO": { "entry_low": null,  "entry_high": null,  "stop": 57.13,  "t1": 100,  "t2": 140,  "ma20": 57.13,  "extended": true,  "_note": "EXTENDED +24.3% above MA. Trailing stop = MA. No adds." },
+  "RCAT": { "entry_low": 12.00, "entry_high": 13.30, "stop": 10.84,  "t1": 18,   "t2": 22,   "ma20": 12.65,  "extended": false, "_note": "BELOW MA -6.7%. Watch closely. EARNS MAY 7." },
+  "TSLA": { "entry_low": 350,   "entry_high": 387,   "stop": 327.12, "t1": 430,  "t2": 500,  "ma20": 369.13, "extended": false },
 
   "_watchlist": {
-    "TSM":  { "entry_low": 340,  "entry_high": 360,  "stop": 300,  "t1": 450,  "t2": 520 },
+    "TSM":  { "entry_low": 340,  "entry_high": 360,  "stop": 300,  "t1": 450, "t2": 520 },
     "ASML": { "entry_low": 1250, "entry_high": 1400, "stop": 1180, "t1": 1600, "t2": 1800 },
-    "CIFR": { "entry_low": 14,   "entry_high": 17,   "stop": 11,   "t1": 22,   "t2": 28 },
-    "IREN": { "entry_low": 42,   "entry_high": 48,   "stop": 35,   "t1": 60,   "t2": 75 },
-    "AMD":  { "entry_low": 230,  "entry_high": 265,  "stop": 200,  "t1": 340,  "t2": 400 }
+    "GEV":  { "entry_low": null, "entry_high": null, "stop": null,  "t1": null, "t2": null, "_note": "NEW. Congressional Davidson buy. AI power infra. TBD zone." },
+    "MPWR": { "entry_low": null, "entry_high": null, "stop": null,  "t1": null, "t2": null, "_note": "NEW. Power semis breakout (Visser signal)." },
+    "AMD":  { "entry_low": 230,  "entry_high": 265,  "stop": 200,  "t1": 340, "t2": 400 }
   }
 }
