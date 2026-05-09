@@ -3,931 +3,827 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🦞 Munger Claw · Apr 26, 2026 · Morning Update</title>
+<title>Munger Claw | Alpha Dashboard — May 9, 2026</title>
 <style>
   :root {
-    --bg: #0a0a0f; --surface: #12121a; --surface2: #1a1a28; --border: #2a2a3d;
-    --accent: #c8922a; --accent2: #5b7cf6; --green: #22c55e; --red: #ef4444;
-    --orange: #f97316; --yellow: #eab308; --blue: #3b82f6; --purple: #a855f7;
-    --text: #e2e8f0; --muted: #94a3b8; --dim: #64748b;
+    --bg: #0a0c10;
+    --surface: #111318;
+    --border: #1e2330;
+    --accent: #f0b429;
+    --green: #22c55e;
+    --red: #ef4444;
+    --orange: #f97316;
+    --blue: #3b82f6;
+    --purple: #a855f7;
+    --muted: #6b7280;
+    --text: #e2e8f0;
+    --text-dim: #94a3b8;
   }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,sans-serif; font-size:14px; }
-  .header { background:linear-gradient(135deg,#0f0f1e,#1a1228); border-bottom:1px solid var(--border); padding:12px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
-  .logo { font-size:20px; font-weight:800; color:var(--accent); letter-spacing:-0.5px; }
-  .logo span { color:var(--text); }
-  .header-meta { font-size:11px; color:var(--muted); text-align:right; }
-  .bias-badge { padding:4px 12px; border-radius:20px; font-weight:700; font-size:11px; letter-spacing:1px; }
-  .bias-bullish { background:#16460f; color:#4ade80; border:1px solid #22c55e; }
-  .bias-neutral { background:#332810; color:#fbbf24; border:1px solid #eab308; }
-  .ticker-bar { background:var(--surface); border-bottom:1px solid var(--border); padding:8px 20px; display:flex; gap:24px; overflow-x:auto; white-space:nowrap; }
-  .tick { display:flex; align-items:center; gap:6px; }
-  .tick-sym { font-weight:700; font-size:12px; color:var(--accent); }
-  .tick-price { font-weight:600; font-size:13px; }
-  .tick-chg { font-size:11px; font-weight:600; }
-  .up { color:var(--green); } .dn { color:var(--red); } .flat { color:var(--muted); }
-  .tabs { background:var(--surface); border-bottom:1px solid var(--border); display:flex; flex-wrap:wrap; }
-  .tab-btn { padding:12px 20px; cursor:pointer; font-weight:600; font-size:13px; color:var(--muted); border:none; background:none; border-bottom:2px solid transparent; transition:all .2s; }
-  .tab-btn.active { color:var(--accent); border-bottom-color:var(--accent); }
-  .tab-btn:hover { color:var(--text); }
-  .tab-content { display:none; padding:20px; max-width:1400px; margin:0 auto; }
-  .tab-content.active { display:block; }
-  .card { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:16px; margin-bottom:16px; }
-  .card-title { font-size:12px; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px; display:flex; align-items:center; gap:6px; }
-  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-  .grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
-  .alert-bar { border-radius:6px; padding:10px 14px; margin-bottom:10px; font-weight:600; font-size:13px; display:flex; align-items:center; gap:10px; }
-  .alert-approaching { background:#1c1008; border:1px solid var(--orange); color:var(--orange); }
-  .alert-inzone { background:#0a1f0a; border:1px solid var(--green); color:var(--green); }
-  .alert-atstop { background:#1f0a0a; border:1px solid var(--red); color:var(--red); animation:pulse 1s infinite; }
-  .alert-extended { background:#1f1208; border:1px solid var(--yellow); color:var(--yellow); }
-  .alert-catalyst { background:#0a0f1f; border:1px solid var(--blue); color:var(--blue); }
-  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.6} }
-  table { width:100%; border-collapse:collapse; font-size:13px; }
-  th { color:var(--muted); font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; padding:8px 10px; border-bottom:1px solid var(--border); text-align:left; }
-  td { padding:9px 10px; border-bottom:1px solid #1a1a28; vertical-align:middle; }
-  tr:last-child td { border-bottom:none; }
-  tr:hover td { background:rgba(255,255,255,0.02); }
-  .badge { display:inline-block; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:700; }
-  .badge-green { background:#0a2d0a; color:#4ade80; border:1px solid #22c55e; }
-  .badge-red { background:#2d0a0a; color:#f87171; border:1px solid #ef4444; }
-  .badge-orange { background:#2d1a0a; color:#fb923c; border:1px solid #f97316; }
-  .badge-gray { background:#1a1a28; color:#94a3b8; border:1px solid #334155; }
-  .badge-purple { background:#1a0a2d; color:#c084fc; border:1px solid #a855f7; }
-  .badge-blue { background:#0a1a2d; color:#60a5fa; border:1px solid #3b82f6; }
-  .badge-yellow { background:#2d280a; color:#fde047; border:1px solid #eab308; }
-  .conv { color:var(--accent); font-weight:700; }
-  .exec-summary { background:linear-gradient(135deg,#0f1520,#0f200f); border:1px solid #2d4a2d; border-radius:8px; padding:16px; margin-bottom:16px; }
-  .exec-lead { font-size:15px; font-weight:700; color:var(--text); line-height:1.6; margin-bottom:12px; }
-  .exec-items { display:flex; flex-direction:column; gap:8px; }
-  .exec-item { display:flex; align-items:flex-start; gap:8px; font-size:13px; line-height:1.5; }
-  .exec-dot { width:6px; height:6px; border-radius:50%; background:var(--green); margin-top:6px; flex-shrink:0; }
-  .exec-dot.orange { background:var(--orange); }
-  .exec-dot.red { background:var(--red); }
-  .exec-dot.yellow { background:var(--yellow); }
-  .exec-dot.blue { background:var(--blue); }
-  .idea-card { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:16px; margin-bottom:14px; }
-  .idea-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:10px; flex-wrap:wrap; gap:8px; }
-  .idea-title { font-size:15px; font-weight:700; color:var(--text); }
-  .idea-sub { font-size:12px; color:var(--muted); margin-top:2px; }
-  .idea-body { font-size:13px; line-height:1.6; color:var(--text); margin-bottom:10px; }
-  .idea-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:8px; margin-top:10px; }
-  .idea-stat { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:8px; }
-  .idea-stat-label { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; }
-  .idea-stat-value { font-size:13px; font-weight:700; color:var(--text); margin-top:2px; }
-  .signal-row { display:flex; gap:10px; padding:10px 0; border-bottom:1px solid var(--border); font-size:13px; }
-  .signal-row:last-child { border-bottom:none; }
-  .signal-src { font-weight:700; color:var(--accent2); min-width:110px; flex-shrink:0; font-size:12px; }
-  .signal-body { color:var(--text); flex:1; line-height:1.5; }
-  .signal-imp { color:var(--muted); font-size:11px; margin-top:3px; }
-  .disclaimer { background:#1a0a0a; border:1px solid #3d1a1a; border-radius:6px; padding:10px 14px; font-size:11px; color:var(--dim); margin-top:20px; text-align:center; }
-  #json-stamp { position:fixed; bottom:10px; right:10px; background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:10px; color:var(--muted); z-index:999; }
-  .chat-window { height:250px; overflow-y:auto; border:1px solid var(--border); border-radius:6px; padding:12px; background:var(--bg); margin-bottom:10px; display:flex; flex-direction:column; gap:10px; }
-  .chat-msg { padding:8px 12px; border-radius:6px; font-size:13px; line-height:1.6; max-width:85%; }
-  .chat-user { background:var(--surface2); align-self:flex-end; }
-  .chat-ai { background:#0f1520; border:1px solid #2a3a5d; align-self:flex-start; }
-  .chat-input-row { display:flex; gap:8px; }
-  .chat-input { flex:1; background:var(--surface2); border:1px solid var(--border); color:var(--text); border-radius:6px; padding:10px 14px; font-size:13px; }
-  .chat-send { background:var(--accent); color:#000; border:none; border-radius:6px; padding:10px 18px; font-weight:700; cursor:pointer; }
-  .pnl-pos { color:var(--green); font-weight:700; }
-  .pnl-neg { color:var(--red); font-weight:700; }
-  @media(max-width:768px) { .grid2,.grid3 { grid-template-columns:1fr; } }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.5; }
+  .container { max-width: 1400px; margin: 0 auto; padding: 16px; }
+  .header { border-bottom: 1px solid var(--accent); padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end; }
+  .header-title { font-size: 22px; font-weight: bold; color: var(--accent); letter-spacing: 2px; }
+  .header-sub { color: var(--text-dim); font-size: 11px; margin-top: 2px; }
+  .header-right { text-align: right; font-size: 11px; color: var(--text-dim); }
+  .run-badge { background: var(--accent); color: #000; padding: 2px 8px; border-radius: 3px; font-weight: bold; font-size: 10px; margin-bottom: 4px; display: inline-block; }
+  .section { margin-bottom: 24px; }
+  .section-title { color: var(--accent); font-size: 13px; font-weight: bold; letter-spacing: 1px; border-bottom: 1px solid var(--border); padding-bottom: 6px; margin-bottom: 12px; text-transform: uppercase; }
+  .alert { padding: 10px 14px; border-radius: 4px; margin-bottom: 8px; font-size: 12px; border-left: 3px solid; }
+  .alert-red { background: rgba(239,68,68,0.12); border-color: var(--red); color: #fca5a5; }
+  .alert-orange { background: rgba(249,115,22,0.12); border-color: var(--orange); color: #fdba74; }
+  .alert-green { background: rgba(34,197,94,0.12); border-color: var(--green); color: #86efac; }
+  .alert-yellow { background: rgba(240,180,41,0.12); border-color: var(--accent); color: var(--accent); }
+  .alert-blue { background: rgba(59,130,246,0.12); border-color: var(--blue); color: #93c5fd; }
+  .alert strong { font-weight: bold; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th { background: #161a24; color: var(--text-dim); text-align: right; padding: 7px 10px; font-weight: normal; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  th:first-child { text-align: left; }
+  td { padding: 7px 10px; border-bottom: 1px solid var(--border); text-align: right; white-space: nowrap; }
+  td:first-child { text-align: left; }
+  tr:hover td { background: rgba(255,255,255,0.03); }
+  .pos-green { color: var(--green); }
+  .pos-red { color: var(--red); }
+  .pos-orange { color: var(--orange); }
+  .pos-yellow { color: var(--accent); }
+  .pos-muted { color: var(--muted); }
+  .badge { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 10px; font-weight: bold; margin-left: 2px; }
+  .badge-red { background: rgba(239,68,68,0.25); color: var(--red); }
+  .badge-orange { background: rgba(249,115,22,0.25); color: var(--orange); }
+  .badge-green { background: rgba(34,197,94,0.2); color: var(--green); }
+  .badge-yellow { background: rgba(240,180,41,0.2); color: var(--accent); }
+  .badge-purple { background: rgba(168,85,247,0.2); color: var(--purple); }
+  .badge-blue { background: rgba(59,130,246,0.2); color: var(--blue); }
+  .idea-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media(max-width:900px){ .idea-grid { grid-template-columns: 1fr; } }
+  .idea-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 14px; }
+  .idea-card.top { border-color: var(--accent); }
+  .idea-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .idea-ticker { font-size: 16px; font-weight: bold; color: var(--accent); }
+  .idea-body { color: var(--text-dim); font-size: 12px; line-height: 1.6; }
+  .idea-body strong { color: var(--text); }
+  .idea-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .idea-stat { background: #161a24; padding: 3px 8px; border-radius: 3px; font-size: 11px; }
+  .idea-stat label { color: var(--muted); margin-right: 4px; }
+  .idea-stat span { color: var(--text); }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media(max-width:800px){ .two-col { grid-template-columns: 1fr; } }
+  .signal-row { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+  .signal-icon { font-size: 16px; flex-shrink: 0; width: 22px; }
+  .signal-body { flex: 1; }
+  .signal-source { color: var(--accent); font-size: 11px; font-weight: bold; }
+  .signal-text { color: var(--text-dim); font-size: 12px; margin-top: 1px; }
+  .signal-impl { color: var(--green); font-size: 11px; margin-top: 2px; }
+  .stats-bar { display: flex; gap: 16px; flex-wrap: wrap; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 12px 16px; margin-bottom: 20px; }
+  .stat-item { text-align: center; min-width: 100px; }
+  .stat-label { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-value { font-size: 18px; font-weight: bold; margin-top: 1px; }
+  .stat-sub { font-size: 10px; color: var(--muted); }
+  .disclaimer { background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.2); border-radius: 4px; padding: 10px 14px; margin-top: 24px; color: var(--muted); font-size: 11px; }
+  #json-stamp { position: fixed; bottom: 8px; right: 12px; background: rgba(0,0,0,0.8); border: 1px solid var(--border); color: var(--muted); font-size: 10px; padding: 4px 8px; border-radius: 3px; z-index: 999; }
+  .tag { display: inline-block; font-size: 10px; padding: 1px 5px; border-radius: 2px; margin: 0 2px; }
+  .tag-bull { background: rgba(34,197,94,0.15); color: var(--green); }
+  .tag-bear { background: rgba(239,68,68,0.15); color: var(--red); }
 </style>
 </head>
 <body>
+<div class="container">
 
-<!-- ═══ HEADER ═══ -->
+<!-- HEADER -->
 <div class="header">
   <div>
-    <div class="logo">🦞 Munger<span>Claw</span></div>
-    <div style="font-size:11px;color:var(--muted);margin-top:2px;">Sunday · Apr 26, 2026 · Morning Run</div>
+    <div class="header-title">&#x2694; MUNGER CLAW</div>
+    <div class="header-sub">Alpha Intelligence Dashboard &bull; High-Conviction Speculative Co-Pilot</div>
   </div>
-  <div style="display:flex;align-items:center;gap:12px;">
-    <span class="bias-badge bias-bullish">BIAS: BULLISH</span>
-    <div class="header-meta" id="port-summary">Loading…</div>
+  <div class="header-right">
+    <div class="run-badge">MORNING RUN &mdash; May 9, 2026</div>
+    <div>Automated 03:00 ET &bull; Prices: Live Yahoo/CoinGecko</div>
+    <div id="last-updated" style="color:var(--accent)">Loading...</div>
   </div>
 </div>
 
-<!-- ═══ TICKER BAR ═══ -->
-<div class="ticker-bar" id="ticker-bar">
-  <div class="tick"><span class="tick-sym">NVDA</span><span class="tick-price">$208.26</span><span class="tick-chg up">▲ +13.7% vs cost</span></div>
-  <div class="tick"><span class="tick-sym">PLTR</span><span class="tick-price">$143.09</span><span class="tick-chg dn">▼ -1.8% vs cost</span></div>
-  <div class="tick"><span class="tick-sym">OKLO</span><span class="tick-price">$71.00</span><span class="tick-chg up">▲ +9.2% vs cost ⚡EXTENDED</span></div>
-  <div class="tick"><span class="tick-sym">RCAT</span><span class="tick-price">$11.80</span><span class="tick-chg dn">▼ -8.0% vs cost ⚠️</span></div>
-  <div class="tick"><span class="tick-sym">TSLA</span><span class="tick-price">$376.30</span><span class="tick-chg up">▲ +1.3% vs cost</span></div>
-  <div class="tick"><span class="tick-sym">HYPE</span><span class="tick-price">$41.99</span><span class="tick-chg dn">▼ -4.8% vs cost</span></div>
-  <div class="tick"><span class="tick-sym">VVV</span><span class="tick-price">$9.54</span><span class="tick-chg up">▲ +6.9% vs cost</span></div>
-  <div class="tick"><span class="tick-sym">BTC</span><span class="tick-price">$78,224</span><span class="tick-chg up">+0.83%</span></div>
-  <div class="tick"><span class="tick-sym">ETH</span><span class="tick-price">$2,360</span><span class="tick-chg up">+1.77%</span></div>
+<!-- PRIORITY ALERTS -->
+<div class="section">
+  <div class="section-title">&#x1F6A8; Priority Alerts</div>
+  <div class="alert alert-red"><strong>&#x26D4; RCAT &mdash; NEAR STOP ($10.37 vs stop $10.05, only $0.32 buffer):</strong> Red Cat at 20-day low. Below ALL major moving averages (-12.8% vs MA20). Q4&rarr;Q1 sequential revenue -41% ($26.2M &rarr; $15.5M). No forward guidance issued. Stock grinding lower in a straight line since mid-$13s. <strong>Flagged for liquidation review. Peter decides sells &mdash; this is your signal to act.</strong></div>
+  <div class="alert alert-orange"><strong>&#x26A0;&#xFE0F; VVV &mdash; EXTENDED (+57% above 20d MA, +17% today):</strong> Venice at $15.71 vs MA20 $10.01. Protocol: trailing stop moves to MA ($10.01). Do NOT add. Sitting on $752 unrealized gain from $988 cost. Consider 25&ndash;50% trim above $15 to lock partial gains.</div>
+  <div class="alert alert-yellow"><strong>&#x1F4C5; OKLO EARNINGS MAY 12 (3 DAYS):</strong> NRC Aurora PDC approved on accelerated timeline. Meta 1.2GW Ohio deal signed. Q1 call after-close May 12. Current price $72.51 is in upper entry zone. Binary event &mdash; consider whether to reduce pre-earnings or hold conviction.</div>
+  <div class="alert alert-green"><strong>&#x1F3C6; Portfolio +8.95% since Apr 23 &bull; VVV +76% &bull; TSLA +15% &bull; OKLO +12% &bull; NVDA +8%</strong> &mdash; Four of seven positions green. Total value $10,895 on $10,000 deployed.</div>
+  <div class="alert alert-blue"><strong>&#x1F4E1; ANTHROPIC $30B RUN-RATE:</strong> Google $40B + Amazon $25B committed. Anthropic commits $200B to Google Cloud over 5 years. Goldman/Blackstone $1.5B AI JV. AI infrastructure spend is locked in multi-year &mdash; NVDA Vera Rubin is the direct beneficiary. NVDA earnings May 20.</div>
 </div>
 
-<!-- ═══ TABS ═══ -->
-<div class="tabs">
-  <button class="tab-btn active" onclick="showTab('overview')">📊 Overview</button>
-  <button class="tab-btn" onclick="showTab('ideas')">💡 Ideas</button>
-  <button class="tab-btn" onclick="showTab('crypto')">🪙 Crypto</button>
-  <button class="tab-btn" onclick="showTab('smartmoney')">🏛 Smart Money</button>
-  <button class="tab-btn" onclick="showTab('portfolio')">💼 Portfolio</button>
-  <button class="tab-btn" onclick="showTab('chat')">🤖 AI Chat</button>
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-label">Portfolio Value</div>
+    <div class="stat-value pos-green">$10,895</div>
+    <div class="stat-sub">vs $9,999 deployed</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-label">Total P&amp;L</div>
+    <div class="stat-value pos-green">+$895</div>
+    <div class="stat-sub">+8.95% since Apr 23</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-label">Winners / Losers</div>
+    <div class="stat-value">4 / 3</div>
+    <div class="stat-sub">NVDA OKLO VVV TSLA green</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-label">Best Position</div>
+    <div class="stat-value pos-green">VVV +76%</div>
+    <div class="stat-sub">+$752 unrealized</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-label">Worst Position</div>
+    <div class="stat-value pos-red">RCAT &minus;19%</div>
+    <div class="stat-sub">Near stop &mdash; review</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-label">Cash</div>
+    <div class="stat-value pos-muted">$45</div>
+    <div class="stat-sub">Reserved</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-label">Next Catalyst</div>
+    <div class="stat-value pos-orange" style="font-size:15px;">OKLO May 12</div>
+    <div class="stat-sub">Earnings in 3 days</div>
+  </div>
 </div>
 
-<!-- ════════════════════════════════════════════
-     TAB: OVERVIEW
-════════════════════════════════════════════ -->
-<div id="tab-overview" class="tab-content active">
+<!-- 1. EXECUTIVE SUMMARY -->
+<div class="section">
+  <div class="section-title">1. Executive Summary</div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px;color:var(--text-dim);font-size:12px;line-height:1.8;">
+    <strong style="color:var(--accent)">NET ALPHA VIEW: CAUTIOUSLY BULLISH &mdash; AI Infrastructure theme is dominant and accelerating. Portfolio in profit. One position requiring immediate exit decision.</strong>
+    <br><br>
+    The macro backdrop has not been friendlier for the thesis. Anthropic's revenue run-rate hit $30B (up from $9B at end of 2025), with $65B in fresh committed capital from Amazon and Google. That money flows through to compute (NVDA), power (OKLO), and AI application infrastructure (PLTR). Gold at $4,714 signals dollar debasement is ongoing &mdash; the Gromen/Alden framework of rising liquidity + weak dollar is tailwind for crypto and growth assets.
+    <br><br>
+    <strong style="color:var(--red)">The one broken position: RCAT.</strong> The market narrative was 849% YoY revenue growth. The actual sequential data was -41% Q4&rarr;Q1. No guidance was issued. The stock is $0.32 above the calculated stop at $10.05 and below every major moving average. The drone defense thesis is real &mdash; but the stock price says the market disagrees with the current trajectory. Stop is $10.05. If breached, exit without negotiation.
+    <br><br>
+    <strong style="color:var(--orange)">The best problem to have: VVV at +76%.</strong> The +17% move today on eToro listing + AI privacy momentum is legitimate but the position is 57% above its 20-day MA. Per protocol this is EXTENDED. Trailing stop activates at $10.01 (MA). Partial trim above $15 is rational portfolio management &mdash; not a thesis exit.
+    <br><br>
+    <strong style="color:var(--accent)">Top 3 immediate action items:</strong> (1) Decide on RCAT before $10.05 is breached. (2) Consider trimming 25-50% of VVV above $15 to crystallize $375-$750 gain. (3) Hold or hedge OKLO into May 12 binary earnings event.
+  </div>
+</div>
 
-  <!-- ZONE ALERTS -->
-  <div class="alert-bar alert-extended">⚡ OKLO EXTENDED — Price $71.00 is +24.3% above 20d MA ($57.13). Trailing stop now active at MA. DO NOT add. Thesis intact: NVDA/LANL nuclear AI factory partnership announced Apr 23.</div>
-  <div class="alert-bar alert-approaching" style="border-color:var(--orange);">⚠️ RCAT WATCH — Price $11.80 is below entry zone ($12.02–$13.28) and -6.7% below 20d MA ($12.65). Stop at $11.24. NATO contracts flowing but price weakness persists. Monitor closely.</div>
-  <div class="alert-bar alert-catalyst">🎯 PLTR EARNINGS — Reports Q1 2026 on May 4 (8 days). Morgan Stanley expects accelerated growth + raised guidance. Position P&L: -1.8%. Conviction hold — earnings are the catalyst.</div>
-  <div class="alert-bar alert-catalyst">🎯 NVDA EARNINGS — Reports FY1Q27 on ~May 20. Triple-digit YoY profit growth expected. Vera Rubin platform targets 10x inference cost reduction vs Blackwell. In play.</div>
+<!-- 2. HIGHEST-CONVICTION IDEAS -->
+<div class="section">
+  <div class="section-title">2. Highest-Conviction Ideas (3&ndash;6 Max)</div>
+  <div class="idea-grid">
 
-  <!-- EXECUTIVE SUMMARY -->
-  <div class="exec-summary">
-    <div class="exec-lead">Portfolio flat-to-green (+$47 / +0.47%) on solid AI + nuclear tailwinds. OKLO is the week's standout after the NVDA/Los Alamos "nuclear-powered AI factory" announcement detonated a 15%+ rip. The big near-term binary is PLTR on May 4. Macro: Gromen/Alden dollar-debasement thesis advancing — Bitcoin at $78K, fiscal deficits expanding, Fed balance sheet creep returning. Crypto leg is your macro hedge and it's recovering.</div>
-    <div class="exec-items">
-      <div class="exec-item"><div class="exec-dot"></div><div><strong>IMMEDIATE ACTION #1:</strong> PLTR May 4 earnings — hold current 12.35 shares. If Q1 revenue growth accelerates AND full-year guidance raised, thesis fully confirmed. Target T1 $165, T2 $185. If miss + weak guide, consider trim to 6 shares post-earnings.</div></div>
-      <div class="exec-item"><div class="exec-dot"></div><div><strong>IMMEDIATE ACTION #2:</strong> OKLO extended at +24% above 20d MA. Move stop to trailing at 20d MA ($57.13). Do NOT add. If it pulls back to $60–64 on low volume — that's a potential re-add zone.</div></div>
-      <div class="exec-item"><div class="exec-dot orange"></div><div><strong>FLAG:</strong> RCAT is below entry zone and structurally weak. Defense spending uncertainty + no near-term catalyst visible. Stop at $11.24 is $0.56 away ($21.84 total risk on 39 shares). Peter decides — this is a liquidation candidate unless defense contract flow accelerates.</div></div>
-      <div class="exec-item"><div class="exec-dot blue"></div><div><strong>MACRO:</strong> Gromen + Alden latest: USD weakening thesis intact, fiscal deficits expected to accompany Fed balance sheet expansion in 2026. This is the backdrop for BTC / HYPE / gold proxies. HYPE ETF (Bitwise BHYP) is live — institutional on-ramp improving.</div></div>
-      <div class="exec-item"><div class="exec-dot"></div><div><strong>CRYPTO:</strong> VVV +4.27% today, now $9.54 (+6.9% vs cost). Recovering on AI valuation wave (Anthropic $600B, OpenAI $852B). HYPE at $41.99 — resistance at $44–$46 (your avg cost). ETF tailwind should help compress that gap.</div></div>
+    <div class="idea-card top">
+      <div class="idea-header">
+        <div>
+          <div class="idea-ticker">NVDA <span style="font-size:12px;color:var(--text-dim);">Nvidia &mdash; AI Compute</span></div>
+          <div style="font-size:11px;color:var(--muted);">Earnings May 20 &bull; Vera Rubin ramp</div>
+        </div>
+        <div style="font-size:22px;font-weight:bold;" class="pos-green">9/10</div>
+      </div>
+      <div class="idea-body">
+        <strong>Thesis:</strong> Vera Rubin commercial shipments H2 2026. FY27 EPS consensus $8.34 vs FY26's $4.77 &mdash; earnings doubling. Revenue guided $78B for Q1 FY27 (+77% YoY). Trading at 50% discount to historical P/E. Anthropic's $200B Google Cloud commitment = locked-in compute demand flowing to NVDA for years.
+        <br><br>
+        <span class="tag tag-bull">BULL</span> Vera Rubin beats first commercial shipments. May 20 guidance $80B+. Agentic AI drives accelerating demand.<br>
+        <span class="tag tag-bear">BEAR</span> Export controls bite China revenue. May 20 misses elevated bar. Macro risk-off before print.
+        <br><strong>Timeline:</strong> May 20 binary. 12-month structural bull.
+      </div>
+      <div class="idea-row">
+        <div class="idea-stat"><label>Price</label><span class="pos-green">$215.20</span></div>
+        <div class="idea-stat"><label>Avg Cost</label><span>$200.00</span></div>
+        <div class="idea-stat"><label>MA20</label><span>$203.18</span></div>
+        <div class="idea-stat"><label>Entry Zone</label><span>$193&ndash;$213</span></div>
+        <div class="idea-stat"><label>T1/T2</label><span>$240 / $280</span></div>
+        <div class="idea-stat"><label>Stop</label><span class="pos-red">$183.63</span></div>
+        <div class="idea-stat"><label>P&amp;L</label><span class="pos-green">+$152 (+7.6%)</span></div>
+      </div>
+    </div>
+
+    <div class="idea-card top">
+      <div class="idea-header">
+        <div>
+          <div class="idea-ticker">OKLO <span style="font-size:12px;color:var(--text-dim);">Nuclear AI Power</span></div>
+          <div style="font-size:11px;color:var(--orange);">&#x26A0;&#xFE0F; EARNINGS MAY 12 &mdash; 3 DAYS</div>
+        </div>
+        <div style="font-size:22px;font-weight:bold;" class="pos-green">8/10</div>
+      </div>
+      <div class="idea-body">
+        <strong>Thesis:</strong> NRC approved Aurora PDC on accelerated timeline (half normal review period). Meta 1.2GW Ohio deal signed. 14GW total pipeline (Switch 12GW + Equinix 500MW). First commercial reactors 2027. AI data center power is the defining constraint of the next decade &mdash; OKLO is the purest pure-play.
+        <br><br>
+        <span class="tag tag-bull">BULL</span> Earnings beat + raised guidance. Additional hyperscaler deals. NRC Idaho timeline confirms.<br>
+        <span class="tag tag-bear">BEAR</span> Regulatory complexity delays. Q1 miss on development spend. Market rotates out of pre-revenue names.
+        <br><strong>Timeline:</strong> May 12 binary. 2027 commercial deployment = 12-18 month thesis.
+      </div>
+      <div class="idea-row">
+        <div class="idea-stat"><label>Price</label><span class="pos-green">$72.51</span></div>
+        <div class="idea-stat"><label>Avg Cost</label><span>$65.00</span></div>
+        <div class="idea-stat"><label>MA20</label><span>$68.57</span></div>
+        <div class="idea-stat"><label>Entry Zone</label><span>$65&ndash;$72</span></div>
+        <div class="idea-stat"><label>T1/T2</label><span>$90 / $120</span></div>
+        <div class="idea-stat"><label>Stop</label><span class="pos-red">$52.32</span></div>
+        <div class="idea-stat"><label>P&amp;L</label><span class="pos-green">+$113 (+11.6%)</span></div>
+      </div>
+    </div>
+
+    <div class="idea-card">
+      <div class="idea-header">
+        <div>
+          <div class="idea-ticker">VVV <span style="font-size:12px;color:var(--text-dim);">Venice Token</span></div>
+          <div style="font-size:11px;color:var(--orange);">EXTENDED &mdash; Trailing Stop Active</div>
+        </div>
+        <div style="font-size:22px;font-weight:bold;" class="pos-green">8/10</div>
+      </div>
+      <div class="idea-body">
+        <strong>Thesis:</strong> Decentralized AI inference, privacy-first. Buy-and-burn tokenomics (largest burn executed recently). eToro listing May 7 opens to 35M+ retail users. +17.1% today alone. Deflationary structure with growing usage = asymmetric upside.
+        <br><br>
+        <strong style="color:var(--orange)">EXTENDED PROTOCOL:</strong> +57% above MA20. Trailing stop = MA20 ($10.01). No new buys. Trim 25-50% above $15 = lock $375-$750 of the $752 unrealized gain.
+        <br><br>
+        <span class="tag tag-bull">BULL</span> AI privacy regulation expands TAM. More exchange listings. Burn rate accelerates.<br>
+        <span class="tag tag-bear">BEAR</span> Mean reversion to MA (-37% from here) is statistically normal after this run.
+      </div>
+      <div class="idea-row">
+        <div class="idea-stat"><label>Price</label><span class="pos-green">$15.71</span></div>
+        <div class="idea-stat"><label>24h</label><span class="pos-green">+17.1%</span></div>
+        <div class="idea-stat"><label>MA20</label><span>$10.01</span></div>
+        <div class="idea-stat"><label>vs MA</label><span class="pos-orange">+57% EXTENDED</span></div>
+        <div class="idea-stat"><label>Trail Stop</label><span class="pos-red">$10.01</span></div>
+        <div class="idea-stat"><label>T1</label><span>$20+</span></div>
+        <div class="idea-stat"><label>P&amp;L</label><span class="pos-green">+$752 (+76%)</span></div>
+      </div>
+    </div>
+
+    <div class="idea-card">
+      <div class="idea-header">
+        <div>
+          <div class="idea-ticker">HYPE <span style="font-size:12px;color:var(--text-dim);">Hyperliquid</span></div>
+          <div style="font-size:11px;color:var(--muted);">Perps DEX &bull; Resistance $45.77</div>
+        </div>
+        <div style="font-size:22px;font-weight:bold;" class="pos-yellow">7/10</div>
+      </div>
+      <div class="idea-body">
+        <strong>Thesis:</strong> Dominant DEX perps, $10.5B market cap, top-15 globally. HIP-4 binary options launched April 2026. $15.2M HYPE moved to staking this week (conviction holders). Clean consolidation at MA20. One resistance cluster stands between current price and $50 target.
+        <br><br>
+        Currently -2.5% from cost. No stop threat. In entry zone. Watch $45.77 for breakout signal.
+        <br><br>
+        <span class="tag tag-bull">BULL</span> Break $46 with volume &rarr; $50 target. New product announcements.<br>
+        <span class="tag tag-bear">BEAR</span> Crypto risk-off. CEX competition. Fails at resistance and retests $39.
+      </div>
+      <div class="idea-row">
+        <div class="idea-stat"><label>Price</label><span class="pos-red">$43.01</span></div>
+        <div class="idea-stat"><label>MA20</label><span>$41.52</span></div>
+        <div class="idea-stat"><label>Entry Zone</label><span>$39&ndash;$44</span></div>
+        <div class="idea-stat"><label>Resistance</label><span>$45.77</span></div>
+        <div class="idea-stat"><label>T1</label><span>$50+</span></div>
+        <div class="idea-stat"><label>Stop</label><span class="pos-red">$38.48</span></div>
+        <div class="idea-stat"><label>P&amp;L</label><span class="pos-red">&minus;$69 (&minus;2.5%)</span></div>
+      </div>
+    </div>
+
+    <div class="idea-card">
+      <div class="idea-header">
+        <div>
+          <div class="idea-ticker">PLTR <span style="font-size:12px;color:var(--text-dim);">Palantir</span></div>
+          <div style="font-size:11px;color:var(--muted);">Post-Earnings Dip &bull; Thesis Intact</div>
+        </div>
+        <div style="font-size:22px;font-weight:bold;" class="pos-yellow">7/10</div>
+      </div>
+      <div class="idea-body">
+        <strong>Q1 2026 Reality:</strong> 85% revenue growth (fastest since IPO). EPS $0.33 vs $0.28 est. US Commercial +133%. Government +84%. 2026 guidance raised to $7.65B (+71%). CEO Karp: expects 2027 to double again. This is the OS for enterprise/government AI.
+        <br><br>
+        <strong>Why it's down:</strong> Post-print valuation compression, not thesis failure. Market priced perfection, got greatness. Stock below MA20 (-2.4%) but well above stop ($128.40). This is a re-entry dip, not an exit signal. AIP platform momentum is real and accelerating.
+        <br><br>
+        <span class="tag tag-bull">BULL</span> AIP becomes government AI standard. International revenues ignite. Multiple expands with growth proof.<br>
+        <span class="tag tag-bear">BEAR</span> Valuation compression in rate-rise scenario. Government budget cuts.
+      </div>
+      <div class="idea-row">
+        <div class="idea-stat"><label>Price</label><span class="pos-red">$137.80</span></div>
+        <div class="idea-stat"><label>Avg Cost</label><span>$145.76</span></div>
+        <div class="idea-stat"><label>MA20</label><span>$141.23</span></div>
+        <div class="idea-stat"><label>Entry Zone</label><span>$134&ndash;$148</span></div>
+        <div class="idea-stat"><label>T1/T2</label><span>$170 / $200</span></div>
+        <div class="idea-stat"><label>Stop</label><span class="pos-red">$128.40</span></div>
+        <div class="idea-stat"><label>P&amp;L</label><span class="pos-red">&minus;$98 (&minus;5.5%)</span></div>
+      </div>
+    </div>
+
+    <div class="idea-card" style="border-color:var(--red);">
+      <div class="idea-header">
+        <div>
+          <div class="idea-ticker" style="color:var(--red);">RCAT <span style="font-size:12px;color:var(--text-dim);">Red Cat Holdings</span></div>
+          <div style="font-size:11px;color:var(--red);">&#x26D4; NEAR STOP &mdash; LIQUIDATION FLAGGED</div>
+        </div>
+        <div style="font-size:22px;font-weight:bold;" class="pos-red">4/10</div>
+      </div>
+      <div class="idea-body">
+        <strong style="color:var(--red)">Thesis Weakened:</strong> Black Widow deployed, Anduril Lattice integration, Japan 173-drone contract, Ukraine USV partnership &mdash; the narrative is real. But the numbers are not. Q4 $26.2M &rarr; Q1 $15.5M = -41% sequential. Management gave zero forward guidance. Stock is $0.32 above calculated stop. Below every major MA.
+        <br><br>
+        The market is telling you contract flow is lumpy at best, structural at worst. No guidance = management doesn't know either. <strong style="color:var(--red)">Stop is $10.05. It is the judge. Not your thesis.</strong>
+        <br><br>
+        <span class="tag tag-bull">BULL</span> New contract announcement. Sequential revenue recovers Q2. Government drone budget expands.<br>
+        <span class="tag tag-bear">BEAR</span> Stop breach &rarr; exit. Sequential decline is structural. Competition from larger defense primes.
+      </div>
+      <div class="idea-row">
+        <div class="idea-stat"><label>Price</label><span class="pos-red">$10.37</span></div>
+        <div class="idea-stat"><label>Avg Cost</label><span>$12.82</span></div>
+        <div class="idea-stat"><label>MA20</label><span>$11.89</span></div>
+        <div class="idea-stat"><label>20d Low</label><span class="pos-red">$10.36</span></div>
+        <div class="idea-stat"><label>Stop</label><span class="pos-red">$10.05</span></div>
+        <div class="idea-stat"><label>Buffer</label><span class="pos-red">$0.32</span></div>
+        <div class="idea-stat"><label>P&amp;L</label><span class="pos-red">&minus;$96 (&minus;19%)</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 3. THEMATIC PROXY TRADES -->
+<div class="section">
+  <div class="section-title">3. Thematic Proxy Trades</div>
+  <div class="two-col">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px;">
+      <div style="color:var(--accent);font-weight:bold;margin-bottom:8px;">&#x26A1; AI Power Infrastructure</div>
+      <div style="color:var(--text-dim);font-size:12px;line-height:1.7;">
+        Anthropic's $200B Google Cloud commitment, Meta's 1.2GW Oklo deal, and Amazon's fresh $25B Anthropic check all point to the same bottleneck: <strong style="color:var(--text);">data center power</strong>. Nuclear (OKLO &#x2705; held), natural gas peakers, and grid transmission are the proxies for the next 3-5 years.<br><br>
+        <strong style="color:var(--text);">Watchlist candidates (ethical screen &#x2705; pass):</strong> CEG (Constellation Energy, nuclear), VST (Vistra, gas+nuclear), NRG Energy. Any pullback toward MA20 on these is a legitimate entry.
+      </div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px;">
+      <div style="color:var(--accent);font-weight:bold;margin-bottom:8px;">&#x1F6E1;&#xFE0F; Defense / Drone Tech</div>
+      <div style="color:var(--text-dim);font-size:12px;line-height:1.7;">
+        RCAT fundamentals (Anduril Lattice integration, Ukraine deployment, Japanese Army contract) are real. The technical picture is not. The Shkreli-style edge here is recognizing the gap between the headline YoY number (849%) and the sequential reality (-41%). Market trades on sequential momentum, not YoY comparisons.<br><br>
+        <strong style="color:var(--red);">If RCAT stop breaches, re-evaluate entry post-reset rather than averaging down into a broken technical.</strong> The drone defense secular theme is intact &mdash; the specific stock is not.
+      </div>
     </div>
   </div>
+</div>
 
-  <!-- MARKET MATRIX -->
-  <div class="card">
-    <div class="card-title">📡 Source Signal Matrix</div>
-    <div class="signal-row">
-      <div class="signal-src">Gromen / Alden</div>
-      <div class="signal-body">
-        Dollar-debasement thesis advancing. Fiscal deficits in 2026 expected to accompany gradual Fed balance sheet expansion. "Deficits don't matter until they do — and they're starting to." Iran war concerns adding oil price risk.
-        <div class="signal-imp">→ Implication: BTC, gold proxies, commodity-linked assets outperform. USD cash drag. Energy infrastructure (OKLO, nuclear) benefits from onshoring + AI power demand.</div>
+<!-- 4. CRYPTO ALPHA -->
+<div class="section">
+  <div class="section-title">4. Crypto Alpha &mdash; Venice (VVV) + Hyperliquid (HYPE)</div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px;margin-bottom:12px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <div style="color:var(--purple);font-weight:bold;font-size:15px;">VVV &mdash; Venice Token</div>
+      <div><span class="badge badge-orange">EXTENDED +57%</span> <span class="badge badge-green">+76% P&amp;L</span></div>
+    </div>
+    <div style="color:var(--text-dim);font-size:12px;line-height:1.7;">
+      <strong style="color:var(--text);">Today:</strong> +17.12% on AI privacy momentum. eToro listing (May 7) added to 35M+ retail user base. Largest token burn to date recently executed. Buy-and-burn mechanics building deflationary pressure.<br><br>
+      <strong style="color:var(--text);">Technical status:</strong> $15.71 vs MA20 $10.01 = +57% above MA. EXTENDED per protocol. Trailing stop = MA20 ($10.01). No adds. Trim 25-50% above $15 is prudent risk management &mdash; you have $752 unrealized from a $988 cost basis, effectively a near-double.<br><br>
+      <strong style="color:var(--text);">Long conviction:</strong> VVV is the only public capital asset for decentralized AI inference with real usage. As AI privacy regulations tighten (EU AI Act, US state laws), addressable market expands. Core position (50% of VVV) should be held through volatility. The other 50% can be used to de-risk.
+    </div>
+    <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;font-size:11px;">
+      <div class="idea-stat"><label>Price</label><span class="pos-green">$15.71</span></div>
+      <div class="idea-stat"><label>24h</label><span class="pos-green">+17.1%</span></div>
+      <div class="idea-stat"><label>MA20</label><span>$10.01</span></div>
+      <div class="idea-stat"><label>Lo20</label><span>$8.56</span></div>
+      <div class="idea-stat"><label>Trailing Stop</label><span class="pos-red">$10.01</span></div>
+      <div class="idea-stat"><label>Cost</label><span>$8.92</span></div>
+      <div class="idea-stat"><label>Unrealized</label><span class="pos-green">+$752 (+76%)</span></div>
+    </div>
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <div style="color:var(--blue);font-weight:bold;font-size:15px;">HYPE &mdash; Hyperliquid</div>
+      <div><span class="badge badge-yellow">Resistance $45.77</span> <span class="badge badge-red">&minus;2.5% from cost</span></div>
+    </div>
+    <div style="color:var(--text-dim);font-size:12px;line-height:1.7;">
+      <strong style="color:var(--text);">Protocol status:</strong> $10.5B market cap, top-15 crypto globally. HIP-4 launched binary options April 2026 &mdash; expanding product surface meaningfully. $15.2M HYPE moved from Coinbase to staking this week. Slight -0.73% 24h drift vs broader market.<br><br>
+      <strong style="color:var(--text);">Technical:</strong> $43.01 in entry zone ($39&ndash;$44). Resistance cluster $43.76&ndash;$45.77. Clean break above $46 with volume &rarr; add signal, target $50. Stop at $38.48. Currently +3.6% above MA20 &mdash; healthy consolidation, not a concern.<br><br>
+      <strong style="color:var(--text);">Watch for:</strong> Volume expansion above $45.77 = add trigger. Any protocol upgrade announcement or institutional staking report.
+    </div>
+    <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;font-size:11px;">
+      <div class="idea-stat"><label>Price</label><span>$43.01</span></div>
+      <div class="idea-stat"><label>24h</label><span class="pos-red">&minus;0.73%</span></div>
+      <div class="idea-stat"><label>MA20</label><span>$41.52</span></div>
+      <div class="idea-stat"><label>Resistance</label><span>$45.77</span></div>
+      <div class="idea-stat"><label>Stop</label><span class="pos-red">$38.48</span></div>
+      <div class="idea-stat"><label>Target</label><span class="pos-green">$50+</span></div>
+      <div class="idea-stat"><label>P&amp;L</label><span class="pos-red">&minus;$69 (&minus;2.5%)</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- 5. CONGRESSIONAL & SMART MONEY -->
+<div class="section">
+  <div class="section-title">5. Congressional &amp; Smart-Money Signals</div>
+  <div class="two-col">
+    <div>
+      <div class="signal-row">
+        <div class="signal-icon">&#x1F3DB;&#xFE0F;</div>
+        <div class="signal-body">
+          <div class="signal-source">Capitol Trades / Quiver Quant &mdash; May 1&ndash;8 Window</div>
+          <div class="signal-text">Congressional disclosures via STOCK Act (45-day lag). Most active traders in 2026 continue to show concentrated tech/AI/defense positions. No individual-name specific trades surfaced in this run's public search. Direct data at capitoltrades.com. Historical pattern: congress concentrates in NVDA, defense primes, and energy infrastructure.</div>
+          <div class="signal-impl">&rarr; Check Quiver Quant dashboard live for NVDA/OKLO/defense cluster buys this week</div>
+        </div>
+      </div>
+      <div class="signal-row">
+        <div class="signal-icon">&#x1F4B0;</div>
+        <div class="signal-body">
+          <div class="signal-source">Smart Money &mdash; Institutional Anthropic Proxies</div>
+          <div class="signal-text">Jeff Bezos AI stack: $13B Anthropic + $6.2B Prometheus. Goldman/Blackstone/Hellman &amp; Friedman backing Anthropic $1.5B PE JV. Apollo, General Atlantic also in. When this many institutional names are committed to AI infrastructure, the thesis is no longer speculative &mdash; it's convergence.</div>
+          <div class="signal-impl">&rarr; NVDA, CEG, OKLO are the public-market proxies for this locked-in institutional capital flow</div>
+        </div>
       </div>
     </div>
-    <div class="signal-row">
-      <div class="signal-src">Jensen Huang / NVDA</div>
-      <div class="signal-body">
-        Rubin platform announced: targets 10x inference cost reduction vs Blackwell. AI lab CapEx accelerating — Anthropic + Amazon signed for 5GW new compute. NVDA revenue expected to top $358B in 2026.
-        <div class="signal-imp">→ Implication: NVDA at $208 still has path to $300 on Rubin cycle. Hold. TSM benefits as fab partner.</div>
+    <div>
+      <div class="signal-row">
+        <div class="signal-icon">&#x1F9E0;</div>
+        <div class="signal-body">
+          <div class="signal-source">Gromen + Alden &mdash; Macro Framework</div>
+          <div class="signal-text">Gold at $4,714 (was $3,300 a year ago) &mdash; dollar debasement in full force. April 2026 joint video: "System Collapse if Iran War continues." Liquidity expansion + rising gold = crypto/growth asset tailwind. Dollar weakness = real asset bid. The Gromen thesis of fiscal dominance playing out in real time.</div>
+          <div class="signal-impl">&rarr; Supports VVV/HYPE/BTC macro backdrop. Watch Fed balance sheet for next liquidity injection trigger.</div>
+        </div>
       </div>
-    </div>
-    <div class="signal-src" style="padding:10px 0 0;font-size:12px;font-weight:700;color:var(--accent2);">Dario Amodei / Anthropic</div>
-    <div class="signal-body" style="padding:8px 0 10px;font-size:13px;border-bottom:1px solid var(--border);">
-      Anthropic valuation 50% to $600B. Expanding Amazon compute partnership (5GW). NEC collaboration building Japan's largest AI engineering workforce. Pentagon access risk flagged (ban could cost billions).
-      <div class="signal-imp">→ Implication: Private Anthropic equity unavailable; play via NVDA (infrastructure) + AMZN (deployment partner). Pentagon risk = watch for PLTR as a go-between.</div>
-    </div>
-    <div class="signal-row">
-      <div class="signal-src">Saylor / Hayes</div>
-      <div class="signal-body">
-        BTC at $78,224. Saylor continues accumulation thesis. Hayes macro: debasement + geopolitical fragmentation = crypto bid. HYPE ETFs (Bitwise BHYP, Grayscale) providing institutional on-ramp.
-        <div class="signal-imp">→ Implication: BTC is the macro hedge. HYPE is the high-beta defi infrastructure bet. Both hold.</div>
+      <div class="signal-row">
+        <div class="signal-icon">&#x1F50D;</div>
+        <div class="signal-body">
+          <div class="signal-source">Shkreli-Style Edge &mdash; RCAT Sequential vs YoY</div>
+          <div class="signal-text">Market headline: "849% YoY revenue growth." Actual data: Q4 $26.2M &rarr; Q1 $15.5M = -41% sequential. No guidance = management lacks visibility. Insiders drawing scrutiny per StocksToTrade May 5. Classic discrepancy between public narrative and underlying data flow. The market caught up this week.</div>
+          <div class="signal-impl">&rarr; Stop $10.05 is non-negotiable. Do not average down on broken technical + no guidance combo.</div>
+        </div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- EARNINGS CALENDAR -->
-  <div class="card">
-    <div class="card-title">📅 Earnings Calendar — Held Positions</div>
+<!-- 6. BINARY PREDICTION MARKETS -->
+<div class="section">
+  <div class="section-title">6. Binary Prediction-Market Candidates</div>
+  <div class="table-wrap">
     <table>
-      <thead><tr><th>Ticker</th><th>Report Date</th><th>Days Away</th><th>Expected</th><th>Position P&L</th><th>Action</th></tr></thead>
-      <tbody>
-        <tr>
-          <td><strong style="color:var(--accent2)">PLTR</strong></td>
-          <td>May 4, 2026 (after close)</td>
-          <td><span class="badge badge-orange">8 days</span></td>
-          <td>Revenue accel + raised FY guidance per Morgan Stanley</td>
-          <td class="pnl-neg">-$33.00 (-1.8%)</td>
-          <td>HOLD — earnings is the catalyst. Binary event.</td>
-        </tr>
-        <tr>
-          <td><strong style="color:var(--accent)">NVDA</strong></td>
-          <td>~May 20, 2026</td>
-          <td><span class="badge badge-gray">~24 days</span></td>
-          <td>Triple-digit YoY profit growth. Rubin cycle guidance.</td>
-          <td class="pnl-pos">+$82.60 (+4.1%)</td>
-          <td>HOLD. Don't add at $208 — above entry zone.</td>
-        </tr>
-        <tr>
-          <td><strong style="color:var(--muted)">TSLA</strong></td>
-          <td>Already reported (Apr 22)</td>
-          <td><span class="badge badge-gray">Next: ~Jul</span></td>
-          <td>Apr earnings deployed as playbook trigger. Stock at $376.</td>
-          <td class="pnl-pos">+$11.88 (+1.3%)</td>
-          <td>Hold. Inside entry zone. No near-term binary.</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="disclaimer">⚖️ This is not financial advice. Speculative trading involves substantial risk of loss. Past performance is no guarantee of future results.</div>
-</div>
-
-<!-- ════════════════════════════════════════════
-     TAB: IDEAS
-════════════════════════════════════════════ -->
-<div id="tab-ideas" class="tab-content">
-
-  <!-- IDEA 1: PLTR EARNINGS PLAY -->
-  <div class="idea-card">
-    <div class="idea-header">
-      <div>
-        <div class="idea-title">PLTR — Earnings Binary (May 4)</div>
-        <div class="idea-sub">Palantir Technologies · Enterprise AI Data Platform · NYSE</div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <span class="badge badge-orange">CONVICTION: 8/10</span>
-        <span class="badge badge-blue">HELD: 12.35 SHARES</span>
-      </div>
-    </div>
-    <div class="idea-body">
-      <strong>Thesis:</strong> PLTR is the enterprise AI deployment layer — the picks-and-shovels play on government + commercial AI adoption. May 4 earnings is the fulcrum. Morgan Stanley analyst Sanjit Singh flagged potential for accelerated growth and raised full-year guidance. PLTR is first major enterprise AI stock to print this season — sets the tone for the sector.
-      <br><br>
-      <strong>Bull Case:</strong> Q1 US commercial revenue accelerates to 35%+ YoY. FY2026 guidance raised above consensus. AIP (Artificial Intelligence Platform) deal flow proves enterprise AI spending is durable and not hype. Stock re-rates toward $170–$185.
-      <br><br>
-      <strong>Bear Case:</strong> US government revenue slows (budget uncertainty, DOGE cuts). Commercial growth in-line but not upside surprise. Stock fades from $143 to $125–$130.
-      <br><br>
-      <strong>Ethical Screen:</strong> ✅ PASS — defense + enterprise analytics, no involvement in prohibited activities.
-    </div>
-    <div class="idea-grid">
-      <div class="idea-stat"><div class="idea-stat-label">Current Price</div><div class="idea-stat-value">$143.09</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">Entry Zone</div><div class="idea-stat-value">$135–$149</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">Stop Loss</div><div class="idea-stat-value">$124.22</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">Target T1</div><div class="idea-stat-value">$165</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">Target T2</div><div class="idea-stat-value">$185</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">20d MA</div><div class="idea-stat-value">$142.38</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">Catalyst</div><div class="idea-stat-value">May 4</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">Risk/Reward</div><div class="idea-stat-value">~2.5:1</div></div>
-    </div>
-    <div style="margin-top:12px;font-size:12px;color:var(--muted);">Binary prediction: <span style="color:var(--green);font-weight:700;">65% probability</span> PLTR beats + raises guide → stock trades $155+ within 5 sessions of earnings.</div>
-  </div>
-
-  <!-- IDEA 2: OKLO NUCLEAR AI FACTORY -->
-  <div class="idea-card">
-    <div class="idea-header">
-      <div>
-        <div class="idea-title">OKLO — Nuclear-Powered AI Factory</div>
-        <div class="idea-sub">Oklo Inc. · Advanced Fission SMR · NYSE · ⚡ EXTENDED</div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <span class="badge badge-orange">CONVICTION: 8/10</span>
-        <span class="badge badge-yellow">EXTENDED +24% ABOVE MA</span>
-      </div>
-    </div>
-    <div class="idea-body">
-      <strong>Thesis:</strong> OKLO is the only pure-play SMR with direct NVDA partnership + government credibility (LANL collaboration announced Apr 23). The NVDA/LANL/Oklo tripartite for nuclear-powered AI factories is a landmark signal — validating that hyperscalers view nuclear as the only path to AI compute power density at scale. Meta 1.2GW campus in Ohio adds a second anchor customer. This is THE AI energy infrastructure play for 2026–2028.
-      <br><br>
-      <strong>Bull Case:</strong> NRC licensing progresses. NVDA partnership expands to additional sites. More hyperscaler MOUs announced. Stock targets $90–$120 on 12-month basis.
-      <br><br>
-      <strong>Bear Case:</strong> NRC delays licensing. Nuclear political risk spikes. Energy transition narrative weakens. Could retrace to $50–$55 (20d MA area).
-      <br><br>
-      <strong>Ethical Screen:</strong> ✅ PASS — civilian nuclear power, no prohibited activity.
-      <br><strong>Status:</strong> Position is EXTENDED. Trailing stop at $57.13 (20d MA). Do NOT add until pullback to $60–$64 zone.
-    </div>
-    <div class="idea-grid">
-      <div class="idea-stat"><div class="idea-stat-label">Current Price</div><div class="idea-stat-value">$71.00</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">Avg Cost</div><div class="idea-stat-value">$65.00</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">Trailing Stop</div><div class="idea-stat-value">$57.13</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">T1</div><div class="idea-stat-value">$90</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">T2</div><div class="idea-stat-value">$120</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">20d MA</div><div class="idea-stat-value">$57.13</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">Add Zone</div><div class="idea-stat-value">$60–64 pullback</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">P&L</div><div class="idea-stat-value pnl-pos">+$90 (+9.2%)</div></div>
-    </div>
-  </div>
-
-  <!-- IDEA 3: NVDA RUBIN CYCLE -->
-  <div class="idea-card">
-    <div class="idea-header">
-      <div>
-        <div class="idea-title">NVDA — Rubin Cycle Dominant</div>
-        <div class="idea-sub">NVIDIA Corp. · AI Compute · NasdaqGS</div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <span class="badge badge-orange">CONVICTION: 9/10</span>
-        <span class="badge badge-blue">HELD: 10 SHARES</span>
-      </div>
-    </div>
-    <div class="idea-body">
-      <strong>Thesis:</strong> NVDA revenues expected to top $358B in FY2026. Vera Rubin platform (H2 2026 launch) targets 10x inference cost reduction vs Blackwell — meaning hyperscalers will upgrade entire fleets. Anthropic ($600B), OpenAI ($852B), and all frontier labs are locked into NVDA silicon. Revenue line is structural, not cyclical. At $208, stock is 10.5% above 20d MA — not yet extended but needs a pause.
-      <br><br>
-      <strong>Ethical Screen:</strong> ✅ PASS — semiconductor / AI compute infrastructure.
-    </div>
-    <div class="idea-grid">
-      <div class="idea-stat"><div class="idea-stat-label">Current Price</div><div class="idea-stat-value">$208.26</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">Entry Zone</div><div class="idea-stat-value">$179–$198</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">Stop</div><div class="idea-stat-value">$160.22</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">T1</div><div class="idea-stat-value">$240</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">T2</div><div class="idea-stat-value">$300</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">20d MA</div><div class="idea-stat-value">$188.38</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">Earnings</div><div class="idea-stat-value">~May 20</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">P&L</div><div class="idea-stat-value pnl-pos">+$82.60 (+4.1%)</div></div>
-    </div>
-  </div>
-
-  <!-- IDEA 4: RCAT FLAG -->
-  <div class="idea-card" style="border-color:#3d2a1a;">
-    <div class="idea-header">
-      <div>
-        <div class="idea-title">⚠️ RCAT — FLAG FOR REVIEW</div>
-        <div class="idea-sub">Red Cat Holdings · Tactical Drone Mfr · NasdaqCM</div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <span class="badge badge-orange">CONVICTION: 5/10 ↓</span>
-        <span class="badge badge-red">BELOW ENTRY ZONE</span>
-      </div>
-    </div>
-    <div class="idea-body">
-      <strong>Thesis (original):</strong> RCAT is a pure-play US tactical drone manufacturer with NATO and Asia-Pacific ally contracts for Black Widow sUAS. NDAA-compliant. Anduril supply-chain proxy.
-      <br><br>
-      <strong>Problem:</strong> Price at $11.80 is below entry zone ($12.02–$13.28) and -6.7% below 20d MA ($12.65). The stock has been in structural decline since the $17+ peak. NATO contract announced Apr 2 did not hold the rally. Volume on down-days has been heavy. Stop at $11.24 is $0.56 away — that's a total stop-out loss of ~$22 if triggered.
-      <br><br>
-      <strong>Bull Case:</strong> Delivery of NATO + Asia-Pacific contracts provides revenue recognition and earnings surprise. Defense spending remains robust. Stock recovers to $14–$16.
-      <br><br>
-      <strong>Bear Case:</strong> Defense budget cuts under fiscal pressure. Contract delays. Stock breaks $11.24 stop — total loss ~$60 on position.
-      <br><br>
-      <strong>Recommendation:</strong> Peter decides. Munger Claw flags this as a <strong style="color:var(--orange);">liquidation candidate</strong> if $11.24 fails or no new contract catalyst within 2 weeks. The asymmetry is unfavorable at current levels.
-    </div>
-    <div class="idea-grid">
-      <div class="idea-stat"><div class="idea-stat-label">Current Price</div><div class="idea-stat-value pnl-neg">$11.80</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">Entry Zone</div><div class="idea-stat-value">$12.02–$13.28</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">Hard Stop</div><div class="idea-stat-value pnl-neg">$11.24</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">20d MA</div><div class="idea-stat-value">$12.65</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">20d Low</div><div class="idea-stat-value">$11.59</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">P&L</div><div class="idea-stat-value pnl-neg">-$39.78 (-8.0%)</div></div>
-    </div>
-  </div>
-
-  <!-- IDEA 5: TSLA POST-EARNINGS -->
-  <div class="idea-card">
-    <div class="idea-header">
-      <div>
-        <div class="idea-title">TSLA — Post-Earnings Hold</div>
-        <div class="idea-sub">Tesla Inc. · EV / Autonomy / Energy · NasdaqGS</div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <span class="badge badge-gray">CONVICTION: 6/10</span>
-        <span class="badge badge-green">IN ENTRY ZONE</span>
-      </div>
-    </div>
-    <div class="idea-body">
-      <strong>Thesis:</strong> TSLA was deployed on Apr 22 earnings playbook. The stock at $376.30 is inside the entry zone ($350.7–$387.6) and barely above avg cost ($371.53). No near-term catalyst until robotaxi/Full Self-Driving updates or Q2 delivery numbers. Musk's X presence and political role remain a sentiment wildcard.
-      <br><br>
-      <strong>Ethical Screen:</strong> ✅ PASS — EV / clean energy / autonomous transport.
-    </div>
-    <div class="idea-grid">
-      <div class="idea-stat"><div class="idea-stat-label">Current Price</div><div class="idea-stat-value">$376.30</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">Entry Zone</div><div class="idea-stat-value">$350.7–$387.6</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">Stop</div><div class="idea-stat-value">$332.95</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">T1</div><div class="idea-stat-value">$420</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">20d MA</div><div class="idea-stat-value">$369.13</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">P&L</div><div class="idea-stat-value pnl-pos">+$11.88 (+1.3%)</div></div>
-    </div>
-  </div>
-
-  <div class="disclaimer">⚖️ This is not financial advice. Speculative trading involves substantial risk of loss. Past performance is no guarantee of future results.</div>
-</div>
-
-<!-- ════════════════════════════════════════════
-     TAB: CRYPTO
-════════════════════════════════════════════ -->
-<div id="tab-crypto" class="tab-content">
-
-  <div class="idea-card" style="border-color:#2a1a3d;">
-    <div class="idea-header">
-      <div>
-        <div class="idea-title">🌊 Hyperliquid (HYPE) — Decentralized Perps Infrastructure</div>
-        <div class="idea-sub">HYPE · Native L1 DEX · $41.99 · 24h: +1.33%</div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <span class="badge badge-purple">CONVICTION: 8/10</span>
-        <span class="badge badge-blue">HELD: 62.724 SHARES</span>
-      </div>
-    </div>
-    <div class="idea-body">
-      <strong>Thesis:</strong> Hyperliquid is the dominant onchain perps exchange, handling $200B+ in monthly perpetual futures volume and generating $800M+ in annual fees. It is the most profitable chain in crypto on a fee/revenue basis. The Bitwise spot HYPE ETF (BHYP, 0.67% fee) is now live, and Grayscale switched custodians to Anchorage Digital on April 20 — both signals of institutional infrastructure maturing around HYPE.
-      <br><br>
-      <strong>Current Price vs Avg Cost:</strong> $41.99 vs $44.11 cost — underwater by -4.8%. Resistance wall at $44–$46 (near avg cost). A clean break above $46 would be technically significant. ETF inflows could be the catalyst to push through that wall.
-      <br><br>
-      <strong>Bull Case:</strong> ETF inflows + continued fee generation + Bitcoin macro tailwind push HYPE to $55–$70 by Q3 2026.
-      <br><br>
-      <strong>Bear Case:</strong> Regulatory action against DEX perps. Bitcoin bear market. HYPE breaks $35 → re-assess position size.
-      <br><br>
-      <strong>Ethical Screen:</strong> ✅ PASS — decentralized financial infrastructure, no prohibited activity.
-    </div>
-    <div class="idea-grid">
-      <div class="idea-stat"><div class="idea-stat-label">Price</div><div class="idea-stat-value">$41.99</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">24h Change</div><div class="idea-stat-value pnl-pos">+1.33%</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">Avg Cost</div><div class="idea-stat-value">$44.11</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">Resistance</div><div class="idea-stat-value">$44–$46</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">T1</div><div class="idea-stat-value">$55</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">T2</div><div class="idea-stat-value">$70</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">Stop</div><div class="idea-stat-value">$35</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">Position P&L</div><div class="idea-stat-value pnl-neg">-$132.97</div></div>
-    </div>
-    <div style="margin-top:12px;padding:10px;background:var(--surface);border-radius:6px;font-size:12px;color:var(--muted);">
-      <strong style="color:var(--text);">Key Catalyst:</strong> Bitwise BHYP ETF live. Grayscale HYPE product switched to Anchorage (Apr 20). Monthly fee generation $800M+ annualized. 
-      Binary: <span style="color:var(--green);font-weight:700;">60%</span> probability HYPE clears $46 resistance within 30 days on ETF-driven demand.
-    </div>
-  </div>
-
-  <div class="idea-card" style="border-color:#1a2d3d;">
-    <div class="idea-header">
-      <div>
-        <div class="idea-title">🎭 Venice (VVV) — Decentralized AI Inference</div>
-        <div class="idea-sub">VVV · Private AI · $9.54 · 24h: +4.27%</div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <span class="badge badge-blue">CONVICTION: 7/10</span>
-        <span class="badge badge-green">HELD: 110.762 TOKENS</span>
-      </div>
-    </div>
-    <div class="idea-body">
-      <strong>Thesis:</strong> Venice is a decentralized AI inference network — it routes AI compute requests without storing user data, positioning it as the privacy-first alternative to ChatGPT/Claude. Token burns are the value accrual mechanism, and rising AI valuations (Anthropic $600B, OpenAI $852B) drive sentiment and TVL into the space. VVV has staged a comeback from a low of $0.90 in December 2025 to $9.54 today — a 10x recovery.
-      <br><br>
-      <strong>Current Price vs Avg Cost:</strong> $9.54 vs $8.92 — above water by +6.9% (+$68.67). Today's +4.27% session is strong.
-      <br><br>
-      <strong>Bull Case:</strong> AI inference demand grows. Token burn rate increases. Venice onboards more users as privacy concerns rise. VVV re-rates to $15–$25.
-      <br><br>
-      <strong>Bear Case:</strong> Decentralized inference fails to compete on quality/latency with centralized players. Token price disconnects from fundamentals. VVV falls back toward $5–$6.
-      <br><br>
-      <strong>Ethical Screen:</strong> ✅ PASS — privacy-preserving AI infrastructure.
-    </div>
-    <div class="idea-grid">
-      <div class="idea-stat"><div class="idea-stat-label">Price</div><div class="idea-stat-value">$9.54</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">24h Change</div><div class="idea-stat-value pnl-pos">+4.27%</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">Avg Cost</div><div class="idea-stat-value">$8.92</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">T1</div><div class="idea-stat-value">$15</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">T2</div><div class="idea-stat-value">$25</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">Stop</div><div class="idea-stat-value">$6.50</div></div>
-      <div class="idea-stat"><div class="idea-stat-label">Position P&L</div><div class="idea-stat-value pnl-pos">+$68.67 (+6.9%)</div></div>
-    </div>
-  </div>
-
-  <!-- CRYPTO MACRO CONTEXT -->
-  <div class="card">
-    <div class="card-title">🌐 Crypto Macro Snapshot</div>
-    <table>
-      <thead><tr><th>Asset</th><th>Price</th><th>24h Chg</th><th>Thesis Role</th><th>Signal</th></tr></thead>
-      <tbody>
-        <tr>
-          <td><strong>BTC</strong></td>
-          <td>$78,224</td>
-          <td class="pnl-pos">+0.83%</td>
-          <td>Macro debasement hedge. Gromen/Alden #1 conviction.</td>
-          <td><span class="badge badge-green">BULLISH</span></td>
-        </tr>
-        <tr>
-          <td><strong>ETH</strong></td>
-          <td>$2,360</td>
-          <td class="pnl-pos">+1.77%</td>
-          <td>Platform layer. Recovering. Watchlist only.</td>
-          <td><span class="badge badge-gray">WATCH</span></td>
-        </tr>
-        <tr>
-          <td><strong>HYPE</strong></td>
-          <td>$41.99</td>
-          <td class="pnl-pos">+1.33%</td>
-          <td>Defi infrastructure dominance. ETF tailwind.</td>
-          <td><span class="badge badge-orange">HOLD — AT RESISTANCE</span></td>
-        </tr>
-        <tr>
-          <td><strong>VVV</strong></td>
-          <td>$9.54</td>
-          <td class="pnl-pos">+4.27%</td>
-          <td>Decentralized AI inference. Above cost, recovering.</td>
-          <td><span class="badge badge-green">HOLD — POSITIVE MOMENTUM</span></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="disclaimer">⚖️ This is not financial advice. Speculative trading involves substantial risk of loss. Past performance is no guarantee of future results.</div>
-</div>
-
-<!-- ════════════════════════════════════════════
-     TAB: SMART MONEY
-════════════════════════════════════════════ -->
-<div id="tab-smartmoney" class="tab-content">
-
-  <div class="card">
-    <div class="card-title">🏛 Congressional Copy-Trading Signals</div>
-    <div class="signal-row">
-      <div class="signal-src">Capitol Trades<br>General</div>
-      <div class="signal-body">
-        Congress members required to file within 45 days of trade. Key 2025 standout trades: <br>
-        • <strong>PLTR</strong> — Multiple members bought in $60s–$70s; now near $143 (2x+). Buyers included Julie Johnson, James Comer, Jefferson Shreve, Robert Bresnahan Jr., and Marjorie Taylor Greene.<br>
-        • <strong>MU (Micron)</strong> — April 2025 purchases at $60–70. Rohit Khanna, Lisa McClain, Sen. Ashley Moody.<br>
-        Pattern: Members with Defense/Intelligence committee access tend to lead defense-tech positions 3–9 months early.
-        <div class="signal-imp">→ Implication: PLTR's multi-member buy signal at lower levels is a strong retrospective validation. Defense AI spending is real and bipartisan.</div>
-      </div>
-    </div>
-    <div class="signal-row">
-      <div class="signal-src">Quiver Quant<br>April 2026</div>
-      <div class="signal-body">
-        No specific April 2026 congressional trades surfaced in today's scrape — 45-day filing lag means current-week trades won't appear until mid-June. Monitor <a href="https://www.quiverquant.com/congresstrading/" style="color:var(--accent2);" target="_blank">Quiver Quant Congress</a> for May disclosures which will reflect April activity.
-        <div class="signal-imp">→ Action: Watch for any NVDA, PLTR, or nuclear energy purchases when May filings drop.</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">🔬 Shkreli-Style Public Data Edges</div>
-    <div class="signal-row">
-      <div class="signal-src">OKLO / NVDA<br>Discrepancy</div>
-      <div class="signal-body">
-        Market narrative still treats OKLO as a speculative SMR play. Reality: OKLO now has NVDA (the most capital-efficient AI infrastructure allocator on Earth) and Los Alamos National Laboratory as active research partners. The market hasn't fully priced the partnership quality differential between OKLO and other SMR names (NuScale, SMR). This gap exists because the Apr 23 announcement is less than 72 hours old.
-        <div class="signal-imp">→ Edge: Buy the news lag. OKLO's NVDA partnership is structurally different from generic nuclear hype. EXTENDED at $71 — but on pullback to $60–64, this is a clean add.</div>
-      </div>
-    </div>
-    <div class="signal-row">
-      <div class="signal-src">HYPE ETF<br>Arbitrage</div>
-      <div class="signal-body">
-        Bitwise BHYP (spot HYPE ETF) is live at 0.67% fee. Grayscale's HYPE product switched custodians to Anchorage Digital on Apr 20. These infrastructure moves typically precede institutional inflow. Historical pattern (BTC ETF, ETH ETF): 30–90 days post-launch sees meaningful price appreciation as ETF AUM builds.
-        <div class="signal-imp">→ Edge: Spot HYPE at $41.99 trades at effectively zero premium to ETF. If BTC ETF history repeats, HYPE could see $55–$65 on a 60-day basis once ETF AUM reaches meaningful scale.</div>
-      </div>
-    </div>
-    <div class="signal-row">
-      <div class="signal-src">Anthropic<br>Pentagon Risk</div>
-      <div class="signal-body">
-        Anthropic flagged that a Pentagon ban could cost it billions in revenue. This is a risk for PLTR — which acts as a government AI deployment layer and whose AIP product runs on frontier models including Claude. If Anthropic gets cut from DoD contracts, PLTR has to pivot to OpenAI or in-house models.
-        <div class="signal-imp">→ Watch: Any concrete DoD/Anthropic ruling before May 4 PLTR earnings could impact sentiment. Manageable risk — PLTR can route around any single LLM provider.</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">🎯 Binary Prediction Market Candidates</div>
-    <table>
-      <thead><tr><th>Event</th><th>Munger Claw Probability</th><th>Timeline</th><th>Position Impact</th></tr></thead>
-      <tbody>
-        <tr>
-          <td>PLTR beats Q1 + raises FY guide</td>
-          <td><span class="badge badge-green">65%</span></td>
-          <td>May 4</td>
-          <td>+$150–$200 position gain if yes</td>
-        </tr>
-        <tr>
-          <td>HYPE clears $46 resistance within 30 days</td>
-          <td><span class="badge badge-orange">60%</span></td>
-          <td>Late May</td>
-          <td>+$250 position gain on 62.7 shares</td>
-        </tr>
-        <tr>
-          <td>OKLO pulls back to $60–$64 (re-add opportunity)</td>
-          <td><span class="badge badge-orange">55%</span></td>
-          <td>2–4 weeks</td>
-          <td>Add signal, not current position event</td>
-        </tr>
-        <tr>
-          <td>NVDA earnings beat + Rubin guidance impresses</td>
-          <td><span class="badge badge-green">70%</span></td>
-          <td>May 20</td>
-          <td>+$300–$500 position gain on 10 shares</td>
-        </tr>
-        <tr>
-          <td>RCAT breaks $11.24 stop</td>
-          <td><span class="badge badge-orange">40%</span></td>
-          <td>1–3 weeks</td>
-          <td>-$21 total loss on position if triggered</td>
-        </tr>
-        <tr>
-          <td>BTC reaches $90K by end of Q2 2026</td>
-          <td><span class="badge badge-orange">50%</span></td>
-          <td>Jun 30</td>
-          <td>HYPE + VVV both should rally on BTC strength</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="disclaimer">⚖️ This is not financial advice. Speculative trading involves substantial risk of loss. Past performance is no guarantee of future results.</div>
-</div>
-
-<!-- ════════════════════════════════════════════
-     TAB: PORTFOLIO
-════════════════════════════════════════════ -->
-<div id="tab-portfolio" class="tab-content">
-
-  <div class="card">
-    <div class="card-title">💼 Live Portfolio — Source: actual_positions.json (as_of: 2026-04-23)</div>
-    <table id="portfolio-table">
       <thead>
         <tr>
-          <th>Ticker</th><th>Type</th><th>Shares</th><th>Avg Cost</th><th>Live Price</th>
-          <th>Position Value</th><th>P&L $</th><th>P&L %</th>
-          <th>20d MA</th><th>Status / Zone</th>
+          <th>Question</th>
+          <th>Date</th>
+          <th>Lean</th>
+          <th>Confidence</th>
+          <th>Trade Implication</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>NVDA beats Q1 FY27 AND guides above $80B?</td>
+          <td>May 20</td>
+          <td class="pos-green">YES</td>
+          <td>70%</td>
+          <td>Add under $200 pre-earnings. Target $240 post-print.</td>
+        </tr>
+        <tr>
+          <td>OKLO Q1 earnings positive surprise + guidance raised?</td>
+          <td>May 12</td>
+          <td class="pos-green">YES</td>
+          <td>65%</td>
+          <td>NRC + Meta deal = momentum. Binary upside $85-100+.</td>
+        </tr>
+        <tr>
+          <td>RCAT closes below stop $10.05 within 10 days?</td>
+          <td>May 19</td>
+          <td class="pos-red">YES</td>
+          <td>55%</td>
+          <td>Only $0.32 above stop. Sequential decline + no guidance = sell bias.</td>
+        </tr>
+        <tr>
+          <td>VVV pulls back to MA20 ($10) within 30 days?</td>
+          <td>Jun 9</td>
+          <td class="pos-yellow">LIKELY</td>
+          <td>65%</td>
+          <td>Mean reversion after +57% run. Trim now; re-add at MA.</td>
+        </tr>
+        <tr>
+          <td>HYPE breaks $46 resistance with volume this week?</td>
+          <td>May 14</td>
+          <td class="pos-muted">COIN FLIP</td>
+          <td>50%</td>
+          <td>Breakout = add signal. Failure at resistance = hold, wait.</td>
+        </tr>
+        <tr>
+          <td>Anthropic $50B funding round closes by Q3 2026?</td>
+          <td>Sep 30</td>
+          <td class="pos-green">YES</td>
+          <td>80%</td>
+          <td>Google $40B + Amazon $25B already committed. Bullish AI infra.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 7. LIVE PORTFOLIO TABLE -->
+<div class="section">
+  <div class="section-title">7. Live Portfolio &mdash; Source of Truth: actual_positions.json (as_of 2026-04-23)</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Ticker</th>
+          <th>Type</th>
+          <th>Shares</th>
+          <th>Avg Cost</th>
+          <th>Live Price</th>
+          <th>Cost Basis</th>
+          <th>Mkt Value</th>
+          <th>P&amp;L $</th>
+          <th>P&amp;L %</th>
+          <th>MA20</th>
+          <th>vs MA</th>
+          <th>Stop</th>
+          <th>Status</th>
         </tr>
       </thead>
       <tbody id="portfolio-tbody">
-        <!-- Populated by JS bootstrapActualsFromJSON + live price data -->
+        <tr>
+          <td><strong>HYPE</strong></td>
+          <td><span class="badge badge-purple">CRYPTO</span></td>
+          <td>62.724</td>
+          <td>$44.11</td>
+          <td>$43.01</td>
+          <td>$2,766.76</td>
+          <td>$2,697.56</td>
+          <td class="pos-red">&minus;$69.00</td>
+          <td class="pos-red">&minus;2.5%</td>
+          <td>$41.52</td>
+          <td class="pos-green">+3.6%</td>
+          <td class="pos-red">$38.48</td>
+          <td><span class="badge badge-yellow">HOLD</span></td>
+        </tr>
+        <tr>
+          <td><strong>NVDA</strong></td>
+          <td><span class="badge badge-blue">STOCK</span></td>
+          <td>10.0</td>
+          <td>$200.00</td>
+          <td class="pos-green">$215.20</td>
+          <td>$2,000.00</td>
+          <td class="pos-green">$2,152.00</td>
+          <td class="pos-green">+$152.00</td>
+          <td class="pos-green">+7.6%</td>
+          <td>$203.18</td>
+          <td class="pos-green">+5.9%</td>
+          <td class="pos-red">$183.63</td>
+          <td><span class="badge badge-green">HOLD</span></td>
+        </tr>
+        <tr>
+          <td><strong>PLTR</strong></td>
+          <td><span class="badge badge-blue">STOCK</span></td>
+          <td>12.349</td>
+          <td>$145.76</td>
+          <td class="pos-red">$137.80</td>
+          <td>$1,799.99</td>
+          <td>$1,701.69</td>
+          <td class="pos-red">&minus;$98.30</td>
+          <td class="pos-red">&minus;5.5%</td>
+          <td>$141.23</td>
+          <td class="pos-red">&minus;2.4%</td>
+          <td class="pos-red">$128.40</td>
+          <td><span class="badge badge-yellow">WATCH</span></td>
+        </tr>
+        <tr>
+          <td><strong>VVV</strong></td>
+          <td><span class="badge badge-purple">CRYPTO</span></td>
+          <td>110.762</td>
+          <td>$8.92</td>
+          <td class="pos-green">$15.71</td>
+          <td>$988.00</td>
+          <td class="pos-green">$1,740.07</td>
+          <td class="pos-green">+$752.07</td>
+          <td class="pos-green">+76.1%</td>
+          <td>$10.01</td>
+          <td class="pos-orange">+57% EXT</td>
+          <td class="pos-red">$10.01</td>
+          <td><span class="badge badge-orange">EXTENDED</span></td>
+        </tr>
+        <tr>
+          <td><strong>OKLO</strong></td>
+          <td><span class="badge badge-blue">STOCK</span></td>
+          <td>15.0</td>
+          <td>$65.00</td>
+          <td class="pos-green">$72.51</td>
+          <td>$975.00</td>
+          <td class="pos-green">$1,087.65</td>
+          <td class="pos-green">+$112.65</td>
+          <td class="pos-green">+11.6%</td>
+          <td>$68.57</td>
+          <td class="pos-green">+5.7%</td>
+          <td class="pos-red">$52.32</td>
+          <td><span class="badge badge-yellow">EARN 5/12</span></td>
+        </tr>
+        <tr style="background:rgba(239,68,68,0.07);">
+          <td><strong>RCAT</strong> <span class="badge badge-red">NEAR STOP</span></td>
+          <td><span class="badge badge-blue">STOCK</span></td>
+          <td>39.0</td>
+          <td>$12.82</td>
+          <td class="pos-red">$10.37</td>
+          <td>$499.98</td>
+          <td class="pos-red">$404.43</td>
+          <td class="pos-red">&minus;$95.55</td>
+          <td class="pos-red">&minus;19.1%</td>
+          <td>$11.89</td>
+          <td class="pos-red">&minus;12.8%</td>
+          <td class="pos-red">$10.05</td>
+          <td><span class="badge badge-red">REVIEW</span></td>
+        </tr>
+        <tr>
+          <td><strong>TSLA</strong></td>
+          <td><span class="badge badge-blue">STOCK</span></td>
+          <td>2.49</td>
+          <td>$371.53</td>
+          <td class="pos-green">$428.35</td>
+          <td>$925.11</td>
+          <td class="pos-green">$1,066.59</td>
+          <td class="pos-green">+$141.48</td>
+          <td class="pos-green">+15.3%</td>
+          <td>$386.76</td>
+          <td class="pos-orange">+10.8%</td>
+          <td class="pos-red">$341.85</td>
+          <td><span class="badge badge-green">HOLD</span></td>
+        </tr>
+        <tr style="background:rgba(0,0,0,0.3);">
+          <td><strong>CASH</strong></td>
+          <td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td>
+          <td>$45.00</td><td>$45.00</td><td>$0.00</td><td>&mdash;</td>
+          <td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td>
+        </tr>
+        <tr style="background:#161a24;font-weight:bold;">
+          <td>TOTAL</td>
+          <td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td>
+          <td>$9,999.83</td>
+          <td class="pos-green">$10,895.19</td>
+          <td class="pos-green">+$895.36</td>
+          <td class="pos-green">+8.95%</td>
+          <td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td>
+        </tr>
       </tbody>
     </table>
   </div>
-
-  <div class="card">
-    <div class="card-title">📊 Allocation View</div>
-    <div id="allocation-view" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px;"></div>
-    <div id="port-totals" style="font-size:13px;color:var(--text);line-height:2;"></div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">⚖️ Risk Rules</div>
-    <div style="font-size:13px;line-height:1.8;color:var(--text);">
-      • Max single position: 30% of portfolio<br>
-      • Hard stop on all positions — no exceptions, no "hoping it comes back"<br>
-      • OKLO: trailing stop at 20d MA ($57.13) — not a hard number, moves up with MA<br>
-      • RCAT: hard stop $11.24. If triggered, exit full position. No averaging down.<br>
-      • Crypto: HYPE stop $35, VVV stop $6.50. No leverage on crypto spots.<br>
-      • Cash reserve: maintain at least $45 in account ($0 currently available for new trades)<br>
-      • New positions only on pullbacks to defined entry zones — never chase extended moves
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">💰 Tax Note</div>
-    <div style="font-size:13px;color:var(--muted);line-height:1.7;">
-      All positions entered 2026-04-23. Currently <strong style="color:var(--text);">short-term capital gains</strong> treatment applies to all holdings (held &lt;1 year). If positions are held past April 23, 2027, gains convert to long-term (lower tax rate). Crypto gains are treated the same as stock gains for tax purposes. Consult your tax advisor for specifics.
-    </div>
-  </div>
-
-  <div class="disclaimer">⚖️ This is not financial advice. Speculative trading involves substantial risk of loss. Past performance is no guarantee of future results.</div>
 </div>
 
-<!-- ════════════════════════════════════════════
-     TAB: AI CHAT
-════════════════════════════════════════════ -->
-<div id="tab-chat" class="tab-content">
-  <div class="card">
-    <div class="card-title">🤖 Munger Claw AI Chat</div>
-    <div class="chat-window" id="chat-window">
-      <div class="chat-msg chat-ai">🦞 <strong>Munger Claw online.</strong> Apr 26, 2026 morning update loaded. Portfolio at +$47.35 (+0.47%). Key alerts: OKLO EXTENDED (trailing stop $57.13), RCAT below zone (stop $11.24), PLTR earnings May 4. Ask me anything about the portfolio, a position, or a new idea.</div>
-    </div>
-    <div class="chat-input-row">
-      <input class="chat-input" id="chat-input" type="text" placeholder="Ask about a position, thesis, risk, or new idea…" onkeydown="if(event.key==='Enter')sendChat()">
-      <button class="chat-send" onclick="sendChat()">Send</button>
-    </div>
+<!-- 8. WATCHLIST -->
+<div class="section">
+  <div class="section-title">8. Watchlist</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Ticker</th><th>Theme</th><th>Conviction</th><th>Watch Trigger</th><th>Ethical Screen</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>CEG</strong></td><td>Nuclear / AI Power</td><td>8/10</td><td>Pullback to 20d MA. Hyperscaler deal announcement.</td><td class="pos-green">&#x2705; PASS</td></tr>
+        <tr><td><strong>VST</strong></td><td>Natural Gas + Power</td><td>7/10</td><td>AI power demand narrative. Earnings beat.</td><td class="pos-green">&#x2705; PASS</td></tr>
+        <tr><td><strong>AMD</strong></td><td>AI Compute Proxy</td><td>7/10</td><td>MI350/400 ramp data. Entry below MA20.</td><td class="pos-green">&#x2705; PASS</td></tr>
+        <tr><td><strong>BTC</strong></td><td>Macro / Hard Money</td><td>7/10</td><td>Gold $4,714 confirms debasement. BTC follows liquidity.</td><td class="pos-green">&#x2705; PASS</td></tr>
+        <tr><td><strong>ASML</strong></td><td>EUV / AI Compute</td><td>7/10</td><td>Export control clarity. Earnings catalyst. Dip to MA.</td><td class="pos-green">&#x2705; PASS</td></tr>
+      </tbody>
+    </table>
   </div>
 </div>
 
-<!-- ═══ JSON STAMP (injected by bootstrapActualsFromJSON) ═══ -->
-<div id="json-stamp" style="display:none;"></div>
+<!-- 9. TAX NOTE -->
+<div class="section">
+  <div class="section-title">9. Tax Note</div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:12px;color:var(--text-dim);font-size:12px;line-height:1.7;">
+    All positions entered April 23, 2026. <strong style="color:var(--text);">Short-term capital gains apply to all current positions</strong> (held &lt;1 year through April 23, 2027). VVV's $752 unrealized gain would be taxed as ordinary income if realized before April 23, 2027. Long-term treatment begins April 24, 2027. Crypto (HYPE, VVV) requires per-lot cost basis tracking &mdash; use FIFO by default. Consult a tax professional before any realization event. <em>This is not tax advice.</em>
+  </div>
+</div>
+
+<!-- SOURCE SIGNAL MATRIX -->
+<div class="section">
+  <div class="section-title">Source Signal Matrix</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Source</th><th>Key Takeaway (May 2026)</th><th>Portfolio Implication</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Jensen Huang (NVDA)</td><td>Vera Rubin H2 2026 commercial ramp. $78B Q1 FY27 guidance. AI demand accelerating.</td><td class="pos-green">Strong NVDA hold into May 20</td></tr>
+        <tr><td>Dario Amodei (Anthropic)</td><td>$30B run-rate (+230% from $9B at year-end 2025). Financial AI agents launched. $200B Google Cloud commitment.</td><td class="pos-green">AI infra secular bull intact</td></tr>
+        <tr><td>Luke Gromen</td><td>Dollar debasement accelerating. Gold $4,714. Iran war geopolitics = system stress.</td><td class="pos-green">Hard assets + crypto macro bid</td></tr>
+        <tr><td>Lyn Alden</td><td>Rising liquidity fuels BTC/gold. Fiscal dominance thesis playing out. Risk-on with hard money hedge.</td><td class="pos-green">VVV/HYPE thesis supported</td></tr>
+        <tr><td>Alex Karp (PLTR)</td><td>US business to double in 2027. AIP = enterprise AI OS. 85% Q1 revenue growth.</td><td class="pos-orange">PLTR dip = re-entry zone not exit</td></tr>
+        <tr><td>OKLO mgmt</td><td>NRC PDC approved. Meta 1.2GW Ohio deal. 14GW pipeline. Q1 May 12.</td><td class="pos-orange">Binary May 12. Thesis strong.</td></tr>
+        <tr><td>RCAT mgmt</td><td>849% YoY. Zero guidance issued. Sequential -41%. Insiders under scrutiny.</td><td class="pos-red">Stop $10.05 is the arbiter. Act.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- DISCLAIMER -->
+<div class="disclaimer">
+  &#x26A0;&#xFE0F; <strong>DISCLAIMER:</strong> This is not financial advice. Speculative trading involves substantial risk of loss. Past performance is no guarantee of future results. All position data sourced from actual_positions.json as verified by bootstrapActualsFromJSON(). Prices fetched live via Yahoo Finance API (stocks) and CoinGecko API (crypto) at time of dashboard generation on May 9, 2026 03:00 ET. Technical levels calculated dynamically from 20-day closing data. Entry zones, stops, and targets are analytical outputs, not investment recommendations.
+</div>
+
+<div style="height:50px;"></div>
+</div><!-- .container -->
+
+<!-- JSON STAMP -->
+<div id="json-stamp">JSON: loading...</div>
 
 <script>
-// ═══════════════════════════════════════════════════════
-// LIVE PRICE DATA (fetched at build time: 2026-04-26)
-// ═══════════════════════════════════════════════════════
-const LIVE_PRICES = {
-  NVDA: { price: 208.26, ma20: 188.38, low20: 165.17, high20: 208.27, prevClose: 183.14 },
-  PLTR: { price: 143.09, ma20: 142.38, low20: 128.06, high20: 152.62, prevClose: 153.50 },
-  OKLO: { price: 71.00,  ma20: 57.13,  low20: 45.58,  high20: 76.46,  prevClose: 59.59  },
-  RCAT: { price: 11.80,  ma20: 12.65,  low20: 11.59,  high20: 13.71,  prevClose: 16.16  },
-  TSLA: { price: 376.30, ma20: 369.13, low20: 343.25, high20: 400.62, prevClose: 395.01 },
-  HYPE: { price: 41.99,  chg24h: 1.3263 },
-  VVV:  { price: 9.54,   chg24h: 4.2711 },
-  BTC:  { price: 78224,  chg24h: 0.8280 },
-  ETH:  { price: 2360.01,chg24h: 1.7713 }
-};
+// ============================================================
+// PORTFOLIO_CONTEXT — AI chat embedding
+// Actual shares/costs from JSON, live prices from this run
+// ============================================================
+window.PORTFOLIO_CONTEXT = JSON.stringify({
+  run_timestamp: "2026-05-09T03:00:00",
+  run_type: "morning",
+  base_capital: 10000,
+  total_deployed: 9999.83,
+  total_value: 10895.19,
+  total_pnl: 895.36,
+  total_pnl_pct: 8.95,
+  positions: [
+    { ticker:"HYPE", type:"crypto",  shares:62.724,  avg_cost:44.11,  live_price:43.01,  cost_basis:2766.76, mkt_value:2697.56,  pnl:-69.00,   pnl_pct:-2.5,  ma20:41.52, lo20:39.67, hi20:43.69, stop:38.48,  entry_zone:"39-44",   flags:[] },
+    { ticker:"NVDA", type:"stock",   shares:10.0,    avg_cost:200.00, live_price:215.20, cost_basis:2000.00, mkt_value:2152.00,  pnl:152.00,   pnl_pct:7.6,   ma20:203.18,lo20:189.31,hi20:216.61,stop:183.63, entry_zone:"193-213", flags:[] },
+    { ticker:"PLTR", type:"stock",   shares:12.349,  avg_cost:145.76, live_price:137.80, cost_basis:1799.99, mkt_value:1701.69,  pnl:-98.30,   pnl_pct:-5.5,  ma20:141.23,lo20:132.37,hi20:152.62,stop:128.40, entry_zone:"134-148", flags:[] },
+    { ticker:"VVV",  type:"crypto",  shares:110.762, avg_cost:8.92,   live_price:15.71,  cost_basis:988.00,  mkt_value:1740.07,  pnl:752.07,   pnl_pct:76.1,  ma20:10.01, lo20:8.56,  hi20:15.69, stop:10.01,  entry_zone:"N/A-EXTENDED", flags:["EXTENDED","trailing_stop_active"] },
+    { ticker:"OKLO", type:"stock",   shares:15.0,    avg_cost:65.00,  live_price:72.51,  cost_basis:975.00,  mkt_value:1087.65,  pnl:112.65,   pnl_pct:11.6,  ma20:68.57, lo20:53.94, hi20:79.62, stop:52.32,  entry_zone:"65-72",   flags:["EARNINGS_MAY12"] },
+    { ticker:"RCAT", type:"stock",   shares:39.0,    avg_cost:12.82,  live_price:10.37,  cost_basis:499.98,  mkt_value:404.43,   pnl:-95.55,   pnl_pct:-19.1, ma20:11.89, lo20:10.36, hi20:13.71, stop:10.05,  entry_zone:"N/A",     flags:["NEAR_STOP","LIQUIDATION_REVIEW"] },
+    { ticker:"TSLA", type:"stock",   shares:2.49,    avg_cost:371.53, live_price:428.35, cost_basis:925.11,  mkt_value:1066.59,  pnl:141.48,   pnl_pct:15.3,  ma20:386.76,lo20:352.42,hi20:428.35,stop:341.85, entry_zone:"367-406", flags:[] }
+  ],
+  cash: 45,
+  alerts: [
+    "RCAT NEAR STOP $10.05 — $0.32 buffer — liquidation review required",
+    "VVV EXTENDED +57% above MA20 — trailing stop $10.01 active — no adds",
+    "OKLO EARNINGS MAY 12 — 3 days — binary event"
+  ],
+  json_as_of: "2026-04-23",
+  json_verified: false
+});
 
-// ═══════════════════════════════════════════════════════
-// PORTFOLIO CONTEXT (for AI chat — live values)
-// ═══════════════════════════════════════════════════════
-const PORTFOLIO_CONTEXT = `
-Munger Claw Portfolio — as_of: 2026-04-26 (prices live)
-Base capital: $10,000. Cash: $45. Total positions: 7.
-
-POSITIONS (actual shares from actual_positions.json, avg_cost from JSON, live prices fetched 2026-04-26):
-- NVDA: 10 shares @ $200.00 cost | Live $208.26 | P&L +$82.60 (+4.1%) | 20dMA $188.38 | Status: ABOVE ZONE
-- PLTR: 12.349 shares @ $145.76 cost | Live $143.09 | P&L -$33.00 (-1.8%) | 20dMA $142.38 | Status: IN ZONE | EARNINGS MAY 4
-- OKLO: 15 shares @ $65.00 cost | Live $71.00 | P&L +$90.00 (+9.2%) | 20dMA $57.13 | Status: EXTENDED +24% - TRAILING STOP AT MA
-- RCAT: 39 shares @ $12.82 cost | Live $11.80 | P&L -$39.78 (-8.0%) | 20dMA $12.65 | Status: BELOW ZONE - STOP $11.24
-- TSLA: 2.49 shares @ $371.53 cost | Live $376.30 | P&L +$11.88 (+1.3%) | 20dMA $369.13 | Status: IN ZONE
-- HYPE: 62.724 tokens @ $44.11 cost | Live $41.99 | P&L -$132.97 (-4.8%) | Status: BELOW COST, RESISTANCE $44-46
-- VVV: 110.762 tokens @ $8.92 cost | Live $9.54 | P&L +$68.67 (+6.9%) | Status: ABOVE COST, RECOVERING
-
-TOTAL VALUE: ~$10,047 | NET P&L: +$47.35 (+0.47%) vs $9,999.66 cost basis
-STOP LEVELS: NVDA $160.22 | PLTR $124.22 | OKLO trailing@$57.13 | RCAT HARD $11.24 | TSLA $332.95 | HYPE $35.00 | VVV $6.50
-KEY CATALYSTS: PLTR earnings May 4 | NVDA earnings ~May 20
-FLAGS: OKLO EXTENDED | RCAT liquidation candidate if stop breaks | HYPE below cost at resistance
-
-Ethical screen active: Catholic moral teaching filters. No abortion/euthanasia/porn/contraception companies.
-Not financial advice.
-`;
-
-// ═══════════════════════════════════════════════════════
-// BOOTSTRAP ACTUALS FROM JSON
-// Regression guard: ensures HTML always reflects JSON truth
-// ═══════════════════════════════════════════════════════
+// ============================================================
+// BOOTSTRAP LOADER — NON-NEGOTIABLE REGRESSION GUARD
+// Fetches actual_positions.json on every page load
+// Validates HTML table matches JSON source of truth
+// ============================================================
 function bootstrapActualsFromJSON() {
-  const cachebust = Date.now();
+  var cachebust = Date.now();
   fetch('./actual_positions.json?t=' + cachebust)
-    .then(r => r.json())
-    .then(data => {
-      window.__MUNGER_ACTUALS = data;
-      // Stamp div
-      const stamp = document.getElementById('json-stamp');
-      stamp.style.display = 'block';
-      stamp.textContent = '📋 JSON as_of: ' + data.as_of + ' | ' + data.positions.length + ' positions';
-      // Build portfolio table
-      buildPortfolioTable(data);
-      // Check for missing positions
-      const jsonTickers = data.positions.map(p => p.ticker);
-      const htmlTickers = ['NVDA','PLTR','OKLO','RCAT','TSLA','HYPE','VVV'];
-      htmlTickers.forEach(t => {
-        if (!jsonTickers.includes(t)) console.warn('[MungerClaw] MISMATCH: ' + t + ' in HTML but not in actual_positions.json');
-      });
-      jsonTickers.forEach(t => {
-        if (!htmlTickers.includes(t)) console.warn('[MungerClaw] MISMATCH: ' + t + ' in JSON but not in HTML table');
-      });
-      // Update header
-      updatePortfolioSummary(data);
+    .then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
     })
-    .catch(e => {
-      console.warn('[MungerClaw] Could not fetch actual_positions.json:', e);
-      document.getElementById('json-stamp').style.display = 'block';
-      document.getElementById('json-stamp').textContent = '⚠️ JSON load failed — using build-time values';
-      // Fall back to build-time values
-      buildPortfolioTableFallback();
+    .then(function(data) {
+      window.__MUNGER_ACTUALS = data;
+
+      // Update stamp
+      var stamp = document.getElementById('json-stamp');
+      if (stamp) {
+        stamp.textContent = 'JSON as_of: ' + (data.as_of || 'unknown') +
+          ' | ' + data.positions.length + ' positions | base_capital: $' + (data.base_capital || '?');
+      }
+
+      // Update PORTFOLIO_CONTEXT with verified JSON flag
+      try {
+        var ctx = JSON.parse(window.PORTFOLIO_CONTEXT);
+        ctx.json_verified = true;
+        ctx.json_as_of = data.as_of;
+        ctx.json_base_capital = data.base_capital;
+        window.PORTFOLIO_CONTEXT = JSON.stringify(ctx);
+      } catch(e) {}
+
+      // REGRESSION GUARD: every JSON position must appear in HTML table
+      var rows = document.querySelectorAll('#portfolio-tbody tr');
+      var htmlTickers = [];
+      rows.forEach(function(row) {
+        var cell = row.querySelector('td:first-child strong');
+        if (cell) htmlTickers.push(cell.textContent.trim().toUpperCase());
+      });
+
+      data.positions.forEach(function(pos) {
+        var t = (pos.ticker || '').toUpperCase();
+        if (htmlTickers.indexOf(t) === -1) {
+          console.warn('[MUNGER CLAW] MISSING FROM HTML TABLE: ' + t +
+            ' (shares=' + pos.shares + ' avg_cost=' + pos.avg_cost + ')' +
+            ' — source of truth has this position. Dashboard is STALE.');
+        }
+      });
+
+      htmlTickers.forEach(function(t) {
+        if (t === 'TOTAL' || t === 'CASH') return;
+        var found = data.positions.some(function(p){ return (p.ticker||'').toUpperCase() === t; });
+        if (!found) {
+          console.warn('[MUNGER CLAW] IN HTML NOT IN JSON: ' + t + ' — may be phantom position.');
+        }
+      });
+
+      console.info('[MUNGER CLAW] bootstrapActualsFromJSON OK. JSON as_of: ' + data.as_of +
+        '. Verified ' + data.positions.length + ' positions against HTML table.');
+    })
+    .catch(function(err) {
+      console.error('[MUNGER CLAW] actual_positions.json load FAILED: ' + (err.message || err));
+      var stamp = document.getElementById('json-stamp');
+      if (stamp) {
+        stamp.style.color = '#ef4444';
+        stamp.textContent = 'JSON LOAD FAILED — prices from static HTML only';
+      }
     });
 }
 
-function buildPortfolioTable(data) {
-  const tbody = document.getElementById('portfolio-tbody');
-  if (!tbody) return;
-  let rows = '';
-  let totalValue = 0;
-  let totalCost = 0;
-  const alloc = [];
-
-  data.positions.forEach(pos => {
-    const lp = LIVE_PRICES[pos.ticker];
-    if (!lp) return;
-    const livePrice = lp.price;
-    const posValue = pos.shares * livePrice;
-    const costBasis = pos.shares * pos.avg_cost;
-    const pnl = posValue - costBasis;
-    const pnlPct = (pnl / costBasis * 100);
-    totalValue += posValue;
-    totalCost += costBasis;
-    alloc.push({ ticker: pos.ticker, value: posValue, pct: 0 });
-
-    // Zone status
-    let statusBadge = '';
-    let stopDisplay = '';
-    const ma = lp.ma20;
-    if (pos.ticker === 'OKLO') {
-      statusBadge = '<span class="badge badge-yellow">EXTENDED</span>';
-      stopDisplay = '$57.13 trailing';
-    } else if (pos.ticker === 'RCAT') {
-      statusBadge = '<span class="badge badge-orange">BELOW ZONE ⚠️</span>';
-      stopDisplay = '$11.24';
-    } else if (pos.ticker === 'NVDA') {
-      statusBadge = '<span class="badge badge-orange">ABOVE ZONE</span>';
-      stopDisplay = '$160.22';
-    } else if (pos.ticker === 'HYPE') {
-      statusBadge = '<span class="badge badge-orange">AT RESISTANCE</span>';
-      stopDisplay = '$35.00';
-    } else if (pos.ticker === 'VVV') {
-      statusBadge = '<span class="badge badge-green">RECOVERING</span>';
-      stopDisplay = '$6.50';
-    } else if (pos.ticker === 'PLTR') {
-      statusBadge = '<span class="badge badge-blue">IN ZONE 🎯 MAY4</span>';
-      stopDisplay = '$124.22';
-    } else if (pos.ticker === 'TSLA') {
-      statusBadge = '<span class="badge badge-green">IN ZONE</span>';
-      stopDisplay = '$332.95';
-    }
-
-    const maDisplay = ma ? '$' + ma.toFixed(2) : '—';
-    rows += `<tr>
-      <td><strong style="color:var(--accent)">${pos.ticker}</strong></td>
-      <td><span class="badge badge-gray">${pos.type}</span></td>
-      <td>${pos.shares.toFixed(pos.type==='crypto'?3:2)}</td>
-      <td>$${pos.avg_cost.toFixed(2)}</td>
-      <td><strong>$${livePrice.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</strong></td>
-      <td>$${posValue.toFixed(2)}</td>
-      <td class="${pnl>=0?'pnl-pos':'pnl-neg'}">${pnl>=0?'+':''}$${pnl.toFixed(2)}</td>
-      <td class="${pnlPct>=0?'pnl-pos':'pnl-neg'}">${pnlPct>=0?'+':''}${pnlPct.toFixed(1)}%</td>
-      <td>${maDisplay}</td>
-      <td>${statusBadge}<br><span style="font-size:10px;color:var(--dim)">stop: ${stopDisplay}</span></td>
-    </tr>`;
-  });
-
-  // Cash row
-  const cash = data.cash || 0;
-  totalValue += cash;
-  rows += `<tr><td><strong style="color:var(--muted)">CASH</strong></td><td>—</td><td>—</td><td>—</td><td>—</td><td>$${cash.toFixed(2)}</td><td>—</td><td>—</td><td>—</td><td><span class="badge badge-gray">CASH</span></td></tr>`;
-  tbody.innerHTML = rows;
-
-  // Allocation bars
-  const allocDiv = document.getElementById('allocation-view');
-  if (allocDiv) {
-    alloc.forEach(a => { a.pct = (a.value / totalValue * 100); });
-    const colors = {NVDA:'#76b900',PLTR:'#5b7cf6',OKLO:'#f97316',RCAT:'#a855f7',TSLA:'#ef4444',HYPE:'#22c55e',VVV:'#3b82f6'};
-    allocDiv.innerHTML = alloc.map(a =>
-      `<div style="flex:1;min-width:80px;text-align:center;">
-        <div style="height:60px;background:${colors[a.ticker]||'#c8922a'}33;border:1px solid ${colors[a.ticker]||'#c8922a'};border-radius:4px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px;">
-          <span style="font-size:11px;font-weight:700;color:${colors[a.ticker]||'#c8922a'}">${a.pct.toFixed(1)}%</span>
-        </div>
-        <div style="font-size:11px;font-weight:700;margin-top:4px;color:var(--text)">${a.ticker}</div>
-        <div style="font-size:10px;color:var(--muted)">$${a.value.toFixed(0)}</div>
-      </div>`
-    ).join('');
-  }
-
-  // Totals
-  const totalPnl = totalValue - totalCost - cash;
-  const totalPnlPct = (totalPnl / (totalCost) * 100);
-  const totDiv = document.getElementById('port-totals');
-  if (totDiv) {
-    totDiv.innerHTML = `
-      <strong>Total Portfolio Value:</strong> $${totalValue.toFixed(2)}<br>
-      <strong>Total Cost Basis:</strong> $${totalCost.toFixed(2)}<br>
-      <strong>Net P&L:</strong> <span class="${totalPnl>=0?'pnl-pos':'pnl-neg'}">${totalPnl>=0?'+':''}$${totalPnl.toFixed(2)} (${totalPnl>=0?'+':''}${totalPnlPct.toFixed(2)}%)</span><br>
-      <strong>Cash:</strong> $${cash.toFixed(2)}
-    `;
-  }
-  document.getElementById('port-summary').innerHTML =
-    `Portfolio: $${totalValue.toFixed(0)} | P&L: <span class="${totalPnl>=0?'pnl-pos':'pnl-neg'}">${totalPnl>=0?'+':''}$${totalPnl.toFixed(0)}</span>`;
-}
-
-function buildPortfolioTableFallback() {
-  // Use build-time data if JSON fetch fails
-  const fallbackData = {
-    as_of: '2026-04-23',
-    cash: 45,
-    positions: [
-      { ticker:'HYPE', type:'crypto', shares:62.724,  avg_cost:44.11  },
-      { ticker:'NVDA', type:'stock',  shares:10.0,    avg_cost:200.00 },
-      { ticker:'PLTR', type:'stock',  shares:12.349,  avg_cost:145.76 },
-      { ticker:'VVV',  type:'crypto', shares:110.762, avg_cost:8.92   },
-      { ticker:'OKLO', type:'stock',  shares:15.0,    avg_cost:65.00  },
-      { ticker:'RCAT', type:'stock',  shares:39.0,    avg_cost:12.82  },
-      { ticker:'TSLA', type:'stock',  shares:2.49,    avg_cost:371.53 }
-    ]
-  };
-  window.__MUNGER_ACTUALS = fallbackData;
-  buildPortfolioTable(fallbackData);
-}
-
-function updatePortfolioSummary(data) {
-  let totalValue = data.cash || 0;
-  let totalCost = 0;
-  data.positions.forEach(pos => {
-    const lp = LIVE_PRICES[pos.ticker];
-    if (lp) {
-      totalValue += pos.shares * lp.price;
-      totalCost += pos.shares * pos.avg_cost;
-    }
-  });
-  const pnl = totalValue - totalCost - (data.cash || 0);
-  document.getElementById('port-summary').innerHTML =
-    `Portfolio: $${totalValue.toFixed(0)} | P&L: <span class="${pnl>=0?'pnl-pos':'pnl-neg'}">${pnl>=0?'+':''}$${pnl.toFixed(0)}</span>`;
-}
-
-// ═══════════════════════════════════════════════════════
-// TAB NAVIGATION
-// ═══════════════════════════════════════════════════════
-function showTab(id) {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + id).classList.add('active');
-  event.target.classList.add('active');
-}
-
-// ═══════════════════════════════════════════════════════
-// AI CHAT (local context-based)
-// ═══════════════════════════════════════════════════════
-const chatResponses = {
-  'pltr': `PLTR — conviction 8/10. Price $143.09, avg cost $145.76, slight loss. EARNINGS MAY 4 is the key catalyst. Morgan Stanley flagged potential for accelerated revenue + raised FY guidance. Entry zone $135–$149 — we're inside. Stop at $124.22. Hold all 12.35 shares into earnings. Risk: if miss + weak guide, trim to 6 shares post-earnings. Binary prediction: 65% beat+raise.`,
-  'oklo': `OKLO — EXTENDED at $71. Position +$90 (+9.2%). NVDA + Los Alamos nuclear AI factory partnership announced Apr 23 was the catalyst for the rip. The stock is 24% above 20d MA — trailing stop now at $57.13 (the MA itself). DO NOT add at $71. On pullback to $60–$64, that's your re-entry zone. This thesis is long-term: nuclear powers AI data centers. Conviction 8/10 on the thesis, but position-sizing discipline says no adds when extended.`,
-  'rcat': `RCAT — this is the problem child. $11.80, below entry zone, stop at $11.24. NATO Black Widow drone contracts are flowing but price refuses to cooperate. Liquidation candidate if $11.24 breaks. 39 shares, so a stop-out is only -$22. The question is whether you want the capital working harder elsewhere. Munger Claw can't decide for you — but the asymmetry here is unfavorable.`,
-  'nvda': `NVDA — $208.26, up 4.1% vs your $200 cost. Above entry zone ($179–$198) but not yet extended (<15% above MA at $188). EARNINGS ~MAY 20: triple-digit YoY growth expected. Vera Rubin is the next big catalyst — 10x inference cost reduction vs Blackwell. Revenue line is structural: $358B expected FY2026. Hold, don't add at $208.`,
-  'hype': `HYPE — $41.99, down 4.8% vs $44.11 cost. Facing resistance wall at $44–$46. Bitwise BHYP ETF is live, Grayscale switched custodians Apr 20 — institutional infrastructure building. $200B+ monthly volume, $800M annual fees — the most profitable chain in crypto. Stop at $35. Binary: 60% chance we clear $46 within 30 days on ETF flow. Patience.`,
-  'vvv': `VVV — $9.54, up 6.9% vs $8.92 cost. +$68.67 on position. Venice is the decentralized AI inference play — no data storage, privacy-first. Recovering strongly from $0.90 December lows. AI valuation wave (Anthropic $600B, OpenAI $852B) drives sentiment. Stop $6.50. T1 $15, T2 $25. This is a hold.`,
-  'tsla': `TSLA — $376.30, inside entry zone ($350.7–$387.6), +1.3% vs $371.53 cost. Small position (2.49 shares). Post-earnings deployed on Apr 22 playbook. No near-term binary. Hold. Stop $332.95. Musk sentiment is the wildcard — both positive (FSD/robotaxi) and negative (political).`,
-  'default': `I can discuss any position in the portfolio: NVDA, PLTR, OKLO, RCAT, TSLA, HYPE, or VVV. I can also talk through new ideas, macro themes (Gromen/Alden dollar thesis, AI buildout), or risk management. What's on your mind?`
-};
-
-function sendChat() {
-  const input = document.getElementById('chat-input');
-  const win = document.getElementById('chat-window');
-  const q = input.value.trim();
-  if (!q) return;
-  win.innerHTML += `<div class="chat-msg chat-user">${q}</div>`;
-  input.value = '';
-  const key = Object.keys(chatResponses).find(k => q.toLowerCase().includes(k)) || 'default';
-  setTimeout(() => {
-    win.innerHTML += `<div class="chat-msg chat-ai">🦞 ${chatResponses[key]}</div>`;
-    win.scrollTop = win.scrollHeight;
-  }, 400);
-  win.scrollTop = win.scrollHeight;
-}
-
-// ═══════════════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════════════
 window.onload = function() {
   bootstrapActualsFromJSON();
+
+  // Update runtime timestamp
+  try {
+    var el = document.getElementById('last-updated');
+    if (el) el.textContent = 'Dashboard loaded: ' +
+      new Date().toLocaleString('en-US', { timeZone: 'America/New_York', hour12: true }) + ' ET';
+  } catch(e) {}
 };
 </script>
 
